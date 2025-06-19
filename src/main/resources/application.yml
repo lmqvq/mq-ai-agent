@@ -3,6 +3,11 @@ spring:
     name: mq-ai-agent
   profiles:
     active: local
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/mq_ai_agent
+    username: root
+    password: 123456
 server:
   port: 8123
   servlet:
@@ -24,3 +29,12 @@ knife4j:
   enable: true
   setting:
     language: zh_cn
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: isDelete # 全局逻辑删除的实体字段名
+      logic-delete-value: 1 # 逻辑已删除值（默认为 1）
+      logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
