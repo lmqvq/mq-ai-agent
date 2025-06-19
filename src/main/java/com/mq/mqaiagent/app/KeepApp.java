@@ -2,6 +2,7 @@ package com.mq.mqaiagent.app;
 
 import com.mq.mqaiagent.advisor.ForbiddenWordAdvisor;
 import com.mq.mqaiagent.advisor.MyLoggerAdvisor;
+import com.mq.mqaiagent.chatmemory.FileBasedChatMemory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
@@ -42,8 +43,11 @@ public class KeepApp {
      * @param dashscopeChatModel
      */
     public KeepApp(ChatModel dashscopeChatModel) {
+        // 初始化基于文件的对话记忆
+        String fileDir = System.getProperty("user.dir") + "/tmp/chat-memory";
+        ChatMemory chatMemory = new FileBasedChatMemory(fileDir);
         // 初始化基于内存的对话记忆
-        ChatMemory chatMemory = new InMemoryChatMemory();
+        // ChatMemory chatMemory = new InMemoryChatMemory();
         chatClient = ChatClient.builder(dashscopeChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultAdvisors(
