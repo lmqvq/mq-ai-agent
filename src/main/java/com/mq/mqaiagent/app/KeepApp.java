@@ -1,5 +1,6 @@
 package com.mq.mqaiagent.app;
 
+import com.mq.mqaiagent.advisor.ForbiddenWordAdvisor;
 import com.mq.mqaiagent.advisor.MyLoggerAdvisor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -49,6 +50,8 @@ public class KeepApp {
                         new MessageChatMemoryAdvisor(chatMemory),
                         // 自定义日志 Advisor，可按需开启
                         new MyLoggerAdvisor()
+                        // 自定义违禁词 Advisor
+                        ,new ForbiddenWordAdvisor()
                         // 自定义推理增强 Advisor，可按需开启
                         // new ReReadingAdvisor()
                 )

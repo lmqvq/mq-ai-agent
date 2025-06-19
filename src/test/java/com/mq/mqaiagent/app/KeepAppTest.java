@@ -1,6 +1,7 @@
 package com.mq.mqaiagent.app;
 
 import cn.hutool.core.lang.UUID;
+import com.mq.mqaiagent.advisor.ForbiddenWordAdvisor;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -37,6 +38,12 @@ class KeepAppTest {
         message = "我在哪方面遇到了一些问题，你知道吗？";
         answer = keepApp.doChat(message, chatId);
         Assertions.assertNotNull(answer);
+        // 包含违禁词输入测试，验证是否抛出异常
+        String prohibitedMessage = "自拍";
+        Assertions.assertThrows(
+                ForbiddenWordAdvisor.ProhibitedWordException.class, () -> keepApp.doChat(prohibitedMessage, chatId),
+                "Expected ProhibitedWordException for prohibited message"
+        );
     }
 
     @Test
