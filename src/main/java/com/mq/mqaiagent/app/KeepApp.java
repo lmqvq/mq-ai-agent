@@ -1,5 +1,6 @@
 package com.mq.mqaiagent.app;
 
+import com.mq.mqaiagent.advisor.MyLoggerAdvisor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
@@ -44,7 +45,9 @@ public class KeepApp {
         chatClient = ChatClient.builder(dashscopeChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultAdvisors(
-                        new MessageChatMemoryAdvisor(chatMemory)
+                        new MessageChatMemoryAdvisor(chatMemory),
+                        // 自定义日志 Advisor，可按需开启
+                        new MyLoggerAdvisor()
                 )
                 .build();
     }
