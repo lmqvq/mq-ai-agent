@@ -48,6 +48,8 @@ public class KeepApp {
                         new MessageChatMemoryAdvisor(chatMemory),
                         // 自定义日志 Advisor，可按需开启
                         new MyLoggerAdvisor()
+                        // 自定义推理增强 Advisor，可按需开启
+                        // new ReReadingAdvisor()
                 )
                 .build();
     }
