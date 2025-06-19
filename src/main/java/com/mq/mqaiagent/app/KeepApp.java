@@ -11,6 +11,7 @@ import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Component;
 
 
+import java.util.List;
 
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_RETRIEVE_SIZE_KEY;
@@ -73,5 +74,29 @@ public class KeepApp {
         String content = chatResponse.getResult().getOutput().getText();
         log.info("content: {}", content);
         return content;
+    }
+
+    // 定义 KeepReport 的 record，包含 title 和 suggestions 列表
+    record KeepReport(String title, List<String> suggestions) {
+    }
+
+    /**
+     * AI 基础对话（支持多轮对话记忆），并生成健身报告
+     *
+     * @param message
+     * @param chatId
+     * @return
+     */
+    public KeepReport doChatWithReport(String message, String chatId) {
+        KeepReport loveReport = chatClient
+                .prompt()
+                .system(SYSTEM_PROMPT + "每次对话后都要生成健身结果，标题为{用户名}的健身报告，内容为建议列表")
+                .user(message)
+                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .call()
+                .entity(KeepReport.class);
+        log.info("loveReport: {}", loveReport);
+        return loveReport;
     }
 }

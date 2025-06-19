@@ -38,4 +38,12 @@ class KeepAppTest {
         answer = keepApp.doChat(message, chatId);
         Assertions.assertNotNull(answer);
     }
+
+    @Test
+    void doChatWithReport() {
+        String chatId = UUID.randomUUID().toString();
+        String message = "我是LMQ，我想通过健身来增肌，请你给我一些健身的建议";
+        String answer = String.valueOf(keepApp.doChatWithReport(message, chatId));
+        Assertions.assertNotNull(answer);
+    }
 }
