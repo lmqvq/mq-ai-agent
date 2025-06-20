@@ -53,4 +53,12 @@ class KeepAppTest {
         String answer = String.valueOf(keepApp.doChatWithReport(message, chatId));
         Assertions.assertNotNull(answer);
     }
+
+    @Test
+    void doChatWithRag() {
+        String chatId = UUID.randomUUID().toString();
+        String message = "如何避免肩部撞击？";
+        String answer = String.valueOf(keepApp.doChatWithReport(message, chatId));
+        Assertions.assertNotNull(answer);
+    }
 }

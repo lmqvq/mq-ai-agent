@@ -2,21 +2,23 @@ package com.mq.mqaiagent.app;
 
 import com.mq.mqaiagent.advisor.ForbiddenWordAdvisor;
 import com.mq.mqaiagent.advisor.MyLoggerAdvisor;
-import com.mq.mqaiagent.chatmemory.DatabaseChatMemory;
-import com.mq.mqaiagent.chatmemory.FileBasedChatMemory;
-import com.mq.mqaiagent.mapper.KeepReportMapper;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
+import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 
 
 import java.util.List;
 
+import static com.mq.mqaiagent.constant.AiConstant.SYSTEM_PROMPT;
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_RETRIEVE_SIZE_KEY;
 
@@ -35,43 +37,17 @@ public class KeepApp {
 
     private final ChatClient chatClient;
 
-    private static final String SYSTEM_PROMPT = "你是一位ACE认证的专业健身教练，拥有运动生理学、营养学和损伤预防知识。" +
-            "你正在为客户提供一对一健身咨询，需通过深入对话发掘用户真实需求。" +
-            "对话中优先使用引导性问题，避免预设结论，任何建议需基于用户提供的具体信息。";
-
-//    /**
-//     * 初始化 ChatClient
-//     *
-//     * @param dashscopeChatModel
-//     */
-//    public KeepApp(ChatModel dashscopeChatModel) {
-//        // 初始化基于文件的对话记忆
-//        // String fileDir = System.getProperty("user.dir") + "/tmp/chat-memory";
-//        // ChatMemory chatMemory = new FileBasedChatMemory(fileDir);
-//        // 初始化基于内存的对话记忆
-//        ChatMemory chatMemory = new InMemoryChatMemory();
-//        chatClient = ChatClient.builder(dashscopeChatModel)
-//                .defaultSystem(SYSTEM_PROMPT)
-//                .defaultAdvisors(
-//                        new MessageChatMemoryAdvisor(chatMemory),
-//                        // 自定义日志 Advisor，可按需开启
-//                        new MyLoggerAdvisor()
-//                        // 自定义违禁词 Advisor
-//                        ,new ForbiddenWordAdvisor()
-//                        // 自定义推理增强 Advisor，可按需开启
-//                        // new ReReadingAdvisor()
-//                )
-//                .build();
-//    }
-
     /**
      * 初始化 ChatClient
      *
      * @param dashscopeChatModel
      */
-    public KeepApp(ChatModel dashscopeChatModel, KeepReportMapper keepReportMapper) {
-        // 初始化基于数据库的对话记忆
-        DatabaseChatMemory chatMemory = new DatabaseChatMemory(keepReportMapper);
+    public KeepApp(ChatModel dashscopeChatModel) {
+        // 初始化基于文件的对话记忆
+        // String fileDir = System.getProperty("user.dir") + "/tmp/chat-memory";
+        // ChatMemory chatMemory = new FileBasedChatMemory(fileDir);
+        // 初始化基于内存的对话记忆
+        ChatMemory chatMemory = new InMemoryChatMemory();
         chatClient = ChatClient.builder(dashscopeChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultAdvisors(
@@ -85,6 +61,28 @@ public class KeepApp {
                 )
                 .build();
     }
+
+//    /**
+//     * 初始化 ChatClient
+//     *
+//     * @param dashscopeChatModel
+//     */
+//    public KeepApp(ChatModel dashscopeChatModel, KeepReportMapper keepReportMapper) {
+//        // 初始化基于数据库的对话记忆
+//        DatabaseChatMemory chatMemory = new DatabaseChatMemory(keepReportMapper);
+//        chatClient = ChatClient.builder(dashscopeChatModel)
+//                .defaultSystem(SYSTEM_PROMPT)
+//                .defaultAdvisors(
+//                        new MessageChatMemoryAdvisor(chatMemory),
+//                        // 自定义日志 Advisor，可按需开启
+//                        new MyLoggerAdvisor()
+//                        // 自定义违禁词 Advisor
+//                        ,new ForbiddenWordAdvisor()
+//                        // 自定义推理增强 Advisor，可按需开启
+//                        // new ReReadingAdvisor()
+//                )
+//                .build();
+//    }
 
     /**
      * AI 基础对话（支持多轮对话记忆）
@@ -128,5 +126,30 @@ public class KeepApp {
                 .entity(KeepReport.class);
         log.info("loveReport: {}", loveReport);
         return loveReport;
+    }
+
+    @Resource
+    private VectorStore keepAppVectorStore;
+
+    @Resource
+    private Advisor KeepAppRagCloudAdvisor;
+
+    public String doChatWithRag(String message, String chatId) {
+        ChatResponse chatResponse = chatClient
+                .prompt()
+                .user(message)
+                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                // 开启日志，便于观察效果
+                .advisors(new MyLoggerAdvisor())
+                // 应用知识库问答
+                // .advisors(new QuestionAnswerAdvisor(keepAppVectorStore))
+                // 应用增强检索服务（云知识库服务）
+                .advisors(KeepAppRagCloudAdvisor)
+                .call()
+                .chatResponse();
+        String content = chatResponse.getResult().getOutput().getText();
+        log.info("content: {}", content);
+        return content;
     }
 }
