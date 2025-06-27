@@ -61,4 +61,28 @@ class KeepAppTest {
         String answer = String.valueOf(keepApp.doChatWithReport(message, chatId));
         Assertions.assertNotNull(answer);
     }
+
+    @Test
+    void doChatWithTools() {
+        // 测试联网搜索问题的答案
+        testMessage("如何避免肩部撞击？");
+
+        // 测试网页抓取：健身案例分析
+        testMessage("最近我想通过健身来增肌，请你帮我找找如何科学的增肌？https://xiaolincoding.com/");
+
+        // 测试资源下载：图片下载
+        testMessage("帮我下载一张布布一二图片为文件");
+
+        // 测试文件操作：保存用户档案
+        testMessage("保存我的健身计划为文件");
+
+        // 测试 PDF 生成
+        testMessage("生成一份‘增肌健身计划’PDF，包含健身项目、健身动作和健身方式");
+    }
+
+    private void testMessage(String message) {
+        String chatId = UUID.randomUUID().toString();
+        String answer = keepApp.doChatWithTools(message, chatId);
+        Assertions.assertNotNull(answer);
+    }
 }

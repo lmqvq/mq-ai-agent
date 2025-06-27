@@ -12,6 +12,7 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 
@@ -85,7 +86,7 @@ public class KeepApp {
 //    }
 
     /**
-     * AI 基础对话（支持多轮对话记忆）
+     * KeepAPP 基础对话（支持多轮对话记忆）
      *
      * @param message
      * @param chatId
@@ -109,7 +110,7 @@ public class KeepApp {
     }
 
     /**
-     * AI 基础对话（支持多轮对话记忆），并生成健身报告
+     * KeepAPP 基础对话（支持多轮对话记忆），并生成健身报告
      *
      * @param message
      * @param chatId
@@ -128,6 +129,9 @@ public class KeepApp {
         return loveReport;
     }
 
+    /**
+     * KeepApp 使用 RAG 知识库问答
+     */
     @Resource
     private VectorStore keepAppVectorStore;
 
@@ -149,6 +153,28 @@ public class KeepApp {
                 .call()
                 .chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
+        log.info("content: {}", content);
+        return content;
+    }
+
+    /**
+     * KeepApp 使用工具
+     */
+    @Resource
+    private ToolCallback[] allTools;
+
+    public String doChatWithTools(String message, String chatId) {
+        ChatResponse response = chatClient
+                .prompt()
+                .user(message)
+                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                // 开启日志，便于观察效果
+                .advisors(new MyLoggerAdvisor())
+                .tools(allTools)
+                .call()
+                .chatResponse();
+        String content = response.getResult().getOutput().getText();
         log.info("content: {}", content);
         return content;
     }
