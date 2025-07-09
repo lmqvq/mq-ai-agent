@@ -29,13 +29,15 @@ public class ToolRegistration {
         ResourceDownloadTool resourceDownloadTool = new ResourceDownloadTool();
         PDFGenerationTool pdfGenerationTool = new PDFGenerationTool();
         GoogleWebSearchTool googleWebSearchTool = new GoogleWebSearchTool(searchApiKey);
+        TerminateTool terminateTool = new TerminateTool();
         return ToolCallbacks.from(
                 fileOperationTool,
                 webSearchTool,
                 webCrawlingTool,
                 resourceDownloadTool,
                 pdfGenerationTool,
-                googleWebSearchTool
+                googleWebSearchTool,
+                terminateTool
         );
     }
 }
