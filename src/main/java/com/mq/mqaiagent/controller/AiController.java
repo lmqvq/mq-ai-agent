@@ -111,7 +111,7 @@ public class AiController {
      */
     @GetMapping("/manus/chat")
     public SseEmitter doChatWithManus(String message) {
-        MqManus yuManus = new MqManus(allTools, dashscopeChatModel);
-        return yuManus.runStream(message);
+        MqManus mqManus = new MqManus(allTools, dashscopeChatModel);
+        return mqManus.runStream(message);
     }
 }

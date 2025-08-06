@@ -28,6 +28,11 @@
     </scm>
     <properties>
         <java.version>21</java.version>
+        <!-- 添加Lombok版本属性 -->
+        <lombok.version>1.18.36</lombok.version>
+        <!-- 添加编译器版本属性 -->
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
     </properties>
     <dependencies>
         <dependency>
@@ -38,8 +43,9 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.36</version>
+            <version>${lombok.version}</version>
             <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
         <!-- Hutool -->
         <dependency>
@@ -83,7 +89,7 @@
             <artifactId>kryo</artifactId>
             <version>5.6.2</version>
         </dependency>
-        <!-- MySQL 相关       -->
+        <!-- MySQL 相关 -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
@@ -104,7 +110,7 @@
             <artifactId>fastjson2</artifactId>
             <version>2.0.57</version>
         </dependency>
-        <!-- Markdown 文档读取       -->
+        <!-- Markdown 文档读取 -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-markdown-document-reader</artifactId>
@@ -139,18 +145,27 @@
 
     <build>
         <plugins>
+            <!-- 修改1：指定编译器插件版本并添加完整配置 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version> <!-- 兼容旧版Maven的版本 -->
                 <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+
+                    <!-- 修复Lombok版本缺失问题 -->
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+
+            <!-- 修改2：修复spring-boot-maven-plugin配置 -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -159,6 +174,7 @@
                         <exclude>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
+                            <!-- 移除版本号，exclude不需要版本 -->
                         </exclude>
                     </excludes>
                 </configuration>
@@ -166,7 +182,21 @@
         </plugins>
     </build>
 
+    <!-- 修改3：添加中央仓库配置 -->
     <repositories>
+        <!-- 添加中央仓库 -->
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+
+        <!-- 保留原有的Spring Milestones仓库 -->
         <repository>
             <id>spring-milestones</id>
             <name>Spring Milestones</name>
@@ -176,5 +206,4 @@
             </snapshots>
         </repository>
     </repositories>
-
 </project>

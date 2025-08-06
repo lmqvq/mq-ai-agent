@@ -31,7 +31,7 @@ public class DatabaseChatMemory implements ChatMemory {
     /**
      * 构造函数，初始化 KeepReportMapper。
      *
-     * @param KeepReportMapper 恋爱报告数据库操作 Mapper
+     * @param KeepReportMapper 健身报告数据库操作 Mapper
      */
     public DatabaseChatMemory(com.mq.mqaiagent.mapper.KeepReportMapper KeepReportMapper) {
         this.KeepReportMapper = KeepReportMapper;
