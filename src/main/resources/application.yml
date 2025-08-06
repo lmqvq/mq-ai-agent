@@ -8,6 +8,11 @@ spring:
     url: jdbc:mysql://localhost:3306/mq_ai_agent
     username: root
     password: 123456
+  session:
+    # todo 取消注释开启分布式 session（须先配置 Redis）
+    # store-type: redis
+    # 30 天过期
+    timeout: 2592000
 server:
   port: 8123
   servlet:
