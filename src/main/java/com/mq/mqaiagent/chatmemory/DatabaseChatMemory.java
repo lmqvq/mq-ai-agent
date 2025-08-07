@@ -27,6 +27,7 @@ import java.util.*;
 public class DatabaseChatMemory implements ChatMemory {
 
     private final com.mq.mqaiagent.mapper.KeepReportMapper KeepReportMapper;
+    private Long currentUserId; // 当前用户ID
 
     /**
      * 构造函数，初始化 KeepReportMapper。
@@ -38,6 +39,15 @@ public class DatabaseChatMemory implements ChatMemory {
     }
 
     /**
+     * 设置当前用户ID
+     *
+     * @param userId 用户ID
+     */
+    public void setCurrentUserId(Long userId) {
+        this.currentUserId = userId;
+    }
+
+    /**
      * 向指定对话 ID 的记忆中添加消息列表。
      * 会将新消息追加到现有消息列表末尾，并持久化到数据库。
      *
@@ -46,12 +56,34 @@ public class DatabaseChatMemory implements ChatMemory {
      */
     @Override
     public void add(String conversationId, List<Message> messages) {
+        if (currentUserId != null) {
+            // 如果设置了用户ID，使用支持用户ID的方法
+            add(conversationId, currentUserId, messages);
+        } else {
+            // 获取当前对话的完整历史记录
+            List<Message> conversationMessages = getOrCreateConversation(conversationId);
+            // 将新消息添加到历史记录末尾
+            conversationMessages.addAll(messages);
+            // 保存更新后的完整对话历史
+            saveConversation(conversationId, conversationMessages);
+        }
+    }
+
+    /**
+     * 向指定对话 ID 的记忆中添加消息列表（支持用户ID）。
+     * 会将新消息追加到现有消息列表末尾，并持久化到数据库。
+     *
+     * @param conversationId 对话的唯一标识符。
+     * @param userId         用户ID。
+     * @param messages       要添加的消息列表。
+     */
+    public void add(String conversationId, Long userId, List<Message> messages) {
         // 获取当前对话的完整历史记录
-        List<Message> conversationMessages = getOrCreateConversation(conversationId);
+        List<Message> conversationMessages = getOrCreateConversation(conversationId, userId);
         // 将新消息添加到历史记录末尾
         conversationMessages.addAll(messages);
         // 保存更新后的完整对话历史
-        saveConversation(conversationId, conversationMessages);
+        saveConversation(conversationId, userId, conversationMessages);
     }
 
     /**
@@ -65,8 +97,39 @@ public class DatabaseChatMemory implements ChatMemory {
      */
     @Override
     public List<Message> get(String conversationId, int lastN) {
+        if (currentUserId != null) {
+            // 如果设置了用户ID，使用支持用户ID的方法
+            return get(conversationId, currentUserId, lastN);
+        } else {
+            // 获取完整的对话历史
+            List<Message> allMessages = getOrCreateConversation(conversationId);
+            if (allMessages.isEmpty()) {
+                // 对话为空，返回空列表
+                return allMessages;
+            }
+            // 计算需要跳过的消息数量
+            int skipCount = Math.max(0, allMessages.size() - lastN);
+            return allMessages.stream()
+                    // 跳过前面的消息
+                    .skip(skipCount)
+                    // 返回最后 N 条消息
+                    .toList();
+        }
+    }
+
+    /**
+     * 获取指定对话 ID 的最近 N 条消息（支持用户ID）。
+     * 如果请求的消息数量 N 大于等于实际消息总数，则返回所有消息。
+     * 如果对话不存在或为空，则返回空列表。
+     *
+     * @param conversationId 对话的唯一标识符。
+     * @param userId         用户ID。
+     * @param lastN          要获取的最近消息的数量。
+     * @return 包含最近 N 条消息的列表，按时间顺序排列（旧 -> 新）。
+     */
+    public List<Message> get(String conversationId, Long userId, int lastN) {
         // 获取完整的对话历史
-        List<Message> allMessages = getOrCreateConversation(conversationId);
+        List<Message> allMessages = getOrCreateConversation(conversationId, userId);
         if (allMessages.isEmpty()) {
             // 对话为空，返回空列表
             return allMessages;
@@ -90,7 +153,7 @@ public class DatabaseChatMemory implements ChatMemory {
         try {
             // 构建查询条件
             LambdaQueryWrapper<KeepReport> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(KeepReport::getChat_id, getSafeConversationId(conversationId));
+            queryWrapper.eq(KeepReport::getChatId, getSafeConversationId(conversationId));
 
             // 删除对应的记录
             int deletedRows = KeepReportMapper.delete(queryWrapper);
@@ -116,7 +179,7 @@ public class DatabaseChatMemory implements ChatMemory {
         try {
             // 构建查询条件
             LambdaQueryWrapper<KeepReport> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(KeepReport::getChat_id, safeConversationId);
+            queryWrapper.eq(KeepReport::getChatId, safeConversationId);
 
             // 查询数据库
             KeepReport loveReport = KeepReportMapper.selectOne(queryWrapper);
@@ -143,6 +206,46 @@ public class DatabaseChatMemory implements ChatMemory {
     }
 
     /**
+     * 获取或创建指定对话 ID 的消息列表（支持用户ID）。
+     * 如果对应的记录存在，则从中反序列化消息列表；否则，返回一个新的空列表。
+     *
+     * @param conversationId 对话的唯一标识符。
+     * @param userId         用户ID。
+     * @return 对话的消息列表。如果反序列化失败或记录不存在，则返回空列表。
+     */
+    private List<Message> getOrCreateConversation(String conversationId, Long userId) {
+        String safeConversationId = getSafeConversationId(conversationId);
+        try {
+            // 构建查询条件
+            LambdaQueryWrapper<KeepReport> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(KeepReport::getChatId, safeConversationId)
+                    .eq(KeepReport::getUserId, userId);
+
+            // 查询数据库
+            KeepReport keepReport = KeepReportMapper.selectOne(queryWrapper);
+
+            if (keepReport != null && keepReport.getMessages() != null && !keepReport.getMessages().isBlank()) {
+                // 从数据库记录中反序列化完整的消息列表
+                try {
+                    // 解析存储的简化消息格式
+                    return deserializeMessages(keepReport.getMessages());
+                } catch (Exception e) {
+                    log.error("反序列化对话消息失败，对话ID: {}, 用户ID: {}, 错误: {}", safeConversationId, userId, e.getMessage(), e);
+                    // 反序列化失败，可能数据已损坏，返回空列表
+                    return new ArrayList<>();
+                }
+            } else {
+                log.debug("未找到对话记录或消息为空，对话ID: {}, 用户ID: {}", safeConversationId, userId);
+            }
+        } catch (Exception e) {
+            log.error("获取对话记录失败，对话ID: {}, 用户ID: {}, 错误: {}", safeConversationId, userId, e.getMessage(), e);
+        }
+
+        // 如果记录不存在或发生异常，返回新的空列表
+        return new ArrayList<>();
+    }
+
+    /**
      * 将指定对话的完整消息列表序列化并保存到数据库。
      * 会覆盖之前的记录。
      *
@@ -157,7 +260,7 @@ public class DatabaseChatMemory implements ChatMemory {
 
             // 构建查询条件
             LambdaQueryWrapper<KeepReport> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(KeepReport::getChat_id, safeConversationId);
+            queryWrapper.eq(KeepReport::getChatId, safeConversationId);
 
             // 查询数据库中是否已存在该对话的记录
             KeepReport existingReport = KeepReportMapper.selectOne(queryWrapper);
@@ -174,7 +277,7 @@ public class DatabaseChatMemory implements ChatMemory {
             } else {
                 // 创建新记录
                 KeepReport newReport = KeepReport.builder()
-                        .chat_id(safeConversationId)
+                        .chatId(safeConversationId)
                         .createTime(new Date())
                         .updateTime(new Date())
                         // 存储序列化后的完整消息列表
@@ -193,8 +296,87 @@ public class DatabaseChatMemory implements ChatMemory {
     }
 
     /**
+     * 将指定对话的完整消息列表序列化并保存到数据库（支持用户ID）。
+     * 会覆盖之前的记录。
+     *
+     * @param conversationId 对话的唯一标识符。
+     * @param userId         用户ID。
+     * @param messages       要保存的完整消息列表。
+     */
+    private void saveConversation(String conversationId, Long userId, List<Message> messages) {
+        String safeConversationId = getSafeConversationId(conversationId);
+        try {
+            // 将消息列表转换为简化的JSON格式
+            String messagesJson = serializeMessages(messages);
+
+            // 获取最后一条消息内容用于列表展示
+            String lastMessage = getLastMessageContent(messages);
+
+            // 构建查询条件
+            LambdaQueryWrapper<KeepReport> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(KeepReport::getChatId, safeConversationId)
+                    .eq(KeepReport::getUserId, userId);
+
+            // 查询数据库中是否已存在该对话的记录
+            KeepReport existingReport = KeepReportMapper.selectOne(queryWrapper);
+
+            if (existingReport != null) {
+                // 更新现有记录的 messages 和 lastMessage 字段
+                existingReport.setMessages(messagesJson);
+                existingReport.setLastMessage(lastMessage);
+                int updatedRows = KeepReportMapper.updateById(existingReport);
+                if (updatedRows > 0) {
+                    log.debug("成功更新对话记录: {}, 用户ID: {}", safeConversationId, userId);
+                } else {
+                    log.warn("更新对话记录失败（可能已被删除）: {}, 用户ID: {}", safeConversationId, userId);
+                }
+            } else {
+                // 创建新记录
+                KeepReport newReport = KeepReport.builder()
+                        .chatId(safeConversationId)
+                        .userId(userId)
+                        .createTime(new Date())
+                        .updateTime(new Date())
+                        // 存储序列化后的完整消息列表
+                        .messages(messagesJson)
+                        .lastMessage(lastMessage)
+                        .build();
+                int insertedRows = KeepReportMapper.insert(newReport);
+                if (insertedRows > 0) {
+                    log.debug("成功插入新对话记录: {}, 用户ID: {}", safeConversationId, userId);
+                } else {
+                    log.error("插入新对话记录失败: {}, 用户ID: {}", safeConversationId, userId);
+                }
+            }
+        } catch (Exception e) {
+            log.error("保存对话记录失败，对话ID: {}, 用户ID: {}, 错误: {}", safeConversationId, userId, e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 获取最后一条消息的内容用于列表展示
+     *
+     * @param messages 消息列表
+     * @return 最后一条消息的内容，如果为空则返回默认文本
+     */
+    private String getLastMessageContent(List<Message> messages) {
+        if (messages == null || messages.isEmpty()) {
+            return "暂无消息";
+        }
+
+        Message lastMessage = messages.get(messages.size() - 1);
+        String content = lastMessage.getText();
+
+        // 如果内容过长，截取前200个字符
+        if (content != null && content.length() > 200) {
+            return content.substring(0, 200) + "...";
+        }
+
+        return content != null ? content : "暂无消息";
+    }
+
+    /**
      * 处理对话 ID，确保其可以安全地用作数据库记录的聊天ID。
-     * 将对话 ID 加上 "chat_" 前缀，并替换掉不安全的字符。
      *
      * @param conversationId 原始对话的唯一标识符。
      * @return 处理后的安全对话 ID，例如 "chat_your_conversation_id"。
@@ -205,8 +387,15 @@ public class DatabaseChatMemory implements ChatMemory {
             log.warn("接收到空的 conversationId，将使用默认值 'default_chat'");
             conversationId = "default_chat";
         }
+
         // 替换掉不安全的字符，保留字母、数字、下划线和连字符
         String sanitizedId = conversationId.replaceAll("[^a-zA-Z0-9\\-_]", "_");
+
+        // 检查是否已经以 "chat_" 开头，如果是则直接返回，避免重复添加前缀
+        if (sanitizedId.startsWith("chat_")) {
+            return sanitizedId;
+        }
+
         // 添加前缀以避免潜在的冲突或保留字问题
         return "chat_" + sanitizedId;
     }

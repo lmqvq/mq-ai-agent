@@ -6,7 +6,7 @@
 
     <resultMap id="BaseResultMap" type="com.mq.mqaiagent.model.KeepReport">
             <id property="id" column="id" jdbcType="BIGINT"/>
-            <result property="chat_id" column="chat_id" jdbcType="VARCHAR"/>
+            <result property="chatId" column="chatId" jdbcType="VARCHAR"/>
             <result property="messages" column="messages" jdbcType="VARCHAR"/>
             <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
             <result property="editTime" column="editTime" jdbcType="TIMESTAMP"/>
@@ -15,7 +15,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,chat_id,messages,
+        id,chatId,messages,
         createTime,editTime,updateTime,
         isDelete
     </sql>

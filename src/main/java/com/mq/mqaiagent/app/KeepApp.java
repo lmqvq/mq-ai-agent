@@ -19,7 +19,6 @@ import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
-
 import java.util.List;
 
 import static com.mq.mqaiagent.constant.AiConstant.SYSTEM_PROMPT;
@@ -39,159 +38,227 @@ import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvis
 @Slf4j
 public class KeepApp {
 
-    private final ChatClient chatClient;
+        private final ChatClient chatClient;
+        private final ChatModel dashscopeChatModel;
+        private final KeepReportMapper keepReportMapper;
 
-//    /**
-//     * 初始化 ChatClient
-//     *
-//     * @param dashscopeChatModel
-//     */
-//    public KeepApp(ChatModel dashscopeChatModel) {
-//        // 初始化基于文件的对话记忆
-//        // String fileDir = System.getProperty("user.dir") + "/tmp/chat-memory";
-//        // ChatMemory chatMemory = new FileBasedChatMemory(fileDir);
-//        // 初始化基于内存的对话记忆
-//        ChatMemory chatMemory = new InMemoryChatMemory();
-//        chatClient = ChatClient.builder(dashscopeChatModel)
-//                .defaultSystem(SYSTEM_PROMPT)
-//                .defaultAdvisors(
-//                        new MessageChatMemoryAdvisor(chatMemory),
-//                        // 自定义日志 Advisor，可按需开启
-//                        new MyLoggerAdvisor()
-//                        // 自定义违禁词 Advisor
-//                        ,new ForbiddenWordAdvisor()
-//                        // 自定义推理增强 Advisor，可按需开启
-//                        // new ReReadingAdvisor()
-//                )
-//                .build();
-//    }
+        // /**
+        // * 初始化 ChatClient
+        // *
+        // * @param dashscopeChatModel
+        // */
+        // public KeepApp(ChatModel dashscopeChatModel) {
+        // // 初始化基于文件的对话记忆
+        // // String fileDir = System.getProperty("user.dir") + "/tmp/chat-memory";
+        // // ChatMemory chatMemory = new FileBasedChatMemory(fileDir);
+        // // 初始化基于内存的对话记忆
+        // ChatMemory chatMemory = new InMemoryChatMemory();
+        // chatClient = ChatClient.builder(dashscopeChatModel)
+        // .defaultSystem(SYSTEM_PROMPT)
+        // .defaultAdvisors(
+        // new MessageChatMemoryAdvisor(chatMemory),
+        // // 自定义日志 Advisor，可按需开启
+        // new MyLoggerAdvisor()
+        // // 自定义违禁词 Advisor
+        // ,new ForbiddenWordAdvisor()
+        // // 自定义推理增强 Advisor，可按需开启
+        // // new ReReadingAdvisor()
+        // )
+        // .build();
+        // }
 
-    /**
-     * 初始化 ChatClient
-     *
-     * @param dashscopeChatModel
-     */
-    public KeepApp(ChatModel dashscopeChatModel, KeepReportMapper keepReportMapper) {
-        // 初始化基于数据库的对话记忆
-        DatabaseChatMemory chatMemory = new DatabaseChatMemory(keepReportMapper);
-        chatClient = ChatClient.builder(dashscopeChatModel)
-                .defaultSystem(SYSTEM_PROMPT)
-                .defaultAdvisors(
-                        new MessageChatMemoryAdvisor(chatMemory),
-                        // 自定义日志 Advisor，可按需开启
-                        new MyLoggerAdvisor()
-                        // 自定义违禁词 Advisor
-//                        ,new ForbiddenWordAdvisor()
-                        // 自定义推理增强 Advisor，可按需开启
-                        // new ReReadingAdvisor()
-                )
-                .build();
-    }
+        /**
+         * 初始化 ChatClient
+         *
+         * @param dashscopeChatModel
+         */
+        public KeepApp(ChatModel dashscopeChatModel, KeepReportMapper keepReportMapper) {
+                this.dashscopeChatModel = dashscopeChatModel;
+                this.keepReportMapper = keepReportMapper;
 
-    /**
-     * KeepAPP 基础对话（支持多轮对话记忆）
-     *
-     * @param message
-     * @param chatId
-     * @return
-     */
-    public String doChat(String message, String chatId) {
-        ChatResponse chatResponse = chatClient
-                .prompt()
-                .user(message)
-                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
-                .call()
-                .chatResponse();
-        String content = chatResponse.getResult().getOutput().getText();
-        log.info("content: {}", content);
-        return content;
-    }
+                // 初始化基于数据库的对话记忆
+                DatabaseChatMemory chatMemory = new DatabaseChatMemory(keepReportMapper);
+                chatClient = ChatClient.builder(dashscopeChatModel)
+                                .defaultSystem(SYSTEM_PROMPT)
+                                .defaultAdvisors(
+                                                new MessageChatMemoryAdvisor(chatMemory),
+                                                // 自定义日志 Advisor，可按需开启
+                                                new MyLoggerAdvisor()
+                                // 自定义违禁词 Advisor
+                                // ,new ForbiddenWordAdvisor()
+                                // 自定义推理增强 Advisor，可按需开启
+                                // new ReReadingAdvisor()
+                                )
+                                .build();
+        }
 
-    // 定义 KeepReport 的 record，包含 title 和 suggestions 列表
-    record KeepReport(String title, List<String> suggestions) {
-    }
+        /**
+         * KeepAPP 基础对话（支持多轮对话记忆）
+         *
+         * @param message
+         * @param chatId
+         * @return
+         */
+        public String doChat(String message, String chatId) {
+                ChatResponse chatResponse = chatClient
+                                .prompt()
+                                .user(message)
+                                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                                                .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                                .call()
+                                .chatResponse();
+                String content = chatResponse.getResult().getOutput().getText();
+                log.info("content: {}", content);
+                return content;
+        }
 
-    /**
-     * KeepAPP 基础对话（支持多轮对话记忆），并生成健身报告
-     *
-     * @param message
-     * @param chatId
-     * @return
-     */
-    public KeepReport doChatWithReport(String message, String chatId) {
-        KeepReport loveReport = chatClient
-                .prompt()
-                .system(SYSTEM_PROMPT + "每次对话后都要生成健身结果，标题为{用户名}的健身报告，内容为建议列表")
-                .user(message)
-                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
-                .call()
-                .entity(KeepReport.class);
-        log.info("loveReport: {}", loveReport);
-        return loveReport;
-    }
+        /**
+         * KeepAPP 基础对话（支持多轮对话记忆和用户ID）
+         *
+         * @param message
+         * @param chatId
+         * @param userId
+         * @return
+         */
+        public String doChat(String message, String chatId, Long userId) {
+                // 使用支持userId的DatabaseChatMemory
+                DatabaseChatMemory chatMemory = new DatabaseChatMemory(keepReportMapper);
+                // 设置当前用户ID
+                chatMemory.setCurrentUserId(userId);
 
-    /**
-     * KeepApp 使用 RAG 知识库问答
-     */
-    @Resource
-    private VectorStore keepAppVectorStore;
+                ChatClient userChatClient = ChatClient.builder(dashscopeChatModel)
+                                .defaultSystem(SYSTEM_PROMPT)
+                                .defaultAdvisors(
+                                                new MessageChatMemoryAdvisor(chatMemory),
+                                                new MyLoggerAdvisor())
+                                .build();
 
-    @Resource
-    private Advisor KeepAppRagCloudAdvisor;
+                ChatResponse chatResponse = userChatClient
+                                .prompt()
+                                .user(message)
+                                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                                                .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                                .call()
+                                .chatResponse();
+                String content = chatResponse.getResult().getOutput().getText();
+                log.info("content: {}", content);
+                return content;
+        }
 
-    public String doChatWithRag(String message, String chatId) {
-        ChatResponse chatResponse = chatClient
-                .prompt()
-                .user(message)
-                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
-                // 开启日志，便于观察效果
-                .advisors(new MyLoggerAdvisor())
-                // 应用知识库问答
-                // .advisors(new QuestionAnswerAdvisor(keepAppVectorStore))
-                // 应用增强检索服务（云知识库服务）
-                .advisors(KeepAppRagCloudAdvisor)
-                .call()
-                .chatResponse();
-        String content = chatResponse.getResult().getOutput().getText();
-        log.info("content: {}", content);
-        return content;
-    }
+        // 定义 KeepReport 的 record，包含 title 和 suggestions 列表
+        record KeepReport(String title, List<String> suggestions) {
+        }
 
-    /**
-     * KeepApp 使用工具
-     */
-    @Resource
-    private ToolCallback[] allTools;
+        /**
+         * KeepAPP 基础对话（支持多轮对话记忆），并生成健身报告
+         *
+         * @param message
+         * @param chatId
+         * @return
+         */
+        public KeepReport doChatWithReport(String message, String chatId) {
+                KeepReport loveReport = chatClient
+                                .prompt()
+                                .system(SYSTEM_PROMPT + "每次对话后都要生成健身结果，标题为{用户名}的健身报告，内容为建议列表")
+                                .user(message)
+                                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                                                .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                                .call()
+                                .entity(KeepReport.class);
+                log.info("loveReport: {}", loveReport);
+                return loveReport;
+        }
 
-    public String doChatWithTools(String message, String chatId) {
-        ChatResponse response = chatClient
-                .prompt()
-                .user(message)
-                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
-                // 开启日志，便于观察效果
-                .advisors(new MyLoggerAdvisor())
-                .tools(allTools)
-                .call()
-                .chatResponse();
-        String content = response.getResult().getOutput().getText();
-        log.info("content: {}", content);
-        return content;
-    }
+        /**
+         * KeepApp 使用 RAG 知识库问答
+         */
+        @Resource
+        private VectorStore keepAppVectorStore;
 
-    /**
-     * KeepApp 使用流式对话
-     */
-    public Flux<String> doChatByStream(String message, String chatId) {
-        return chatClient
-                .prompt()
-                .user(message)
-                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
-                .stream()
-                .content();
-    }
+        @Resource
+        private Advisor KeepAppRagCloudAdvisor;
+
+        public String doChatWithRag(String message, String chatId) {
+                ChatResponse chatResponse = chatClient
+                                .prompt()
+                                .user(message)
+                                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                                                .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                                // 开启日志，便于观察效果
+                                .advisors(new MyLoggerAdvisor())
+                                // 应用知识库问答
+                                // .advisors(new QuestionAnswerAdvisor(keepAppVectorStore))
+                                // 应用增强检索服务（云知识库服务）
+                                .advisors(KeepAppRagCloudAdvisor)
+                                .call()
+                                .chatResponse();
+                String content = chatResponse.getResult().getOutput().getText();
+                log.info("content: {}", content);
+                return content;
+        }
+
+        /**
+         * KeepApp 使用工具
+         */
+        @Resource
+        private ToolCallback[] allTools;
+
+        public String doChatWithTools(String message, String chatId) {
+                ChatResponse response = chatClient
+                                .prompt()
+                                .user(message)
+                                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                                                .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                                // 开启日志，便于观察效果
+                                .advisors(new MyLoggerAdvisor())
+                                .tools(allTools)
+                                .call()
+                                .chatResponse();
+                String content = response.getResult().getOutput().getText();
+                log.info("content: {}", content);
+                return content;
+        }
+
+        /**
+         * KeepApp 使用流式对话
+         */
+        public Flux<String> doChatByStream(String message, String chatId) {
+                return chatClient
+                                .prompt()
+                                .user(message)
+                                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                                                .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                                .stream()
+                                .content();
+        }
+
+        /**
+         * KeepApp 使用流式对话（支持用户ID）
+         *
+         * @param message 用户消息
+         * @param chatId  对话ID
+         * @param userId  用户ID
+         * @return 流式响应
+         */
+        public Flux<String> doChatByStream(String message, String chatId, Long userId) {
+                // 使用支持userId的DatabaseChatMemory
+                DatabaseChatMemory chatMemory = new DatabaseChatMemory(keepReportMapper);
+                // 设置当前用户ID
+                chatMemory.setCurrentUserId(userId);
+
+                ChatClient userChatClient = ChatClient.builder(dashscopeChatModel)
+                                .defaultSystem(SYSTEM_PROMPT)
+                                .defaultAdvisors(
+                                                new MessageChatMemoryAdvisor(chatMemory),
+                                                new MyLoggerAdvisor())
+                                .build();
+
+                return userChatClient
+                                .prompt()
+                                .user(message)
+                                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                                                .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                                .stream()
+                                .content();
+        }
 }
