@@ -1,6 +1,8 @@
 package com.mq.mqaiagent.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -8,6 +10,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mq.mqaiagent.common.ErrorCode;
 import com.mq.mqaiagent.constant.CommonConstant;
 import com.mq.mqaiagent.exception.BusinessException;
+import com.mq.mqaiagent.exception.ThrowUtils;
+import com.mq.mqaiagent.manager.CosManager;
 import com.mq.mqaiagent.mapper.UserMapper;
 import com.mq.mqaiagent.model.dto.UserQueryRequest;
 import com.mq.mqaiagent.model.entity.User;
@@ -16,14 +20,19 @@ import com.mq.mqaiagent.model.vo.LoginUserVO;
 import com.mq.mqaiagent.model.vo.UserVO;
 import com.mq.mqaiagent.service.UserService;
 import com.mq.mqaiagent.utils.SqlUtils;
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,6 +48,11 @@ import static com.mq.mqaiagent.constant.UserConstant.USER_LOGIN_STATE;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     implements UserService{
 
+    @Value("${cos.client.bucket-url:}")
+    private String bucketUrl;
+
+    @Resource
+    private CosManager cosManager;
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
         // 1. 校验
@@ -220,6 +234,82 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public boolean isAdmin(User user) {
         return user != null && UserRoleEnum.ADMIN.getValue().equals(user.getUserRole());
     }
+
+    /**
+     * 上传用户头像
+     *
+     * @param file    文件
+     * @param request 请求
+     * @return 头像URL
+     */
+    @Override
+    public String uploadAvatar(MultipartFile file, HttpServletRequest request) {
+        User loginUser = getLoginUser(request);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
+        // 校验文件
+        long fileSize = file.getSize();
+        String originalFilename = file.getOriginalFilename();
+        // 校验文件大小
+        final long ONE_MB = 1024 * 1024L;
+        ThrowUtils.throwIf(fileSize > 2 * ONE_MB, ErrorCode.PARAMS_ERROR, "文件大小不能超过 2M");
+        // 校验文件后缀
+        String suffix = FileUtil.getSuffix(originalFilename);
+        final List<String> validFileSuffixList = Arrays.asList("png", "jpg", "jpeg", "gif", "svg");
+        ThrowUtils.throwIf(!validFileSuffixList.contains(suffix), ErrorCode.PARAMS_ERROR, "文件类型错误");
+        // 生成文件名
+        String uuid = IdUtil.simpleUUID();
+        String filename = uuid + "-" + originalFilename;
+        // 生成存储路径：doj_avatars/userid/uuid-filename
+        String filepath = String.format("ai_agent_avatars/%s/%s", loginUser.getId(), filename);
+        File tempFile = null;
+        try {
+            // 上传到腾讯云
+            tempFile = File.createTempFile(uuid, suffix);
+            file.transferTo(tempFile);
+            cosManager.putObject(filepath, tempFile);
+            // 返回可访问地址
+            String avatarUrl = bucketUrl + "/" + filepath;
+            // 更新用户头像
+            boolean result = updateUserAvatar(avatarUrl, request);
+            ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "更新头像失败");
+            return avatarUrl;
+        } catch (Exception e) {
+            log.error("文件上传失败，" + e.getMessage(), e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传失败");
+        } finally {
+            if (tempFile != null) {
+                // 清理临时文件
+                boolean delete = tempFile.delete();
+                if (!delete) {
+                    log.error("临时文件删除失败，文件路径：{}", tempFile.getAbsolutePath());
+                }
+            }
+        }
+    }
+
+    /**
+     * 更新用户头像
+     *
+     * @param avatarUrl 头像URL
+     * @param request   请求信息
+     * @return 是否成功
+     */
+    @Override
+    public boolean updateUserAvatar(String avatarUrl, HttpServletRequest request) {
+        User loginUser = getLoginUser(request);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
+        User user = new User();
+        user.setId(loginUser.getId());
+        user.setUserAvatar(avatarUrl);
+        boolean result = this.updateById(user);
+        // 更新登录用户缓存
+        if (result) {
+            loginUser.setUserAvatar(avatarUrl);
+            request.getSession().setAttribute(USER_LOGIN_STATE, loginUser);
+        }
+        return result;
+    }
+
 }
 
 

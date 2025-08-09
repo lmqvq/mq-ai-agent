@@ -8,6 +8,11 @@ spring:
     url: jdbc:mysql://localhost:3306/mq_ai_agent
     username: root
     password: 123456
+  # 文件上传
+  servlet:
+    multipart:
+      # 大小限制
+      max-file-size: 10MB
   session:
     # todo 取消注释开启分布式 session（须先配置 Redis）
     # store-type: redis
@@ -46,3 +51,12 @@ mybatis-plus:
 # searchApi
 search-api:
   api-key: 你的 API Key
+# 对象存储
+# todo 需替换配置
+cos:
+  client:
+    accessKey: xxxxxx
+    secretKey: xxxxxx
+    region: xxxxxx
+    bucket: xxxxxx
+    bucket-url: xxxxxx

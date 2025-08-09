@@ -7,6 +7,7 @@ import com.mq.mqaiagent.model.entity.User;
 import com.mq.mqaiagent.model.vo.LoginUserVO;
 import com.mq.mqaiagent.model.vo.UserVO;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -108,4 +109,22 @@ public interface UserService extends IService<User> {
      * @return
      */
     boolean isAdmin(User user);
+
+    /**
+     * 用户上传头像
+     *
+     * @param file    头像文件
+     * @param request 请求信息
+     * @return 头像访问URL
+     */
+    String uploadAvatar(MultipartFile file, HttpServletRequest request);
+
+    /**
+     * 更新用户头像
+     *
+     * @param avatarUrl 头像URL
+     * @param request   请求信息
+     * @return 是否成功
+     */
+    boolean updateUserAvatar(String avatarUrl, HttpServletRequest request);
 }

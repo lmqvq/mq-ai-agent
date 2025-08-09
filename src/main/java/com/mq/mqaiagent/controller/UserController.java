@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -267,6 +268,35 @@ public class UserController {
         user.setId(loginUser.getId());
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
+    }
+
+    /**
+     * 上传用户头像
+     *
+     * @param file    头像文件
+     * @param request 请求
+     * @return 头像URL
+     */
+    @PostMapping("/avatar/upload")
+    public BaseResponse<String> uploadAvatar(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+        ThrowUtils.throwIf(file == null, ErrorCode.PARAMS_ERROR, "文件不能为空");
+        String avatarUrl = userService.uploadAvatar(file, request);
+        return ResultUtils.success(avatarUrl);
+    }
+
+    /**
+     * 更新用户头像
+     *
+     * @param avatarUrl 头像URL
+     * @param request   请求
+     * @return 是否成功
+     */
+    @PostMapping("/avatar/update")
+    public BaseResponse<Boolean> updateAvatar(@RequestParam("avatarUrl") String avatarUrl, HttpServletRequest request) {
+        ThrowUtils.throwIf(StringUtils.isBlank(avatarUrl), ErrorCode.PARAMS_ERROR, "头像URL不能为空");
+        boolean result = userService.updateUserAvatar(avatarUrl, request);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "更新头像失败");
         return ResultUtils.success(true);
     }
 }
