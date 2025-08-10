@@ -1,4 +1,4 @@
-package com.mq.mqaiagent.c‎onfig;
+package com.mq.mqaiagent.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;

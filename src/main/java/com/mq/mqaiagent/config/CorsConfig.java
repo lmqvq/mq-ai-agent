@@ -1,17 +1,12 @@
-package com.mq.mqaiagent.c‎onfig;
+package com.mq.mqaiagent.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * ClassName：CorsConfig
- * Package:com.mq.mqaiagent.CorsConfig
- * Description: 跨域配置
- * Author：MQQQ
+ * 全局跨域配置 上线时将此文件注释，改用 Nginx 转发代理
  *
- * @Create:2025/7/4 - 1:36
- * @Version:v1.0
  */
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
