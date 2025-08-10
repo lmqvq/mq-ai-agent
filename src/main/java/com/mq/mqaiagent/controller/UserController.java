@@ -9,7 +9,7 @@ import com.mq.mqaiagent.common.ResultUtils;
 import com.mq.mqaiagent.constant.UserConstant;
 import com.mq.mqaiagent.exception.BusinessException;
 import com.mq.mqaiagent.exception.ThrowUtils;
-import com.mq.mqaiagent.model.dto.*;
+import com.mq.mqaiagent.model.dto.user.*;
 import com.mq.mqaiagent.model.entity.User;
 import com.mq.mqaiagent.model.vo.LoginUserVO;
 import com.mq.mqaiagent.model.vo.UserVO;

@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mq.mqaiagent.mapper.KeepReportMapper">
 
-    <resultMap id="BaseResultMap" type="com.mq.mqaiagent.model.KeepReport">
+    <resultMap id="BaseResultMap" type="com.mq.mqaiagent.model.dto.keepReport.KeepReport">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="chatId" column="chatId" jdbcType="VARCHAR"/>
             <result property="messages" column="messages" jdbcType="VARCHAR"/>

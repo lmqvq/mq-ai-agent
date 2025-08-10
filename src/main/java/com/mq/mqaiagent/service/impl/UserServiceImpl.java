@@ -13,7 +13,7 @@ import com.mq.mqaiagent.exception.BusinessException;
 import com.mq.mqaiagent.exception.ThrowUtils;
 import com.mq.mqaiagent.manager.CosManager;
 import com.mq.mqaiagent.mapper.UserMapper;
-import com.mq.mqaiagent.model.dto.UserQueryRequest;
+import com.mq.mqaiagent.model.dto.user.UserQueryRequest;
 import com.mq.mqaiagent.model.entity.User;
 import com.mq.mqaiagent.model.enums.UserRoleEnum;
 import com.mq.mqaiagent.model.vo.LoginUserVO;

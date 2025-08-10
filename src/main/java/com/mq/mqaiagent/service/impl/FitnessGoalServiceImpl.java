@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mq.mqaiagent.common.ErrorCode;
 import com.mq.mqaiagent.exception.ThrowUtils;
 import com.mq.mqaiagent.mapper.FitnessGoalMapper;
-import com.mq.mqaiagent.model.dto.FitnessGoalQueryRequest;
+import com.mq.mqaiagent.model.dto.fitnessGoal.FitnessGoalQueryRequest;
 import com.mq.mqaiagent.model.entity.FitnessGoal;
 import com.mq.mqaiagent.model.vo.FitnessGoalVO;
 import com.mq.mqaiagent.service.FitnessGoalService;

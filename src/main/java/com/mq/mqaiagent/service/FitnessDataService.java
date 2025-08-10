@@ -3,7 +3,7 @@ package com.mq.mqaiagent.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.mq.mqaiagent.model.dto.FitnessDataQueryRequest;
+import com.mq.mqaiagent.model.dto.fitnessData.FitnessDataQueryRequest;
 import com.mq.mqaiagent.model.entity.FitnessData;
 import com.mq.mqaiagent.model.vo.FitnessDataVO;
 

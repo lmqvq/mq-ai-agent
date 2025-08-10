@@ -1,4 +1,4 @@
-package com.mq.mqaiagent.model.dto;
+package com.mq.mqaiagent.model.dto.fitnessGoal;
 
 import lombok.Data;
 
@@ -6,15 +6,10 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 健身目标更新请求
+ * 健身目标添加请求
  */
 @Data
-public class FitnessGoalUpdateRequest implements Serializable {
-
-    /**
-     * id
-     */
-    private Long id;
+public class FitnessGoalAddRequest implements Serializable {
 
     /**
      * 目标类型（增肌、减脂、体态改善等）
@@ -35,16 +30,6 @@ public class FitnessGoalUpdateRequest implements Serializable {
      * 目标结束时间
      */
     private Date endDate;
-
-    /**
-     * 进度记录（JSON格式）
-     */
-    private String progress;
-
-    /**
-     * 是否达成（0-未达成，1-已达成）
-     */
-    private Integer isAchieved;
 
     private static final long serialVersionUID = 1L;
 }

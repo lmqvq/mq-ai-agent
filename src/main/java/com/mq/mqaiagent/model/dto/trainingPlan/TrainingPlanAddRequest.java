@@ -1,4 +1,4 @@
-package com.mq.mqaiagent.model.dto;
+package com.mq.mqaiagent.model.dto.trainingPlan;
 
 import lombok.Data;
 

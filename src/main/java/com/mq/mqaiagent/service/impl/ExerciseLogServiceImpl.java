@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mq.mqaiagent.common.ErrorCode;
 import com.mq.mqaiagent.exception.ThrowUtils;
 import com.mq.mqaiagent.mapper.ExerciseLogMapper;
-import com.mq.mqaiagent.model.dto.ExerciseLogQueryRequest;
+import com.mq.mqaiagent.model.dto.exerciseLog.ExerciseLogQueryRequest;
 import com.mq.mqaiagent.model.entity.ExerciseLog;
 import com.mq.mqaiagent.model.vo.ExerciseLogVO;
 import com.mq.mqaiagent.service.ExerciseLogService;

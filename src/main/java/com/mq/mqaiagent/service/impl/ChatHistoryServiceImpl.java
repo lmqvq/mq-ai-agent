@@ -6,7 +6,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.mq.mqaiagent.mapper.KeepReportMapper;
-import com.mq.mqaiagent.model.KeepReport;
+import com.mq.mqaiagent.model.dto.keepReport.KeepReport;
 import com.mq.mqaiagent.model.dto.ChatHistoryDetailDTO;
 import com.mq.mqaiagent.model.dto.ChatHistoryListDTO;
 import com.mq.mqaiagent.service.ChatHistoryService;

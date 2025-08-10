@@ -1,4 +1,4 @@
-package com.mq.mqaiagent.model.dto;
+package com.mq.mqaiagent.model.dto.fitnessData;
 
 import com.mq.mqaiagent.common.PageRequest;
 import lombok.Data;
@@ -8,21 +8,16 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 运动记录查询请求
+ * 健身数据查询请求
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class ExerciseLogQueryRequest extends PageRequest implements Serializable {
+public class FitnessDataQueryRequest extends PageRequest implements Serializable {
 
     /**
      * 用户id
      */
     private Long userId;
-
-    /**
-     * 运动类型
-     */
-    private String exerciseType;
 
     /**
      * 开始日期

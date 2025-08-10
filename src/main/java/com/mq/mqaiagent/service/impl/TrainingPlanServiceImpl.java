@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mq.mqaiagent.common.ErrorCode;
 import com.mq.mqaiagent.exception.ThrowUtils;
 import com.mq.mqaiagent.mapper.TrainingPlanMapper;
-import com.mq.mqaiagent.model.dto.TrainingPlanQueryRequest;
+import com.mq.mqaiagent.model.dto.trainingPlan.TrainingPlanQueryRequest;
 import com.mq.mqaiagent.model.entity.TrainingPlan;
 import com.mq.mqaiagent.model.vo.TrainingPlanVO;
 import com.mq.mqaiagent.service.TrainingPlanService;

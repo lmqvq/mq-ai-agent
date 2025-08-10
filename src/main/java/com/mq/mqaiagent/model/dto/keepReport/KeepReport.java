@@ -1,4 +1,4 @@
-package com.mq.mqaiagent.model;
+package com.mq.mqaiagent.model.dto.keepReport;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;

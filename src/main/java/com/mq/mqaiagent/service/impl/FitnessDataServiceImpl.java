@@ -6,14 +6,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mq.mqaiagent.common.ErrorCode;
 import com.mq.mqaiagent.exception.ThrowUtils;
 import com.mq.mqaiagent.mapper.FitnessDataMapper;
-import com.mq.mqaiagent.model.dto.FitnessDataQueryRequest;
+import com.mq.mqaiagent.model.dto.fitnessData.FitnessDataQueryRequest;
 import com.mq.mqaiagent.model.entity.FitnessData;
 import com.mq.mqaiagent.model.vo.FitnessDataVO;
 import com.mq.mqaiagent.service.FitnessDataService;
 import com.mq.mqaiagent.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 

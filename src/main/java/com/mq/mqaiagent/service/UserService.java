@@ -2,7 +2,7 @@ package com.mq.mqaiagent.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.mq.mqaiagent.model.dto.UserQueryRequest;
+import com.mq.mqaiagent.model.dto.user.UserQueryRequest;
 import com.mq.mqaiagent.model.entity.User;
 import com.mq.mqaiagent.model.vo.LoginUserVO;
 import com.mq.mqaiagent.model.vo.UserVO;

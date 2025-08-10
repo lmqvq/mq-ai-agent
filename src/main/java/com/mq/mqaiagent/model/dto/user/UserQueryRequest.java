@@ -1,4 +1,4 @@
-package com.mq.mqaiagent.model.dto;
+package com.mq.mqaiagent.model.dto.user;
 
 import com.mq.mqaiagent.common.PageRequest;
 import lombok.Data;
