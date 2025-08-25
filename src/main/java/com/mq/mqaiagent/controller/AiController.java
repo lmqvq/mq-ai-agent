@@ -2,9 +2,11 @@ package com.mq.mqaiagent.controller;
 
 import com.mq.mqaiagent.agent.MqManus;
 import com.mq.mqaiagent.app.KeepApp;
+import com.mq.mqaiagent.chatmemory.CachedDatabaseChatMemory;
 import com.mq.mqaiagent.chatmemory.DatabaseChatMemory;
 import com.mq.mqaiagent.mapper.KeepReportMapper;
 import com.mq.mqaiagent.model.entity.User;
+import com.mq.mqaiagent.service.CacheService;
 import com.mq.mqaiagent.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,6 +49,9 @@ public class AiController {
 
     @Resource
     private KeepReportMapper keepReportMapper;
+
+    @Resource
+    private CacheService cacheService;
 
     /**
      * KeepAPP 基础对话（同步调用）
@@ -174,8 +179,8 @@ public class AiController {
         // 获取当前登录用户
         User currentUser = userService.getLoginUser(request);
 
-        // 创建支持用户ID的DatabaseChatMemory
-        DatabaseChatMemory chatMemory = new DatabaseChatMemory(keepReportMapper);
+        // 创建支持用户ID的CachedDatabaseChatMemory
+        CachedDatabaseChatMemory chatMemory = new CachedDatabaseChatMemory(keepReportMapper, cacheService);
         chatMemory.setCurrentUserId(currentUser.getId());
 
         // 创建带对话记忆的MqManus实例

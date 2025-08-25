@@ -1,8 +1,11 @@
 package com.mq.mqaiagent.app;
 
 import com.mq.mqaiagent.advisor.MyLoggerAdvisor;
+import com.mq.mqaiagent.chatmemory.CachedDatabaseChatMemory;
 import com.mq.mqaiagent.chatmemory.DatabaseChatMemory;
 import com.mq.mqaiagent.mapper.KeepReportMapper;
+import com.mq.mqaiagent.service.AiResponseCacheService;
+import com.mq.mqaiagent.service.CacheService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -37,6 +40,8 @@ public class KeepApp {
         private final ChatClient chatClient;
         private final ChatModel dashscopeChatModel;
         private final KeepReportMapper keepReportMapper;
+        private final CacheService cacheService;
+        private final AiResponseCacheService aiResponseCacheService;
 
         // /**
         // * 初始化 ChatClient
@@ -66,14 +71,20 @@ public class KeepApp {
         /**
          * 初始化 ChatClient
          *
-         * @param dashscopeChatModel
+         * @param dashscopeChatModel     聊天模型
+         * @param keepReportMapper       数据库映射器
+         * @param cacheService           缓存服务
+         * @param aiResponseCacheService AI响应缓存服务
          */
-        public KeepApp(ChatModel dashscopeChatModel, KeepReportMapper keepReportMapper) {
+        public KeepApp(ChatModel dashscopeChatModel, KeepReportMapper keepReportMapper,
+                        CacheService cacheService, AiResponseCacheService aiResponseCacheService) {
                 this.dashscopeChatModel = dashscopeChatModel;
                 this.keepReportMapper = keepReportMapper;
+                this.cacheService = cacheService;
+                this.aiResponseCacheService = aiResponseCacheService;
 
-                // 初始化基于数据库的对话记忆
-                DatabaseChatMemory chatMemory = new DatabaseChatMemory(keepReportMapper);
+                // 初始化带缓存的数据库对话记忆
+                CachedDatabaseChatMemory chatMemory = new CachedDatabaseChatMemory(keepReportMapper, cacheService);
                 chatClient = ChatClient.builder(dashscopeChatModel)
                                 .defaultSystem(SYSTEM_PROMPT)
                                 .defaultAdvisors(
@@ -89,56 +100,84 @@ public class KeepApp {
         }
 
         /**
-         * KeepAPP 基础对话（支持多轮对话记忆）
+         * KeepAPP 基础对话（支持多轮对话记忆和AI响应缓存）
          *
-         * @param message
-         * @param chatId
-         * @return
+         * @param message 用户消息
+         * @param chatId  对话ID
+         * @return AI响应内容
          */
         public String doChat(String message, String chatId) {
-                ChatResponse chatResponse = chatClient
-                                .prompt()
-                                .user(message)
-                                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                                                .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
-                                .call()
-                                .chatResponse();
-                String content = chatResponse.getResult().getOutput().getText();
-                log.info("content: {}", content);
-                return content;
+                return doChatWithCache(message, chatId, null);
         }
 
         /**
          * KeepAPP 基础对话（支持多轮对话记忆和用户ID）
          *
-         * @param message
-         * @param chatId
-         * @param userId
-         * @return
+         * @param message 用户消息
+         * @param chatId  对话ID
+         * @param userId  用户ID
+         * @return AI响应内容
          */
         public String doChat(String message, String chatId, Long userId) {
-                // 使用支持userId的DatabaseChatMemory
-                DatabaseChatMemory chatMemory = new DatabaseChatMemory(keepReportMapper);
-                // 设置当前用户ID
-                chatMemory.setCurrentUserId(userId);
+                return doChatWithCache(message, chatId, userId);
+        }
 
-                ChatClient userChatClient = ChatClient.builder(dashscopeChatModel)
-                                .defaultSystem(SYSTEM_PROMPT)
-                                .defaultAdvisors(
-                                                new MessageChatMemoryAdvisor(chatMemory),
-                                                new MyLoggerAdvisor())
-                                .build();
+        /**
+         * 带缓存的对话方法（内部实现）
+         *
+         * @param message 用户消息
+         * @param chatId  对话ID
+         * @param userId  用户ID（可选）
+         * @return AI响应内容
+         */
+        private String doChatWithCache(String message, String chatId, Long userId) {
+                // 1. 尝试从缓存获取响应
+                String cachedResponse = aiResponseCacheService.getCachedResponse(message, userId);
+                if (cachedResponse != null) {
+                        log.info("使用缓存的AI响应，message: {}", message.substring(0, Math.min(50, message.length())));
+                        return cachedResponse;
+                }
 
-                ChatResponse chatResponse = userChatClient
-                                .prompt()
-                                .user(message)
-                                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                                                .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
-                                .call()
-                                .chatResponse();
-                String content = chatResponse.getResult().getOutput().getText();
-                log.info("content: {}", content);
-                return content;
+                // 2. 缓存未命中，调用AI模型
+                String response;
+                if (userId != null) {
+                        // 使用支持userId的CachedDatabaseChatMemory
+                        CachedDatabaseChatMemory chatMemory = new CachedDatabaseChatMemory(keepReportMapper,
+                                        cacheService);
+                        chatMemory.setCurrentUserId(userId);
+
+                        ChatClient userChatClient = ChatClient.builder(dashscopeChatModel)
+                                        .defaultSystem(SYSTEM_PROMPT)
+                                        .defaultAdvisors(
+                                                        new MessageChatMemoryAdvisor(chatMemory),
+                                                        new MyLoggerAdvisor())
+                                        .build();
+
+                        ChatResponse chatResponse = userChatClient
+                                        .prompt()
+                                        .user(message)
+                                        .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                                                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                                        .call()
+                                        .chatResponse();
+                        response = chatResponse.getResult().getOutput().getText();
+                } else {
+                        // 使用默认的chatClient
+                        ChatResponse chatResponse = chatClient
+                                        .prompt()
+                                        .user(message)
+                                        .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                                                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                                        .call()
+                                        .chatResponse();
+                        response = chatResponse.getResult().getOutput().getText();
+                }
+
+                // 3. 缓存AI响应
+                aiResponseCacheService.cacheResponse(message, response, userId);
+
+                log.info("AI模型响应: {}", response);
+                return response;
         }
 
         // 定义 KeepReport 的 record，包含 title 和 suggestions 列表
@@ -237,8 +276,8 @@ public class KeepApp {
          * @return 流式响应
          */
         public Flux<String> doChatByStream(String message, String chatId, Long userId) {
-                // 使用支持userId的DatabaseChatMemory
-                DatabaseChatMemory chatMemory = new DatabaseChatMemory(keepReportMapper);
+                // 使用支持userId的CachedDatabaseChatMemory
+                CachedDatabaseChatMemory chatMemory = new CachedDatabaseChatMemory(keepReportMapper, cacheService);
                 // 设置当前用户ID
                 chatMemory.setCurrentUserId(userId);
 

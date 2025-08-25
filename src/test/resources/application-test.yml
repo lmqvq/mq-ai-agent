@@ -1,0 +1,58 @@
+spring:
+  application:
+    name: mq-ai-agent-test
+  profiles:
+    active: test
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/mq_ai_agent_test
+    username: root
+    password: 123456
+  # Redis 测试配置
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: # 测试环境Redis密码
+      database: 1  # 使用不同的数据库避免与开发环境冲突
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+  session:
+    store-type: redis
+    timeout: 3600  # 测试环境1小时过期
+
+# 日志配置
+logging:
+  level:
+    com.mq.mqaiagent: DEBUG
+    org.springframework.data.redis: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# MyBatis-Plus 测试配置
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: isDelete
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+# 测试环境禁用一些功能
+search-api:
+  api-key: test-api-key
+
+cos:
+  client:
+    accessKey: test-access-key
+    secretKey: test-secret-key
+    region: test-region
+    bucket: test-bucket
+    bucket-url: test-bucket-url
