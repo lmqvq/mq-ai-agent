@@ -1,7 +1,9 @@
 package com.mq.mqaiagent.controller;
 
+import com.mq.mqaiagent.annotation.AuthCheck;
 import com.mq.mqaiagent.common.BaseResponse;
 import com.mq.mqaiagent.common.ResultUtils;
+import com.mq.mqaiagent.constant.UserConstant;
 import com.mq.mqaiagent.service.AiResponseCacheService;
 import com.mq.mqaiagent.service.CacheMetricsService;
 import com.mq.mqaiagent.service.CacheService;
@@ -76,6 +78,7 @@ public class CacheController {
      * 清除指定对话的缓存
      */
     @DeleteMapping("/chat-memory")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<String> clearChatMemoryCache(
             @RequestParam String conversationId,
             @RequestParam(required = false) Long userId) {

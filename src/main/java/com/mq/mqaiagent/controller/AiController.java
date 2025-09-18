@@ -1,9 +1,13 @@
 package com.mq.mqaiagent.controller;
 
+import com.google.common.util.concurrent.RateLimiter;
 import com.mq.mqaiagent.agent.MqManus;
 import com.mq.mqaiagent.app.KeepApp;
 import com.mq.mqaiagent.chatmemory.CachedDatabaseChatMemory;
 import com.mq.mqaiagent.chatmemory.DatabaseChatMemory;
+import com.mq.mqaiagent.common.ErrorCode;
+import com.mq.mqaiagent.config.RateLimiterConfig;
+import com.mq.mqaiagent.exception.BusinessException;
 import com.mq.mqaiagent.mapper.KeepReportMapper;
 import com.mq.mqaiagent.model.entity.User;
 import com.mq.mqaiagent.service.CacheService;
@@ -21,6 +25,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import reactor.core.publisher.Flux;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * ClassName：AiController
@@ -53,6 +58,12 @@ public class AiController {
     @Resource
     private CacheService cacheService;
 
+    @Resource
+    private RateLimiter aiRateLimiter;
+
+    @Resource
+    private RateLimiterConfig.UserRateLimiterManager userRateLimiterManager;
+
     /**
      * KeepAPP 基础对话（同步调用）
      *
@@ -77,6 +88,17 @@ public class AiController {
     public String doChatWithKeepAppSyncUser(String message, String chatId, HttpServletRequest request) {
         // 获取当前登录用户
         User currentUser = userService.getLoginUser(request);
+        
+        // 用户级别限流
+        if (!userRateLimiterManager.tryAcquire(currentUser.getId(), 1, TimeUnit.SECONDS)) {
+            throw new BusinessException(ErrorCode.TOO_MANY_REQUESTS, "请求过于频繁，请稍后再试");
+        }
+        
+        // AI 接口限流
+        if (!aiRateLimiter.tryAcquire()) {
+            throw new BusinessException(ErrorCode.TOO_MANY_REQUESTS, "系统繁忙，请稍后再试");
+        }
+        
         return keepApp.doChat(message, chatId, currentUser.getId());
     }
 
@@ -91,11 +113,22 @@ public class AiController {
     public Flux<String> doChatWithKeepAppSSE(String message, String chatId, HttpServletRequest request) {
         // 获取当前登录用户
         User currentUser = userService.getLoginUser(request);
+        
+        // 用户级别限流
+        if (!userRateLimiterManager.tryAcquire(currentUser.getId(), 1, TimeUnit.SECONDS)) {
+            throw new BusinessException(ErrorCode.TOO_MANY_REQUESTS, "请求过于频繁，请稍后再试");
+        }
+        
+        // AI 接口限流
+        if (!aiRateLimiter.tryAcquire()) {
+            throw new BusinessException(ErrorCode.TOO_MANY_REQUESTS, "系统繁忙，请稍后再试");
+        }
+        
         return keepApp.doChatByStream(message, chatId, currentUser.getId());
     }
 
     /**
-     * KeepApp 使用流式对话（支持用户认证）
+     * KeepApp 使用流式对话（支持用户认证）前端调用的接口
      *
      * @param message
      * @param chatId
@@ -106,6 +139,14 @@ public class AiController {
     public Flux<String> doChatWithKeepAppSSEUser(String message, String chatId, HttpServletRequest request) {
         // 获取当前登录用户
         User currentUser = userService.getLoginUser(request);
+        // 用户级别限流
+        if (!userRateLimiterManager.tryAcquire(currentUser.getId(), 1, TimeUnit.SECONDS)) {
+            throw new BusinessException(ErrorCode.TOO_MANY_REQUESTS, "请求过于频繁，请稍后再试");
+        }
+        // AI 接口限流
+        if (!aiRateLimiter.tryAcquire()) {
+            throw new BusinessException(ErrorCode.TOO_MANY_REQUESTS, "系统繁忙，请稍后再试");
+        }
         return keepApp.doChatByStream(message, chatId, currentUser.getId());
     }
 
@@ -167,7 +208,7 @@ public class AiController {
     }
 
     /**
-     * 流式调用 Manus 超级智能体（支持用户认证和对话记忆）
+     * 流式调用 Manus 超级智能体（支持用户认证和对话记忆）前端调用的接口
      *
      * @param message
      * @param chatId

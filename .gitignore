@@ -1,4 +1,8 @@
 ### CUSTOM ###
+logs
+docs
+.augment
+application-prod-optimized.yml
 application-local.yml
 application-prod.yml
 forbidden-words.txt

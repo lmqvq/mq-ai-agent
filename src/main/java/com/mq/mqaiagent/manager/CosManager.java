@@ -1,6 +1,6 @@
 package com.mq.mqaiagent.manager;
 
-import com.mq.mqaiagent.c‎onfig.CosClientConfig;
+import com.mq.mqaiagent.config.CosClientConfig;
 import com.qcloud.cos.COSClient;
 import com.qcloud.cos.model.PutObjectRequest;
 import com.qcloud.cos.model.PutObjectResult;
