@@ -3,18 +3,13 @@ package com.mq.mqaiagent.controller;
 import com.google.common.util.concurrent.RateLimiter;
 import com.mq.mqaiagent.agent.MqManus;
 import com.mq.mqaiagent.app.KeepApp;
-import com.mq.mqaiagent.chatmemory.CachedDatabaseChatMemory;
-import com.mq.mqaiagent.chatmemory.DatabaseChatMemory;
 import com.mq.mqaiagent.common.ErrorCode;
 import com.mq.mqaiagent.config.RateLimiterConfig;
 import com.mq.mqaiagent.exception.BusinessException;
-import com.mq.mqaiagent.mapper.KeepReportMapper;
 import com.mq.mqaiagent.model.entity.User;
-import com.mq.mqaiagent.service.CacheService;
 import com.mq.mqaiagent.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
@@ -47,16 +42,7 @@ public class AiController {
     private ToolCallback[] allTools;
 
     @Resource
-    private ChatModel dashscopeChatModel;
-
-    @Resource
     private UserService userService;
-
-    @Resource
-    private KeepReportMapper keepReportMapper;
-
-    @Resource
-    private CacheService cacheService;
 
     @Resource
     private RateLimiter aiRateLimiter;
@@ -64,68 +50,8 @@ public class AiController {
     @Resource
     private RateLimiterConfig.UserRateLimiterManager userRateLimiterManager;
 
-    /**
-     * KeepAPP 基础对话（同步调用）
-     *
-     * @param message
-     * @param chatId
-     * @return
-     */
-    @GetMapping("/keep_app/chat/sync")
-    public String doChatWithKeepAppSync(String message, String chatId) {
-        return keepApp.doChat(message, chatId);
-    }
-
-    /**
-     * KeepAPP 基础对话（同步调用，支持用户认证）
-     * 
-     * @param message
-     * @param chatId
-     * @param request
-     * @return
-     */
-    @GetMapping("/keep_app/chat/sync/user")
-    public String doChatWithKeepAppSyncUser(String message, String chatId, HttpServletRequest request) {
-        // 获取当前登录用户
-        User currentUser = userService.getLoginUser(request);
-        
-        // 用户级别限流
-        if (!userRateLimiterManager.tryAcquire(currentUser.getId(), 1, TimeUnit.SECONDS)) {
-            throw new BusinessException(ErrorCode.TOO_MANY_REQUESTS, "请求过于频繁，请稍后再试");
-        }
-        
-        // AI 接口限流
-        if (!aiRateLimiter.tryAcquire()) {
-            throw new BusinessException(ErrorCode.TOO_MANY_REQUESTS, "系统繁忙，请稍后再试");
-        }
-        
-        return keepApp.doChat(message, chatId, currentUser.getId());
-    }
-
-    /**
-     * KeepApp 使用流式对话
-     *
-     * @param message
-     * @param chatId
-     * @return
-     */
-    @GetMapping(value = "/keep_app/chat/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<String> doChatWithKeepAppSSE(String message, String chatId, HttpServletRequest request) {
-        // 获取当前登录用户
-        User currentUser = userService.getLoginUser(request);
-        
-        // 用户级别限流
-        if (!userRateLimiterManager.tryAcquire(currentUser.getId(), 1, TimeUnit.SECONDS)) {
-            throw new BusinessException(ErrorCode.TOO_MANY_REQUESTS, "请求过于频繁，请稍后再试");
-        }
-        
-        // AI 接口限流
-        if (!aiRateLimiter.tryAcquire()) {
-            throw new BusinessException(ErrorCode.TOO_MANY_REQUESTS, "系统繁忙，请稍后再试");
-        }
-        
-        return keepApp.doChatByStream(message, chatId, currentUser.getId());
-    }
+    @Resource
+    private com.mq.mqaiagent.pool.ChatClientPool chatClientPool;
 
     /**
      * KeepApp 使用流式对话（支持用户认证）前端调用的接口
@@ -152,7 +78,7 @@ public class AiController {
 
     /**
      * KeepApp 使用流式对话
-     * 
+     *
      * @param message
      * @param chatId
      * @return
@@ -203,7 +129,8 @@ public class AiController {
      */
     @GetMapping("/manus/chat")
     public SseEmitter doChatWithManus(String message) {
-        MqManus mqManus = new MqManus(allTools, dashscopeChatModel);
+        // 使用对象池创建MqManus实例（不支持记忆）
+        MqManus mqManus = new MqManus(allTools, chatClientPool);
         return mqManus.runStream(message);
     }
 
@@ -219,14 +146,8 @@ public class AiController {
     public SseEmitter doChatWithManusUser(String message, String chatId, HttpServletRequest request) {
         // 获取当前登录用户
         User currentUser = userService.getLoginUser(request);
-
-        // 创建支持用户ID的CachedDatabaseChatMemory
-        CachedDatabaseChatMemory chatMemory = new CachedDatabaseChatMemory(keepReportMapper, cacheService);
-        chatMemory.setCurrentUserId(currentUser.getId());
-
-        // 创建带对话记忆的MqManus实例
-        MqManus mqManus = new MqManus(allTools, dashscopeChatModel, chatMemory);
-
+        // 使用对象池创建支持用户记忆的MqManus实例
+        MqManus mqManus = new MqManus(allTools, chatClientPool, currentUser.getId());
         return mqManus.runStream(message);
     }
 }

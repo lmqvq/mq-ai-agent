@@ -1,15 +1,13 @@
 package com.mq.mqaiagent.app;
 
 import com.mq.mqaiagent.advisor.MyLoggerAdvisor;
-import com.mq.mqaiagent.chatmemory.CachedDatabaseChatMemory;
-import com.mq.mqaiagent.chatmemory.DatabaseChatMemory;
 import com.mq.mqaiagent.mapper.KeepReportMapper;
+import com.mq.mqaiagent.pool.ChatClientPool;
 import com.mq.mqaiagent.service.AiResponseCacheService;
 import com.mq.mqaiagent.service.CacheService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
@@ -42,6 +40,7 @@ public class KeepApp {
         private final KeepReportMapper keepReportMapper;
         private final CacheService cacheService;
         private final AiResponseCacheService aiResponseCacheService;
+        private final ChatClientPool chatClientPool;
 
         // /**
         // * 初始化 ChatClient
@@ -75,28 +74,18 @@ public class KeepApp {
          * @param keepReportMapper       数据库映射器
          * @param cacheService           缓存服务
          * @param aiResponseCacheService AI响应缓存服务
+         * @param chatClientPool         ChatClient对象池
          */
         public KeepApp(ChatModel dashscopeChatModel, KeepReportMapper keepReportMapper,
-                        CacheService cacheService, AiResponseCacheService aiResponseCacheService) {
+                        CacheService cacheService, AiResponseCacheService aiResponseCacheService,
+                        ChatClientPool chatClientPool) {
                 this.dashscopeChatModel = dashscopeChatModel;
                 this.keepReportMapper = keepReportMapper;
                 this.cacheService = cacheService;
                 this.aiResponseCacheService = aiResponseCacheService;
-
-                // 初始化带缓存的数据库对话记忆
-                CachedDatabaseChatMemory chatMemory = new CachedDatabaseChatMemory(keepReportMapper, cacheService);
-                chatClient = ChatClient.builder(dashscopeChatModel)
-                                .defaultSystem(SYSTEM_PROMPT)
-                                .defaultAdvisors(
-                                                new MessageChatMemoryAdvisor(chatMemory),
-                                                // 自定义日志 Advisor，可按需开启
-                                                new MyLoggerAdvisor()
-                                // 自定义违禁词 Advisor
-                                // ,new ForbiddenWordAdvisor()
-                                // 自定义推理增强 Advisor，可按需开启
-                                // new ReReadingAdvisor()
-                                )
-                                .build();
+                this.chatClientPool = chatClientPool;
+                // 使用对象池获取默认的 ChatClient（不支持用户记忆）
+                this.chatClient = chatClientPool.getKeepAppClient(SYSTEM_PROMPT);
         }
 
         /**
@@ -137,22 +126,11 @@ public class KeepApp {
                         log.info("使用缓存的AI响应，message: {}", message.substring(0, Math.min(50, message.length())));
                         return cachedResponse;
                 }
-
                 // 2. 缓存未命中，调用AI模型
                 String response;
                 if (userId != null) {
-                        // 使用支持userId的CachedDatabaseChatMemory
-                        CachedDatabaseChatMemory chatMemory = new CachedDatabaseChatMemory(keepReportMapper,
-                                        cacheService);
-                        chatMemory.setCurrentUserId(userId);
-
-                        ChatClient userChatClient = ChatClient.builder(dashscopeChatModel)
-                                        .defaultSystem(SYSTEM_PROMPT)
-                                        .defaultAdvisors(
-                                                        new MessageChatMemoryAdvisor(chatMemory),
-                                                        new MyLoggerAdvisor())
-                                        .build();
-
+                        // 使用对象池获取支持用户记忆的ChatClient
+                        ChatClient userChatClient = chatClientPool.getKeepAppClientWithMemory(userId, SYSTEM_PROMPT);
                         ChatResponse chatResponse = userChatClient
                                         .prompt()
                                         .user(message)
@@ -162,7 +140,7 @@ public class KeepApp {
                                         .chatResponse();
                         response = chatResponse.getResult().getOutput().getText();
                 } else {
-                        // 使用默认的chatClient
+                        // 使用默认的chatClient（从对象池获取）
                         ChatResponse chatResponse = chatClient
                                         .prompt()
                                         .user(message)
@@ -276,18 +254,8 @@ public class KeepApp {
          * @return 流式响应
          */
         public Flux<String> doChatByStream(String message, String chatId, Long userId) {
-                // 使用支持userId的CachedDatabaseChatMemory
-                CachedDatabaseChatMemory chatMemory = new CachedDatabaseChatMemory(keepReportMapper, cacheService);
-                // 设置当前用户ID
-                chatMemory.setCurrentUserId(userId);
-
-                ChatClient userChatClient = ChatClient.builder(dashscopeChatModel)
-                                .defaultSystem(SYSTEM_PROMPT)
-                                .defaultAdvisors(
-                                                new MessageChatMemoryAdvisor(chatMemory),
-                                                new MyLoggerAdvisor())
-                                .build();
-
+                // 使用对象池获取支持用户记忆的ChatClient
+                ChatClient userChatClient = chatClientPool.getKeepAppClientWithMemory(userId, SYSTEM_PROMPT);
                 return userChatClient
                                 .prompt()
                                 .user(message)
