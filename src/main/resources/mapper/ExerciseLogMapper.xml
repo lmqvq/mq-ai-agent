@@ -23,4 +23,65 @@
         notes,createTime,updateTime,
         isDelete
     </sql>
+
+    <resultMap id="ExerciseStatsMap" type="com.mq.mqaiagent.model.dto.ranking.ExerciseStats">
+        <result column="totalMinutes" property="totalMinutes"/>
+        <result column="totalCalories" property="totalCalories"/>
+        <result column="exerciseCount" property="exerciseCount"/>
+    </resultMap>
+
+    <!-- 统计周数据 -->
+    <select id="sumStatsByUserIdAndWeek" resultMap="ExerciseStatsMap">
+        SELECT 
+            SUM(duration) as totalMinutes,
+            SUM(caloriesBurned) as totalCalories,
+            COUNT(*) as exerciseCount
+        FROM exercise_log
+        WHERE userId = #{userId}
+          AND weekStartDate = #{weekStartDate}
+          AND isDelete = 0
+    </select>
+
+    <!-- 统计月数据 -->
+    <select id="sumStatsByUserIdAndMonth" resultMap="ExerciseStatsMap">
+        SELECT 
+            SUM(duration) as totalMinutes,
+            SUM(caloriesBurned) as totalCalories,
+            COUNT(*) as exerciseCount
+        FROM exercise_log
+        WHERE userId = #{userId}
+          AND monthStartDate = #{monthStartDate}
+          AND isDelete = 0
+    </select>
+
+    <!-- 获取运动类型（去重，最多3种） -->
+    <select id="getDistinctExerciseTypes" resultType="String">
+        SELECT exerciseType
+        FROM exercise_log
+        WHERE userId = #{userId}
+          AND dateRecorded >= #{startDate}
+          AND isDelete = 0
+        GROUP BY exerciseType
+        ORDER BY MAX(createTime) DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 统计指定周期内的记录数（周榜） -->
+    <select id="countByUserIdAndWeek" resultType="int">
+        SELECT COUNT(*)
+        FROM exercise_log
+        WHERE userId = #{userId}
+          AND weekStartDate = #{weekStartDate}
+          AND isDelete = 0
+    </select>
+
+    <!-- 统计指定周期内的记录数（月榜） -->
+    <select id="countByUserIdAndMonth" resultType="int">
+        SELECT COUNT(*)
+        FROM exercise_log
+        WHERE userId = #{userId}
+          AND monthStartDate = #{monthStartDate}
+          AND isDelete = 0
+    </select>
+
 </mapper>

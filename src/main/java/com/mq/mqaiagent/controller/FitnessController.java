@@ -56,6 +56,9 @@ public class FitnessController {
     @Resource
     private UserService userService;
 
+    @Resource
+    private RankingService rankingService;
+
     // region 健身数据相关接口
 
     /**
@@ -647,6 +650,74 @@ public class FitnessController {
         }
 
         return advice.toString();
+    }
+
+    // endregion
+
+    // region 排行榜相关接口
+
+    /**
+     * 获取排行榜列表
+     *
+     * @param rankingQueryRequest 排行榜查询请求
+     * @return 排行榜列表
+     */
+    @PostMapping("/ranking/list")
+    public BaseResponse<com.mq.mqaiagent.model.dto.ranking.RankingListResponse> getRankingList(
+            @RequestBody com.mq.mqaiagent.model.dto.ranking.RankingQueryRequest rankingQueryRequest) {
+        if (rankingQueryRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+
+        String rankingType = rankingQueryRequest.getRankingType();
+        if (!"week".equals(rankingType) && !"month".equals(rankingType)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "排行类型只能是 week 或 month");
+        }
+
+        Integer current = rankingQueryRequest.getCurrent();
+        Integer pageSize = rankingQueryRequest.getPageSize();
+
+        com.mq.mqaiagent.model.dto.ranking.RankingListResponse response = 
+                rankingService.getRankingList(rankingType, current, pageSize);
+        return ResultUtils.success(response);
+    }
+
+    /**
+     * 获取我的排名
+     *
+     * @param rankingType 排行类型（week/month）
+     * @param request     请求
+     * @return 我的排名信息
+     */
+    @GetMapping("/ranking/my")
+    public BaseResponse<com.mq.mqaiagent.model.dto.ranking.MyRankingResponse> getMyRanking(
+            @RequestParam String rankingType,
+            HttpServletRequest request) {
+        if (!"week".equals(rankingType) && !"month".equals(rankingType)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "排行类型只能是 week 或 month");
+        }
+
+        User loginUser = userService.getLoginUser(request);
+        com.mq.mqaiagent.model.dto.ranking.MyRankingResponse response = 
+                rankingService.getMyRanking(loginUser.getId(), rankingType);
+        return ResultUtils.success(response);
+    }
+
+    /**
+     * 刷新排行榜缓存（管理员接口）
+     *
+     * @param rankingType 排行类型（week/month）
+     * @return 是否刷新成功
+     */
+    @PostMapping("/ranking/refresh")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> refreshRanking(@RequestParam String rankingType) {
+        if (!"week".equals(rankingType) && !"month".equals(rankingType)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "排行类型只能是 week 或 month");
+        }
+
+        boolean result = rankingService.refreshRanking(rankingType);
+        return ResultUtils.success(result);
     }
 
     // endregion

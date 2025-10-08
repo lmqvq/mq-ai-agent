@@ -45,6 +45,16 @@ public class ExerciseLog implements Serializable {
     private Date dateRecorded;
 
     /**
+     * 所属周的开始日期（周一）
+     */
+    private Date weekStartDate;
+
+    /**
+     * 所属月的开始日期（30天前）
+     */
+    private Date monthStartDate;
+
+    /**
      * 运动备注（如：训练动作、强度感受等）
      */
     private String notes;

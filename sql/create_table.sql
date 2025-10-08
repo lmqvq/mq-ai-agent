@@ -69,36 +69,34 @@ create table if not exists exercise_log
     INDEX idx_user_exercise (userId, dateRecorded)   -- 优化查询效率
 ) comment '运动记录表' collate = utf8mb4_unicode_ci;
 
--- 训练计划表
-create table if not exists training_plan
-(
-    id           bigint auto_increment comment 'id' primary key,
-    userId       bigint                             not null comment '用户id',
-    planName     varchar(256)                       not null comment '计划名称',
-    planType     varchar(255)                       null comment '计划类型（增肌、减脂、塑形等）',
-    planDetails  text                               not null comment '训练计划详细信息（JSON格式存储）',
-    isDefault    tinyint  default 0                 not null comment '是否为默认训练计划（0：否，1：是）',
-    startDate    datetime default CURRENT_TIMESTAMP not null comment '计划开始时间',
-    endDate      datetime                           null comment '计划结束时间',
-    createTime   datetime default CURRENT_TIMESTAMP not null comment '创建时间',
-    updateTime   datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
-    isDelete     tinyint  default 0                 not null comment '是否删除',
-    INDEX idx_user_plan (userId, startDate)         -- 优化查询效率
-) comment '用户训练计划表' collate = utf8mb4_unicode_ci;
+-- 健身排行榜功能数据库更新脚本
+use mq_ai_agent;
 
--- 健身目标表
-create table if not exists fitness_goal
+-- 1. 为 exercise_log 表添加字段（用于排行榜周期统计）
+ALTER TABLE exercise_log
+    ADD COLUMN weekStartDate DATE COMMENT '所属周的开始日期（周一）' AFTER dateRecorded,
+    ADD COLUMN monthStartDate DATE COMMENT '所属月的开始日期（30天前）' AFTER weekStartDate;
+
+-- 2. 添加索引以优化查询性能
+ALTER TABLE exercise_log
+    ADD INDEX idx_week_start (userId, weekStartDate, isDelete),
+    ADD INDEX idx_month_start (userId, monthStartDate, isDelete);
+
+-- 3. 创建排行榜快照表（用于数据恢复和历史记录）
+CREATE TABLE IF NOT EXISTS ranking_snapshot
 (
-    id           bigint auto_increment comment 'id' primary key,
-    userId       bigint                             not null comment '用户id',
-    goalType     varchar(255)                       not null comment '目标类型（增肌、减脂、体态改善等）',
-    targetValue  varchar(255)                       not null comment '目标值（如：体脂率降到15%、体重增到70kg）',
-    startDate    datetime default CURRENT_TIMESTAMP not null comment '目标开始时间',
-    endDate      datetime                           null comment '目标结束时间',
-    progress     text                               null comment '进度记录（JSON格式）',
-    isAchieved   tinyint  default 0                 not null comment '是否达成（0-未达成，1-已达成）',
-    createTime   datetime default CURRENT_TIMESTAMP not null comment '创建时间',
-    updateTime   datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
-    isDelete     tinyint  default 0                 not null comment '是否删除',
-    INDEX idx_user_goal (userId, startDate)         -- 优化查询效率
-) comment '健身目标表' collate = utf8mb4_unicode_ci;
+    id              BIGINT AUTO_INCREMENT COMMENT 'id' PRIMARY KEY,
+    userId          BIGINT                             NOT NULL COMMENT '用户ID',
+    rankingType     VARCHAR(20)                        NOT NULL COMMENT '排行类型：week-周榜, month-月榜',
+    startDate       DATE                               NOT NULL COMMENT '统计开始日期',
+    exerciseCount   INT                                NOT NULL COMMENT '运动记录次数',
+    firstRecordTime BIGINT                             NOT NULL COMMENT '首次记录时间戳（秒）',
+    rankPosition    INT                                NOT NULL COMMENT '排名',
+    totalMinutes    INT      DEFAULT 0                 NOT NULL COMMENT '总运动时长（分钟）',
+    totalCalories   FLOAT    DEFAULT 0                 NOT NULL COMMENT '总消耗卡路里',
+    snapshotTime    DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '快照时间',
+    createTime      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
+    INDEX idx_type_date (rankingType, startDate),
+    INDEX idx_user_type (userId, rankingType, startDate),
+    UNIQUE KEY uk_user_type_date (userId, rankingType, startDate)
+) COMMENT '排行榜快照表（用于数据恢复和历史查询）' COLLATE = utf8mb4_unicode_ci;

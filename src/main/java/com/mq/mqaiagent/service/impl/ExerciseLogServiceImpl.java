@@ -10,6 +10,7 @@ import com.mq.mqaiagent.model.dto.exerciseLog.ExerciseLogQueryRequest;
 import com.mq.mqaiagent.model.entity.ExerciseLog;
 import com.mq.mqaiagent.model.vo.ExerciseLogVO;
 import com.mq.mqaiagent.service.ExerciseLogService;
+import com.mq.mqaiagent.service.RankingService;
 import com.mq.mqaiagent.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -17,10 +18,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import jakarta.annotation.Resource;
+import java.io.Serializable;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -29,6 +35,91 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class ExerciseLogServiceImpl extends ServiceImpl<ExerciseLogMapper, ExerciseLog> implements ExerciseLogService {
+
+    @Resource
+    private RankingService rankingService;
+
+    /**
+     * 重写save方法，添加排行榜更新逻辑
+     */
+    @Override
+    public boolean save(ExerciseLog entity) {
+        // 1. 计算周期起始日期
+        LocalDate dateRecorded = entity.getDateRecorded().toInstant()
+                .atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate weekStartDate = getWeekStartDate(dateRecorded);
+        LocalDate monthStartDate = getMonthStartDate(dateRecorded);
+
+        entity.setWeekStartDate(java.sql.Date.valueOf(weekStartDate));
+        entity.setMonthStartDate(java.sql.Date.valueOf(monthStartDate));
+
+        // 2. 保存到数据库
+        boolean result = super.save(entity);
+
+        // 3. 异步更新排行榜（避免阻塞主流程）
+        if (result) {
+            CompletableFuture.runAsync(() -> {
+                try {
+                    rankingService.updateRankingAfterAdd(
+                            entity.getUserId(),
+                            entity.getDateRecorded(),
+                            weekStartDate,
+                            monthStartDate
+                    );
+                } catch (Exception e) {
+                    log.error("更新排行榜失败", e);
+                }
+            });
+        }
+
+        return result;
+    }
+
+    /**
+     * 重写removeById方法，添加排行榜更新逻辑
+     */
+    @Override
+    public boolean removeById(Serializable id) {
+        // 1. 查询记录信息
+        ExerciseLog exerciseLog = this.getById(id);
+        if (exerciseLog == null) {
+            return false;
+        }
+
+        // 2. 软删除
+        boolean result = super.removeById(id);
+
+        // 3. 异步更新排行榜（减少分数）
+        if (result) {
+            CompletableFuture.runAsync(() -> {
+                try {
+                    rankingService.updateRankingAfterDelete(
+                            exerciseLog.getUserId(),
+                            exerciseLog.getWeekStartDate(),
+                            exerciseLog.getMonthStartDate()
+                    );
+                } catch (Exception e) {
+                    log.error("删除更新排行榜失败", e);
+                }
+            });
+        }
+
+        return result;
+    }
+
+    /**
+     * 获取周的起始日期（周一）
+     */
+    private LocalDate getWeekStartDate(LocalDate date) {
+        return date.with(DayOfWeek.MONDAY);
+    }
+
+    /**
+     * 获取月的起始日期（30天前）
+     */
+    private LocalDate getMonthStartDate(LocalDate date) {
+        return date.minusDays(29); // 包含今天共30天
+    }
 
     @Override
     public void validExerciseLog(ExerciseLog exerciseLog, boolean add) {
