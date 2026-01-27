@@ -1,8 +1,10 @@
 package com.mq.mqaiagent.controller;
 
 import com.mq.mqaiagent.agent.MqManus;
+import com.mq.mqaiagent.ai.AiModelType;
 import com.mq.mqaiagent.app.KeepApp;
 import com.mq.mqaiagent.model.entity.User;
+import com.mq.mqaiagent.pool.ChatClientPool;
 import com.mq.mqaiagent.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,7 +42,7 @@ public class AiController {
     private UserService userService;
 
     @Resource
-    private com.mq.mqaiagent.pool.ChatClientPool chatClientPool;
+    private ChatClientPool chatClientPool;
 
     /**
      * KeepApp 使用流式对话（支持用户认证）前端调用的接口
@@ -51,23 +53,17 @@ public class AiController {
      * @return
      */
     @GetMapping(value = "/keep_app/chat/sse/user", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<String> doChatWithKeepAppSSEUser(String message, String chatId, HttpServletRequest request) {
-        // 获取当前登录用户
+    public Flux<String> doChatWithKeepAppSSEUser(String message, String chatId, String model, HttpServletRequest request) {
         User currentUser = userService.getLoginUser(request);
-
-        return keepApp.doChatByStream(message, chatId, currentUser.getId());
+        return keepApp.doChatByStream(message, chatId, currentUser.getId(), model);
     }
 
     /**
-     * KeepApp 使用流式对话
-     *
-     * @param message
-     * @param chatId
-     * @return
+     * KeepApp 使用流式对话。
      */
     @GetMapping("/keep_app/chat/server_sent_event")
-    public Flux<ServerSentEvent<String>> doChatWithKeepAppServerSentEvent(String message, String chatId) {
-        return keepApp.doChatByStream(message, chatId)
+    public Flux<ServerSentEvent<String>> doChatWithKeepAppServerSentEvent(String message, String chatId, String model) {
+        return keepApp.doChatByStream(message, chatId, model)
                 .map(chunk -> ServerSentEvent.<String>builder()
                         .data(chunk)
                         .build());
@@ -81,13 +77,10 @@ public class AiController {
      * @return
      */
     @GetMapping("/keep_app/chat/sse/emitter")
-    public SseEmitter doChatWithKeepAppSseEmitter(String message, String chatId) {
-        // 创建一个超时时间较长的 SseEmitter 3分钟超时
+    public SseEmitter doChatWithKeepAppSseEmitter(String message, String chatId, String model) {
         SseEmitter emitter = new SseEmitter(180000L);
-        // 获取 Flux 数据流并直接订阅
-        keepApp.doChatByStream(message, chatId)
+        keepApp.doChatByStream(message, chatId, model)
                 .subscribe(
-                        // 处理每条消息
                         chunk -> {
                             try {
                                 emitter.send(chunk);
@@ -95,24 +88,18 @@ public class AiController {
                                 emitter.completeWithError(e);
                             }
                         },
-                        // 处理错误
                         emitter::completeWithError,
-                        // 处理完成
                         emitter::complete);
-        // 返回emitter
         return emitter;
     }
 
     /**
-     * 流式调用 Manus 超级智能体
-     *
-     * @param message
-     * @return
+     * 流式调用 Manus 超级智能体。
      */
     @GetMapping("/manus/chat")
-    public SseEmitter doChatWithManus(String message) {
-        // 使用对象池创建MqManus实例（不支持记忆）
-        MqManus mqManus = new MqManus(allTools, chatClientPool);
+    public SseEmitter doChatWithManus(String message, String model) {
+        AiModelType modelType = chatClientPool.resolveModel(model).modelType();
+        MqManus mqManus = new MqManus(allTools, chatClientPool, modelType);
         return mqManus.runStream(message);
     }
 
@@ -125,11 +112,10 @@ public class AiController {
      * @return
      */
     @GetMapping("/manus/chat/user")
-    public SseEmitter doChatWithManusUser(String message, String chatId, HttpServletRequest request) {
-        // 获取当前登录用户
+    public SseEmitter doChatWithManusUser(String message, String chatId, String model, HttpServletRequest request) {
         User currentUser = userService.getLoginUser(request);
-        // 使用对象池创建支持用户记忆的MqManus实例
-        MqManus mqManus = new MqManus(allTools, chatClientPool, currentUser.getId());
+        AiModelType modelType = chatClientPool.resolveModel(model).modelType();
+        MqManus mqManus = new MqManus(allTools, chatClientPool, currentUser.getId(), modelType);
         return mqManus.runStream(message);
     }
 }

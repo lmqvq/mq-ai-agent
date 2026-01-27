@@ -1,37 +1,11 @@
 spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.ai.autoconfigure.openai.OpenAiAutoConfiguration
   application:
     name: mq-ai-agent
   profiles:
     active: local
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/mq_ai_agent?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&rewriteBatchedStatements=true
-    username: root
-    password: 123456
-  # 文件上传
-  servlet:
-    multipart:
-      # 大小限制
-      max-file-size: 10MB
-  session:
-    # 开启分布式 session
-    store-type: redis
-    # 30 天过期
-    timeout: 2592000
-#  # Redis 配置
-#  data:
-#    redis:
-#      host: localhost
-#      port: 6379
-#      password: # 如果Redis设置了密码，请在此配置
-#      database: 2
-#      timeout: 5000ms
-#      lettuce:
-#        pool:
-#          max-active: 8
-#          max-idle: 8
-#          min-idle: 0
-#          max-wait: -1ms
 server:
   port: 8123
   servlet:
@@ -48,6 +22,101 @@ springdoc:
     - group: 'default'
       paths-to-match: '/**'
       packages-to-scan: com.mq.mqaiagent.controller
+    # todo
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/mq_ai_agent?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&rewriteBatchedStatements=true
+    username: root
+    password: 123456
+    # HikariCP 连接池配置
+    hikari:
+      # 连接池名称
+      pool-name: MQAIAgentHikariCP
+      # 最大连接数
+      maximum-pool-size: 100
+      # 最小空闲连接数
+      minimum-idle: 20
+      # 连接超时时间（毫秒）
+      connection-timeout: 30000
+      # 空闲连接超时时间（10分钟）
+      idle-timeout: 600000
+      # 连接最大生命周期（30分钟）
+      max-lifetime: 1800000
+      # 连接测试查询
+      connection-test-query: SELECT 1
+      # 从池中获取连接时是否测试连接
+      test-while-idle: true
+      # 验证超时时间
+      validation-timeout: 5000
+      # 泄露检测阈值（2分钟）
+      leak-detection-threshold: 120000
+  # todo
+  # Redis 配置
+  data:
+    redis:
+      host: xxx
+      port: 6379
+      password: xxx
+      database: 4
+      timeout: 5000ms
+      # Lettuce 连接池配置
+      lettuce:
+        pool:
+          # 最大活动连接数
+          max-active: 100
+          # 最大空闲连接数
+          max-idle: 50
+          # 最小空闲连接数
+          min-idle: 20
+          # 获取连接最大等待时间
+          max-wait: 2000ms
+          # 空闲连接检测时间间隔
+          time-between-eviction-runs: 60000ms
+        # 关闭自适应刷新
+        cluster:
+          refresh:
+            adaptive: false
+  # 文件上传
+  servlet:
+    multipart:
+      # 单个文件最大大小
+      max-file-size: 10MB
+      # 请求最大大小
+      max-request-size: 50MB
+  # Session 配置
+  session:
+    store-type: redis
+    timeout: 2592000
+    redis:
+      # Session 刷新模式
+      flush-mode: on_save
+      # Session 命名空间
+      namespace: spring:session
+  # todo
+  # AI 配置
+  # qwen-plus API Key：https://bailian.console.aliyun.com/cn-beijing/?spm=5176.12818093_47.resourceCenter.1.3be916d0gFSnfe&tab=app#/api-key
+  # DeepSeek API Key：https://platform.deepseek.com/api_keys
+  ai:
+    dashscope:
+      api-key: 你的 API Key
+      chat:
+        options:
+          model: qwen-plus
+          temperature: 0.7
+          # 添加超时配置
+          timeout: 30000
+          # 添加重试配置
+          max-retries: 3
+          retry-delay: 1000
+mq:
+  ai:
+    default-model: qwen-plus
+    deepseek:
+      api-key: 你的 API Key
+      base-url: https://api.deepseek.com/v1
+      model: deepseek-chat
+      temperature: 0.7
+# 接口文档配置
 # knife4j
 knife4j:
   enable: true
@@ -62,11 +131,14 @@ mybatis-plus:
       logic-delete-field: isDelete # 全局逻辑删除的实体字段名
       logic-delete-value: 1 # 逻辑已删除值（默认为 1）
       logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
-# searchApi
+# todo
+# 搜索工具 API 配置
+# Search API：https://www.searchapi.io/
 search-api:
   api-key: 你的 API Key
-# 对象存储
 # todo 需替换配置
+# 对象存储（上传头像）
+# https://console.cloud.tencent.com/cos
 cos:
   client:
     accessKey: xxxxxx

@@ -71,6 +71,12 @@
             <artifactId>spring-ai-alibaba-starter</artifactId>
             <version>1.0.0-M6.1</version>
         </dependency>
+        <!-- Spring AI OpenAI (用于 DeepSeek 的 OpenAI 兼容接入) -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
+            <version>1.0.0-M6</version>
+        </dependency>
 <!--        &lt;!&ndash; https://mvnrepository.com/artifact/dev.langchain4j/langchain4j-community-dashscope &ndash;&gt;-->
 <!--        <dependency>-->
 <!--            <groupId>dev.langchain4j</groupId>-->

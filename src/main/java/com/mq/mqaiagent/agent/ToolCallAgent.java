@@ -47,13 +47,19 @@ public class ToolCallAgent extends ReActAgent{
     private final ChatOptions chatOptions;
 
     public ToolCallAgent(ToolCallback[] availableTools) {
+        this(availableTools, null);
+    }
+
+    public ToolCallAgent(ToolCallback[] availableTools, ChatOptions chatOptions) {
         super();
         this.availableTools = availableTools;
         this.toolCallingManager = ToolCallingManager.builder().build();
-        // 禁用 Spring AI 内置的工具调用机制，自己维护选项和消息上下文
-        this.chatOptions = DashScopeChatOptions.builder()
-                .withProxyToolCalls(true)
-                .build();
+        // 关闭内置工具调用执行，交由我们自己的 ToolCallingManager 处理
+        this.chatOptions = chatOptions != null
+                ? chatOptions
+                : DashScopeChatOptions.builder()
+                        .withProxyToolCalls(true)
+                        .build();
     }
 
     /**
@@ -131,7 +137,7 @@ public class ToolCallAgent extends ReActAgent{
             setState(AgentState.FINISHED);
         }
         String results = toolResponseMessage.getResponses().stream()
-                .map(response -> "工具 " + response.name() + " 返回的结果：" + response.responseData())
+                .map(response -> "宸ュ叿 " + response.name() + " 杩斿洖鐨勭粨鏋滐細" + response.responseData())
                 .collect(Collectors.joining("\n"));
         log.info(results);
         return results;

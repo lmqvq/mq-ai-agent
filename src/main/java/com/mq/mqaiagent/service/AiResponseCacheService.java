@@ -1,5 +1,7 @@
 package com.mq.mqaiagent.service;
 
+import com.mq.mqaiagent.ai.AiModelType;
+
 /**
  * @author MQ
  * @description 针对AI响应缓存操作的数据库操作Service
@@ -14,8 +16,13 @@ public interface AiResponseCacheService {
      * @param question 用户问题
      * @param userId   用户ID（可选，用于个性化缓存）
      * @return 缓存的AI响应，如果没有找到则返回null
-     */
+    */
     String getCachedResponse(String question, Long userId);
+
+    /**
+     * 带模型维度的缓存查询（避免不同模型串缓存）。
+     */
+    String getCachedResponse(String question, Long userId, AiModelType modelType);
 
     /**
      * 缓存AI响应
@@ -24,8 +31,13 @@ public interface AiResponseCacheService {
      * @param response AI响应
      * @param userId   用户ID（可选）
      * @return 是否缓存成功
-     */
+    */
     boolean cacheResponse(String question, String response, Long userId);
+
+    /**
+     * 带模型维度的缓存写入。
+     */
+    boolean cacheResponse(String question, String response, Long userId, AiModelType modelType);
 
     /**
      * 清除指定问题的缓存
@@ -33,8 +45,13 @@ public interface AiResponseCacheService {
      * @param question 问题
      * @param userId   用户ID（可选）
      * @return 是否清除成功
-     */
+    */
     boolean clearCache(String question, Long userId);
+
+    /**
+     * 带模型维度的缓存清理。
+     */
+    boolean clearCache(String question, Long userId, AiModelType modelType);
 
     /**
      * 获取缓存统计信息

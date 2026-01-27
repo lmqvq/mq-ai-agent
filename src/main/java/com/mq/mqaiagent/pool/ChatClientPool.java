@@ -1,5 +1,7 @@
 package com.mq.mqaiagent.pool;
 
+import com.mq.mqaiagent.ai.AiModelRouter;
+import com.mq.mqaiagent.ai.AiModelType;
 import com.mq.mqaiagent.advisor.MyLoggerAdvisor;
 import com.mq.mqaiagent.chatmemory.CachedDatabaseChatMemory;
 import com.mq.mqaiagent.mapper.KeepReportMapper;
@@ -9,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -29,11 +32,11 @@ import java.util.concurrent.atomic.AtomicLong;
 public class ChatClientPool {
 
     @Resource
-    private ChatModel dashscopeChatModel;
-    
+    private AiModelRouter aiModelRouter;
+
     @Resource
     private KeepReportMapper keepReportMapper;
-    
+
     @Resource
     private CacheService cacheService;
 
@@ -63,10 +66,15 @@ public class ChatClientPool {
      * 
      * @param systemPrompt 系统提示词
      * @return ChatClient 实例
-     */
+    */
     public ChatClient getKeepAppClient(String systemPrompt) {
-        String cacheKey = generateCacheKey("keepapp", null, systemPrompt, false);
-        return getOrCreateClient(cacheKey, () -> createKeepAppClient(systemPrompt));
+        return getKeepAppClient(null, systemPrompt);
+    }
+
+    public ChatClient getKeepAppClient(AiModelType modelType, String systemPrompt) {
+        AiModelRouter.ResolvedModel resolvedModel = aiModelRouter.resolve(modelType);
+        String cacheKey = generateCacheKey("keepapp", null, systemPrompt, false, resolvedModel.modelType());
+        return getOrCreateClient(cacheKey, () -> createKeepAppClient(resolvedModel.chatModel(), systemPrompt));
     }
 
     /**
@@ -75,10 +83,16 @@ public class ChatClientPool {
      * @param userId 用户ID
      * @param systemPrompt 系统提示词
      * @return ChatClient 实例
-     */
+    */
     public ChatClient getKeepAppClientWithMemory(Long userId, String systemPrompt) {
-        String cacheKey = generateCacheKey("keepapp", userId, systemPrompt, true);
-        return getOrCreateClient(cacheKey, () -> createKeepAppClientWithMemory(userId, systemPrompt));
+        return getKeepAppClientWithMemory(null, userId, systemPrompt);
+    }
+
+    public ChatClient getKeepAppClientWithMemory(AiModelType modelType, Long userId, String systemPrompt) {
+        AiModelRouter.ResolvedModel resolvedModel = aiModelRouter.resolve(modelType);
+        String cacheKey = generateCacheKey("keepapp", userId, systemPrompt, true, resolvedModel.modelType());
+        return getOrCreateClient(cacheKey,
+                () -> createKeepAppClientWithMemory(resolvedModel.chatModel(), userId, systemPrompt));
     }
 
     /**
@@ -86,10 +100,15 @@ public class ChatClientPool {
      * 
      * @param systemPrompt 系统提示词
      * @return ChatClient 实例
-     */
+    */
     public ChatClient getMqManusClient(String systemPrompt) {
-        String cacheKey = generateCacheKey("mqmanus", null, systemPrompt, false);
-        return getOrCreateClient(cacheKey, () -> createMqManusClient(systemPrompt));
+        return getMqManusClient(null, systemPrompt);
+    }
+
+    public ChatClient getMqManusClient(AiModelType modelType, String systemPrompt) {
+        AiModelRouter.ResolvedModel resolvedModel = aiModelRouter.resolve(modelType);
+        String cacheKey = generateCacheKey("mqmanus", null, systemPrompt, false, resolvedModel.modelType());
+        return getOrCreateClient(cacheKey, () -> createMqManusClient(resolvedModel.chatModel(), systemPrompt));
     }
 
     /**
@@ -98,10 +117,36 @@ public class ChatClientPool {
      * @param userId 用户ID
      * @param systemPrompt 系统提示词
      * @return ChatClient 实例
-     */
+    */
     public ChatClient getMqManusClientWithMemory(Long userId, String systemPrompt) {
-        String cacheKey = generateCacheKey("mqmanus", userId, systemPrompt, true);
-        return getOrCreateClient(cacheKey, () -> createMqManusClientWithMemory(userId, systemPrompt));
+        return getMqManusClientWithMemory(null, userId, systemPrompt);
+    }
+
+    public ChatClient getMqManusClientWithMemory(AiModelType modelType, Long userId, String systemPrompt) {
+        AiModelRouter.ResolvedModel resolvedModel = aiModelRouter.resolve(modelType);
+        String cacheKey = generateCacheKey("mqmanus", userId, systemPrompt, true, resolvedModel.modelType());
+        return getOrCreateClient(cacheKey,
+                () -> createMqManusClientWithMemory(resolvedModel.chatModel(), userId, systemPrompt));
+    }
+
+    public AiModelType getDefaultModelType() {
+        return aiModelRouter.getDefaultModelType();
+    }
+
+    public AiModelType resolveModelType(String rawModel) {
+        return aiModelRouter.resolveRequestedType(rawModel);
+    }
+
+    public ChatOptions getToolCallChatOptions(AiModelType modelType) {
+        return aiModelRouter.resolve(modelType).toolCallOptions();
+    }
+
+    public AiModelRouter.ResolvedModel resolveModel(String rawModel) {
+        return aiModelRouter.resolve(rawModel);
+    }
+
+    public AiModelRouter.ResolvedModel resolveModel(AiModelType modelType) {
+        return aiModelRouter.resolve(modelType);
     }
 
     /**
@@ -137,9 +182,9 @@ public class ChatClientPool {
     /**
      * 创建 KeepApp 专用的 ChatClient（不支持记忆）
      */
-    private ChatClient createKeepAppClient(String systemPrompt) {
+    private ChatClient createKeepAppClient(ChatModel chatModel, String systemPrompt) {
         CachedDatabaseChatMemory chatMemory = new CachedDatabaseChatMemory(keepReportMapper, cacheService);
-        return ChatClient.builder(dashscopeChatModel)
+        return ChatClient.builder(chatModel)
                 .defaultSystem(systemPrompt)
                 .defaultAdvisors(
                         new MessageChatMemoryAdvisor(chatMemory),
@@ -151,10 +196,10 @@ public class ChatClientPool {
     /**
      * 创建支持用户记忆的 KeepApp ChatClient
      */
-    private ChatClient createKeepAppClientWithMemory(Long userId, String systemPrompt) {
+    private ChatClient createKeepAppClientWithMemory(ChatModel chatModel, Long userId, String systemPrompt) {
         CachedDatabaseChatMemory chatMemory = new CachedDatabaseChatMemory(keepReportMapper, cacheService);
         chatMemory.setCurrentUserId(userId);
-        return ChatClient.builder(dashscopeChatModel)
+        return ChatClient.builder(chatModel)
                 .defaultSystem(systemPrompt)
                 .defaultAdvisors(
                         new MessageChatMemoryAdvisor(chatMemory),
@@ -166,8 +211,8 @@ public class ChatClientPool {
     /**
      * 创建 MqManus 专用的 ChatClient（不支持记忆）
      */
-    private ChatClient createMqManusClient(String systemPrompt) {
-        return ChatClient.builder(dashscopeChatModel)
+    private ChatClient createMqManusClient(ChatModel chatModel, String systemPrompt) {
+        return ChatClient.builder(chatModel)
                 .defaultSystem(systemPrompt)
                 .defaultAdvisors(new MyLoggerAdvisor())
                 .build();
@@ -176,10 +221,10 @@ public class ChatClientPool {
     /**
      * 创建支持记忆的 MqManus ChatClient
      */
-    private ChatClient createMqManusClientWithMemory(Long userId, String systemPrompt) {
+    private ChatClient createMqManusClientWithMemory(ChatModel chatModel, Long userId, String systemPrompt) {
         CachedDatabaseChatMemory chatMemory = new CachedDatabaseChatMemory(keepReportMapper, cacheService);
         chatMemory.setCurrentUserId(userId);
-        return ChatClient.builder(dashscopeChatModel)
+        return ChatClient.builder(chatModel)
                 .defaultAdvisors(
                         new MessageChatMemoryAdvisor(chatMemory),
                         new MyLoggerAdvisor()
@@ -196,9 +241,12 @@ public class ChatClientPool {
      * @param withMemory 是否支持记忆
      * @return 缓存键
      */
-    private String generateCacheKey(String clientType, Long userId, String systemPrompt, boolean withMemory) {
+    private String generateCacheKey(String clientType, Long userId, String systemPrompt, boolean withMemory,
+            AiModelType modelType) {
+        AiModelType safeModelType = modelType == null ? aiModelRouter.getDefaultModelType() : modelType;
         StringBuilder keyBuilder = new StringBuilder();
         keyBuilder.append(clientType);
+        keyBuilder.append(":model:").append(safeModelType.getCode());
         if (userId != null) {
             keyBuilder.append(":user:").append(userId);
         }
