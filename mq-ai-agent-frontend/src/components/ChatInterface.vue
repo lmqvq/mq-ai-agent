@@ -31,15 +31,31 @@
         @keyup.enter="sendMessage"
       >
         <template #suffix>
-          <a-button 
-            type="primary" 
-            shape="circle"
-            :loading="isLoading"
-            :disabled="!userInput.trim() || isLoading"
-            @click="sendMessage"
-          >
-            <icon-send />
-          </a-button>
+          <div class="input-suffix">
+            <a-select
+              v-model="selectedModel"
+              size="mini"
+              class="model-select"
+              :disabled="isLoading"
+            >
+              <a-option
+                v-for="option in modelOptions"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ option.label }}
+              </a-option>
+            </a-select>
+            <a-button 
+              type="primary" 
+              shape="circle"
+              :loading="isLoading"
+              :disabled="!userInput.trim() || isLoading"
+              @click="sendMessage"
+            >
+              <icon-send />
+            </a-button>
+          </div>
         </template>
       </a-input>
     </div>
@@ -78,6 +94,11 @@ export default {
     const isTyping = ref(false);
     const chatMessages = ref(null);
     const chatId = ref('');
+    const selectedModel = ref('qwen-plus');
+    const modelOptions = [
+      { label: 'Qwen', value: 'qwen-plus' },
+      { label: 'DeepSeek', value: 'deepseek' }
+    ];
     let eventSource = null;
     
     // 初始化聊天
@@ -130,9 +151,9 @@ export default {
       try {
         // 根据聊天类型选择不同的API
         if (props.chatType === 'fitness') {
-          eventSource = ApiService.createKeepAppSSEConnection(message, chatId.value);
+          eventSource = ApiService.createKeepAppSSEConnection(message, chatId.value, selectedModel.value);
         } else {
-          eventSource = ApiService.createManusSSEConnection(message);
+          eventSource = ApiService.createManusSSEConnection(message, chatId.value, selectedModel.value);
         }
         
         // 添加AI消息占位
@@ -204,6 +225,8 @@ export default {
       isLoading,
       isTyping,
       chatMessages,
+      selectedModel,
+      modelOptions,
       sendMessage,
       formatTime,
       processMessageContent
@@ -334,9 +357,32 @@ export default {
     border-radius: 24px;
     padding-right: 12px;
   }
-  
   :deep(.arco-input-suffix) {
-    cursor: pointer;
+    cursor: default;
+  }
+
+  .input-suffix {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  :deep(.model-select) {
+    min-width: 104px;
+  }
+
+  :deep(.model-select .arco-select-view) {
+    height: 28px;
+    border-radius: 16px;
+    padding: 0 10px;
+    border: 1px solid #e5e6eb;
+    background-color: #f2f3f5;
+    box-shadow: none;
+  }
+
+  :deep(.model-select .arco-select-view:hover) {
+    border-color: #4080ff;
+    background-color: #fff;
   }
 }
 

@@ -113,7 +113,7 @@ mq:
     default-model: qwen-plus
     deepseek:
       api-key: 你的 API Key
-      base-url: https://api.deepseek.com/v1
+      base-url: https://api.deepseek.com
       model: deepseek-chat
       temperature: 0.7
 # 接口文档配置

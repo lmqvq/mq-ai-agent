@@ -108,16 +108,32 @@
           @keyup.enter="sendMessage"
         >
           <template #suffix>
-            <a-button
-              type="primary"
-              shape="circle"
-              :loading="isLoading"
-              :disabled="!userInput.trim() || isLoading"
-              @click="sendMessage"
-              aria-label="发送消息"
-            >
-              <icon-send />
-            </a-button>
+            <div class="input-suffix">
+              <a-select
+                v-model="selectedModel"
+                size="mini"
+                class="model-select"
+                :disabled="isLoading"
+              >
+                <a-option
+                  v-for="option in modelOptions"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ option.label }}
+                </a-option>
+              </a-select>
+              <a-button
+                type="primary"
+                shape="circle"
+                :loading="isLoading"
+                :disabled="!userInput.trim() || isLoading"
+                @click="sendMessage"
+                aria-label="发送消息"
+              >
+                <icon-send />
+              </a-button>
+            </div>
           </template>
         </a-input>
       </div>
@@ -222,6 +238,11 @@ export default {
     const isLoading = ref(false);
     const isTyping = ref(false);
     const chatMessages = ref(null);
+    const selectedModel = ref('qwen-plus');
+    const modelOptions = [
+      { label: 'Qwen', value: 'qwen-plus' },
+      { label: 'DeepSeek', value: 'deepseek' }
+    ];
     const currentDialogueId = ref(null);
     const dialogueList = ref([]);
     const isCreatingDialogue = ref(false);
@@ -739,9 +760,9 @@ export default {
       try {
         // 根据聊天类型选择不同的API
         if (props.chatType === 'fitness') {
-          eventSource = ApiService.createKeepAppSSEConnection(message, currentDialogueId.value.toString());
+          eventSource = ApiService.createKeepAppSSEConnection(message, currentDialogueId.value.toString(), selectedModel.value);
         } else {
-          eventSource = ApiService.createManusSSEConnection(message, currentDialogueId.value.toString());
+          eventSource = ApiService.createManusSSEConnection(message, currentDialogueId.value.toString(), selectedModel.value);
         }
 
         // 添加AI消息占位
@@ -865,6 +886,8 @@ export default {
       isLoading,
       isTyping,
       chatMessages,
+      selectedModel,
+      modelOptions,
       currentDialogueId,
       dialogueList,
       isCreatingDialogue,
@@ -1338,9 +1361,30 @@ export default {
         color: #999;
       }
     }
+    .input-suffix {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
+    :deep(.model-select) {
+      min-width: 112px;
+    }
+
+    :deep(.model-select .arco-select-view) {
+      height: 30px;
+      border-radius: 16px;
+      padding: 0 12px;
+      border: 1px solid #d9d9d9;
+      background-color: #ffffff;
+      box-shadow: none;
+    }
+
+    :deep(.model-select .arco-select-view:hover) {
+      border-color: #1890ff;
+    }
     :deep(.arco-input-suffix) {
-      cursor: pointer;
+      cursor: default;
       padding-right: 8px;
 
       .arco-btn {
@@ -1758,7 +1802,25 @@ export default {
           color: #888;
         }
       }
+      .input-suffix {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
 
+      :deep(.model-select .arco-select-view) {
+        height: 30px;
+        border-radius: 16px;
+        padding: 0 12px;
+        border: 1px solid rgba(141, 154, 255, 0.35);
+        background: linear-gradient(135deg, rgba(48, 52, 68, 0.95) 0%, rgba(40, 44, 58, 0.95) 100%);
+        color: #e8e8e8;
+        box-shadow: none;
+      }
+
+      :deep(.model-select .arco-select-view:hover) {
+        border-color: rgba(141, 154, 255, 0.6);
+      }
       :deep(.arco-input-suffix) {
         .arco-btn {
           background: linear-gradient(135deg, #8d9aff 0%, #9d7dc5 100%);

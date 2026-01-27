@@ -105,10 +105,12 @@ const ApiService = {
      * 创建SSE连接 - AI健身教练
      * @param {string} message 消息内容
      * @param {string} chatId 聊天室ID
+     * @param {string} model 模型标识（默认 qwen-plus）
      * @returns {EventSource} SSE连接实例
      */
-    createKeepAppSSEConnection(message, chatId) {
-        const url = `${apiClient.defaults.baseURL}/ai/keep_app/chat/sse/user?message=${encodeURIComponent(message)}&chatId=${encodeURIComponent(chatId)}`
+    createKeepAppSSEConnection(message, chatId, model = 'qwen-plus') {
+        const safeModel = model || 'qwen-plus'
+        const url = `${apiClient.defaults.baseURL}/ai/keep_app/chat/sse/user?message=${encodeURIComponent(message)}&chatId=${encodeURIComponent(chatId)}&model=${encodeURIComponent(safeModel)}`
         return new EventSource(url, { withCredentials: true })
     },
 
@@ -155,10 +157,12 @@ const ApiService = {
      * 创建SSE连接 - AI超级智能体
      * @param {string} message 消息内容
      * @param {string} chatId 聊天室ID
+     * @param {string} model 模型标识（默认 qwen-plus）
      * @returns {EventSource} SSE连接实例
      */
-    createManusSSEConnection(message, chatId) {
-        const url = `${apiClient.defaults.baseURL}/ai/manus/chat/user?message=${encodeURIComponent(message)}&chatId=${encodeURIComponent(chatId)}`
+    createManusSSEConnection(message, chatId, model = 'qwen-plus') {
+        const safeModel = model || 'qwen-plus'
+        const url = `${apiClient.defaults.baseURL}/ai/manus/chat/user?message=${encodeURIComponent(message)}&chatId=${encodeURIComponent(chatId)}&model=${encodeURIComponent(safeModel)}`
         return new EventSource(url, { withCredentials: true })
     },
 

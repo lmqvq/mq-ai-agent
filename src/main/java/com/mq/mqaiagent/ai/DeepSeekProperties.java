@@ -20,7 +20,7 @@ public class DeepSeekProperties {
     /**
      * OpenAI 兼容接口的基地址。
      */
-    private String baseUrl = "https://api.deepseek.com/v1";
+    private String baseUrl = "https://api.deepseek.com";
 
     /**
      * 默认使用的模型名称。
@@ -36,4 +36,3 @@ public class DeepSeekProperties {
         return apiKey != null && !apiKey.isBlank();
     }
 }
-
