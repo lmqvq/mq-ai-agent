@@ -1,0 +1,45 @@
+.DS_Store
+node_modules
+/dist
+
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj*
+*.sln
+*.sw?
+
+# Documentation and scripts
+scripts/
+public/
+docs/CSS_VARIABLES_THEME_GUIDE.md
+docs/DARK_MODE_FINAL_OPTIMIZATION.md
+docs/DARK_MODE_FINAL_SOLUTION.md
+docs/DARK_MODE_OPTIMIZATION.md
+default_OpenAPI.json
+docs/FITNESS_KNOWLEDGE_OPTIMIZATION.md
+docs/FITNESS_QUICK_REFERENCE.md
+docs/IMAGE_OPTIMIZATION_GUIDE.md
+docs/IMAGE_SOLUTION_SUMMARY.md
+docs/PINIA_FIX.md
+docs/QUICK_FIX_GUIDE.md
+docs/TEXT_VISIBILITY_FIX.md
+docs/THEME_FEATURE.md
+docs/体脂率显示问题解决方案.md
+docs/体脂率自动计算功能说明.md
+docs/运动卡路里自动计算功能说明.md
+docs/健身排行榜后端接口文档.md
+docs/BACKGROUND_OPTIMIZATION.md
