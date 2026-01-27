@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mq.mqaiagent.mapper.KnowledgeBasicsMapper">
+
+    <resultMap id="BaseResultMap" type="com.mq.mqaiagent.model.entity.KnowledgeBasics">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="title" column="title" jdbcType="VARCHAR"/>
+            <result property="description" column="description" jdbcType="VARCHAR"/>
+            <result property="image" column="image" jdbcType="VARCHAR"/>
+            <result property="difficulty" column="difficulty" jdbcType="VARCHAR"/>
+            <result property="readTime" column="readTime" jdbcType="INTEGER"/>
+            <result property="views" column="views" jdbcType="INTEGER"/>
+            <result property="content" column="content" jdbcType="VARCHAR"/>
+            <result property="tips" column="tips" jdbcType="OTHER"/>
+            <result property="sortOrder" column="sortOrder" jdbcType="INTEGER"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,title,description,
+        image,difficulty,readTime,
+        views,content,tips,
+        sortOrder,createTime,updateTime,
+        isDelete
+    </sql>
+</mapper>

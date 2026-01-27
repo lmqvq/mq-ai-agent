@@ -8,12 +8,8 @@ application-prod.yml
 forbidden-words.txt
 tmp
 mcp-servers.json
-README_排行榜功能.md
-WARP.md
-健身排行榜功能_部署和测试指南.md
-健身排行榜功能_项目完成总结.md
-健身排行榜功能需求文档_Redis版.md
-后端接口优化需求文档.md
+docs/
+GraduationProject/
 
 HELP.md
 target/
