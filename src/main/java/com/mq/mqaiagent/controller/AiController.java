@@ -1,11 +1,7 @@
 package com.mq.mqaiagent.controller;
 
-import com.google.common.util.concurrent.RateLimiter;
 import com.mq.mqaiagent.agent.MqManus;
 import com.mq.mqaiagent.app.KeepApp;
-import com.mq.mqaiagent.common.ErrorCode;
-import com.mq.mqaiagent.config.RateLimiterConfig;
-import com.mq.mqaiagent.exception.BusinessException;
 import com.mq.mqaiagent.model.entity.User;
 import com.mq.mqaiagent.service.UserService;
 import jakarta.annotation.Resource;
@@ -20,7 +16,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import reactor.core.publisher.Flux;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * ClassName：AiController
@@ -45,12 +40,6 @@ public class AiController {
     private UserService userService;
 
     @Resource
-    private RateLimiter aiRateLimiter;
-
-    @Resource
-    private RateLimiterConfig.UserRateLimiterManager userRateLimiterManager;
-
-    @Resource
     private com.mq.mqaiagent.pool.ChatClientPool chatClientPool;
 
     /**
@@ -65,14 +54,7 @@ public class AiController {
     public Flux<String> doChatWithKeepAppSSEUser(String message, String chatId, HttpServletRequest request) {
         // 获取当前登录用户
         User currentUser = userService.getLoginUser(request);
-        // 用户级别限流
-        if (!userRateLimiterManager.tryAcquire(currentUser.getId(), 1, TimeUnit.SECONDS)) {
-            throw new BusinessException(ErrorCode.TOO_MANY_REQUESTS, "请求过于频繁，请稍后再试");
-        }
-        // AI 接口限流
-        if (!aiRateLimiter.tryAcquire()) {
-            throw new BusinessException(ErrorCode.TOO_MANY_REQUESTS, "系统繁忙，请稍后再试");
-        }
+
         return keepApp.doChatByStream(message, chatId, currentUser.getId());
     }
 
