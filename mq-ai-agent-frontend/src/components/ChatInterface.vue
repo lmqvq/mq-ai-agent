@@ -1,11 +1,16 @@
-<template>
+﻿<template>
   <div class="chat-container">
     <div class="chat-header">
       <h1>{{ title }}</h1>
       <p class="description">{{ description }}</p>
     </div>
     
-    <div ref="chatMessages" class="chat-messages">
+    <div class="chat-body" :class="{ 'is-empty': isEmptyConversation }">
+      <div v-if="isEmptyConversation" class="empty-state">
+        <div v-if="emptyMessage" class="empty-message" v-html="processMessageContent(emptyMessage)"></div>
+      </div>
+
+      <div ref="chatMessages" class="chat-messages">
       <div v-for="(message, index) in messages" :key="index" 
            :class="['message', message.isUser ? 'user-message' : 'ai-message']">
         <div class="message-content">
@@ -59,11 +64,12 @@
         </template>
       </a-input>
     </div>
+    </div>
   </div>
 </template>
 
 <script>
-import { ref, onMounted, watch, nextTick } from 'vue';
+import { ref, onMounted, watch, nextTick, computed } from 'vue';
 import { IconSend } from '@arco-design/web-vue/es/icon';
 import ApiService from '../services/api';
 
@@ -112,11 +118,27 @@ export default {
       messages.value.push({
         content: welcomeMessage,
         isUser: false,
-        timestamp: new Date()
+        timestamp: new Date(),
+        isWelcome: true
       });
     });
-    
-    // 监听消息变化，自动滚动到底部
+
+    const isEmptyConversation = computed(() => {
+      if (messages.value.length === 0) {
+        return true;
+      }
+      if (messages.value.length === 1 && messages.value[0].isWelcome) {
+        return true;
+      }
+      return false;
+    });
+
+    const emptyMessage = computed(() => {
+      if (!isEmptyConversation.value) {
+        return '';
+      }
+      return messages.value[0]?.content || '';
+    });
     watch(messages, () => {
       nextTick(() => {
         scrollToBottom();
@@ -229,7 +251,9 @@ export default {
       modelOptions,
       sendMessage,
       formatTime,
-      processMessageContent
+      processMessageContent,
+      isEmptyConversation,
+      emptyMessage
     };
   }
 };
@@ -239,7 +263,9 @@ export default {
 .chat-container {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
   height: 100%;
+  min-height: 0;
   max-width: 1200px;
   margin: 0 auto;
   background-color: #f9f9f9;
@@ -267,11 +293,56 @@ export default {
   }
 }
 
+.chat-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-body.is-empty {
+  justify-content: center;
+  align-items: center;
+  padding: 16px 20px 24px;
+}
+
+.chat-body.is-empty .chat-messages {
+  display: none;
+}
+
+.chat-body.is-empty .chat-input {
+  width: min(92%, 720px);
+  margin: 0 auto;
+  border-radius: 16px;
+  box-shadow: none;
+  background-color: transparent;
+  border-top: none;
+  padding: 0;
+}
+
+.chat-body.is-empty .chat-input :deep(.arco-input-wrapper) {
+  width: 100%;
+}
+
+.empty-state {
+  width: min(92%, 720px);
+  text-align: center;
+  margin-bottom: 24px;
+  color: #333;
+}
+
+.empty-message {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
 .chat-messages {
   flex: 1;
-  padding: 20px;
+  padding: 20px 20px 24px 20px;
   overflow-y: auto;
   background-color: #f9f9f9;
+  min-height: 0;
   
   .message {
     margin-bottom: 16px;
@@ -349,10 +420,23 @@ export default {
 }
 
 .chat-input {
-  padding: 16px;
-  background-color: #fff;
-  border-top: 1px solid #eee;
+  padding: 16px 20px 20px;
+  background-color: transparent;
+  border-top: none;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
   
+  :deep(.arco-input-wrapper) {
+    width: min(92%, 720px);
+    min-height: 48px;
+    border-radius: 24px;
+    border: 1px solid #e5e6eb;
+    background-color: #fff;
+    box-shadow: none;
+    transition: all 0.3s ease;
+  }
+
   :deep(.arco-input) {
     border-radius: 24px;
     padding-right: 12px;
@@ -411,3 +495,5 @@ export default {
   }
 }
 </style> 
+
+

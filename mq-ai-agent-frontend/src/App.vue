@@ -1,12 +1,14 @@
-<template>
+﻿<template>
   <div id="app">
-    <router-view v-slot="{ Component }">
-      <transition name="fade" mode="out-in">
-        <component :is="Component" />
-      </transition>
-    </router-view>
+    <main class="app-content">
+      <router-view v-slot="{ Component }">
+        <transition name="fade" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
+    </main>
     <footer class="global-footer">
-      <a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">桂ICP备2024028689号-4</a>
+      <a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank" rel="noopener noreferrer">桂ICP备2024028689号-4</a>
     </footer>
   </div>
 </template>
@@ -50,10 +52,17 @@ html, body {
   color: #333;
   background-color: #f0f2f5;
   height: 100%;
+  min-height: 100%;
 }
 
 #app {
-  height: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-content {
+  flex: 1 0 auto;
   display: flex;
   flex-direction: column;
 }
@@ -66,10 +75,8 @@ html, body {
   border-top: 1px solid #eee;
   font-size: 14px;
   color: #666;
-  position: fixed;
-  bottom: 0;
   width: 100%;
-  z-index: 100;
+  flex-shrink: 0;
   
   a {
     color: #666;
@@ -93,3 +100,4 @@ html, body {
   opacity: 0;
 }
 </style>
+

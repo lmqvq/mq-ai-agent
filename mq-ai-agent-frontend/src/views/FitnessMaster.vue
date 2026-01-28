@@ -21,14 +21,16 @@ export default {
 
 <style lang="scss" scoped>
 .fitness-master {
-  height: 100vh;
-  overflow: hidden;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
 }
 
 @media (max-width: 768px) {
   .fitness-master {
-    height: 100vh;
-    overflow: hidden;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
   }
 }
 </style>

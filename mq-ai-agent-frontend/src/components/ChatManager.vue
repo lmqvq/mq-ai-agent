@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="chat-manager">
     <!-- 左侧对话列表 -->
     <div class="sidebar">
@@ -79,7 +79,12 @@
         </div>
       </div>
       
-      <div ref="chatMessages" class="chat-messages">
+      <div class="chat-body" :class="{ 'is-empty': isEmptyConversation }">
+        <div v-if="isEmptyConversation" class="chat-empty-state">
+          <div v-if="emptyMessage" class="empty-message" v-html="processMessageContent(emptyMessage)"></div>
+        </div>
+
+        <div ref="chatMessages" class="chat-messages">
 
         
         <div v-for="(message, index) in messages" :key="message.id || index" 
@@ -137,6 +142,7 @@
           </template>
         </a-input>
       </div>
+      </div>
     </div>
 
     <!-- 删除确认弹窗 -->
@@ -190,7 +196,7 @@
 </template>
 
 <script>
-import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch, nextTick, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { Message } from '@arco-design/web-vue';
 import {
@@ -314,6 +320,22 @@ export default {
     });
     
     // 监听消息变化，自动滚动到底部
+    const isEmptyConversation = computed(() => {
+      if (messages.value.length === 0) {
+        return true;
+      }
+      if (messages.value.length === 1 && messages.value[0].isWelcome) {
+        return true;
+      }
+      return false;
+    });
+
+    const emptyMessage = computed(() => {
+      if (!isEmptyConversation.value) {
+        return '';
+      }
+      return messages.value[0]?.message || '';
+    });
     watch(messages, () => {
       nextTick(() => {
         scrollToBottom();
@@ -903,6 +925,8 @@ export default {
       formatTime,
       formatDialogueTime,
       processMessageContent,
+      isEmptyConversation,
+      emptyMessage,
       goToHome,
       showWelcomeMessage
     };
@@ -913,10 +937,11 @@ export default {
 <style lang="scss" scoped>
 .chat-manager {
   display: flex;
-  height: calc(100vh - 60px); /* 减去footer高度 */
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 0;
   background-color: #f5f5f5;
-  overflow: hidden; // 防止整体页面滚动
-  margin-bottom: 60px; /* 为footer留出空间 */
+  overflow: hidden;
   transition: background-color 0.3s ease;
 }
 
@@ -1167,7 +1192,7 @@ export default {
 
   .chat-messages {
     flex: 1;
-    padding: 24px 24px 120px 24px; /* 底部增加padding为固定输入框留空间 */
+    padding: 24px 24px 32px 24px;
     overflow-y: auto;
     background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
     min-height: 0; // 确保能正确收缩
@@ -1320,23 +1345,23 @@ export default {
   }
 
   .chat-input {
-    position: fixed;
-    bottom: 60px; /* 在footer上方 */
-    left: 280px; /* 侧边栏宽度 */
-    right: 0;
-    flex-shrink: 0; // 防止输入框被压缩
-    padding: 20px 24px;
-    background-color: #fff;
-    border-top: 1px solid #e8e8e8;
-    z-index: 100;
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    flex-shrink: 0;
+    padding: 16px 24px 20px;
+    background-color: transparent;
+    border-top: none;
+    box-shadow: none;
+    display: flex;
+    justify-content: center;
 
     :deep(.arco-input-wrapper) {
+      width: min(92%, 720px);
+      min-height: 48px;
       border-radius: 24px;
-      border: 2px solid #e8e8e8;
-      background-color: #f8f9fa;
+      border: 1px solid #e5e6eb;
+      background-color: #fff;
       transition: all 0.3s ease;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      box-shadow: none;
 
       &:hover {
         border-color: #1890ff;
@@ -1471,6 +1496,54 @@ export default {
 }
 
 // 响应式设计
+
+.chat-area .chat-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-area .chat-body.is-empty {
+  justify-content: center;
+  align-items: center;
+  padding: 16px 24px 24px;
+}
+
+.chat-area .chat-body.is-empty .chat-messages {
+  display: none;
+}
+
+.chat-area .chat-body.is-empty .chat-input {
+  width: min(92%, 720px);
+  margin: 0 auto;
+  border-radius: 16px;
+  box-shadow: none;
+  background-color: transparent;
+  border-top: none;
+  padding: 0;
+}
+
+.chat-area .chat-body.is-empty .chat-input :deep(.arco-input-wrapper) {
+  width: 100%;
+}
+
+.chat-area .chat-empty-state {
+  width: min(92%, 760px);
+  text-align: center;
+  margin-bottom: 24px;
+  color: #333;
+}
+
+.chat-area .chat-empty-state .empty-message {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+body[arco-theme='dark'] .chat-area .chat-empty-state {
+  color: #e6e6e6;
+}
 @media (max-width: 768px) {
   .chat-manager {
     flex-direction: column;
@@ -1499,7 +1572,6 @@ export default {
     }
 
     .chat-input {
-      left: 0; /* 小屏幕时占满宽度 */
       padding: 12px 16px;
     }
   }
@@ -1539,7 +1611,6 @@ export default {
 
     .close-btn {
       position: absolute;
-      right: 0;
       top: -4px;
       color: #86909c;
 
@@ -1775,9 +1846,9 @@ export default {
     }
 
     .chat-input {
-      background: linear-gradient(135deg, rgba(30, 32, 42, 0.98) 0%, rgba(25, 27, 37, 0.98) 100%);
-      border-top: 1px solid rgba(141, 154, 255, 0.2);
-      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.4);
+      background: transparent;
+      border-top: none;
+      box-shadow: none;
 
       :deep(.arco-input-wrapper) {
         background: linear-gradient(135deg, rgba(40, 42, 54, 0.8) 0%, rgba(32, 34, 45, 0.8) 100%);
@@ -1838,7 +1909,7 @@ export default {
     }
   }
 
-  // 删除确认弹窗暗黑模式
+  // 鍒犻櫎纭寮圭獥鏆楅粦妯″紡
   .delete-confirm-modal {
     :deep(.arco-modal) {
       background: linear-gradient(180deg, rgba(35, 35, 45, 0.98) 0%, rgba(30, 30, 40, 0.98) 100%);
@@ -1903,3 +1974,19 @@ export default {
   }
 }
 </style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
