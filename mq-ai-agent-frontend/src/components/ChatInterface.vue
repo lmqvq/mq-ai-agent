@@ -18,6 +18,46 @@
               <span v-if="message.isUser">{{ message.content }}</span>
               <span v-else v-html="processMessageContent(message.content)"></span>
             </div>
+            <div v-if="!message.isUser" class="message-actions">
+              <a-button type="text" size="mini" class="action-btn" @click="copyMessage(message.content)">
+                <template #icon>
+                  <icon-copy />
+                </template>
+                复制
+              </a-button>
+              <a-button
+                v-if="getFeedback(index) !== 'dislike'"
+                type="text"
+                size="mini"
+                class="action-btn"
+                :class="{ active: getFeedback(index) === 'like' }"
+                @click="toggleFeedback(index, 'like')"
+              >
+                <template #icon>
+                  <icon-thumb-up />
+                </template>
+                喜欢
+              </a-button>
+              <a-button
+                v-if="getFeedback(index) !== 'like'"
+                type="text"
+                size="mini"
+                class="action-btn"
+                :class="{ active: getFeedback(index) === 'dislike' }"
+                @click="toggleFeedback(index, 'dislike')"
+              >
+                <template #icon>
+                  <icon-thumb-down />
+                </template>
+                不喜欢
+              </a-button>
+              <a-button type="text" size="mini" class="action-btn" @click="shareMessage(message.content)">
+                <template #icon>
+                  <icon-share-alt />
+                </template>
+                分享
+              </a-button>
+            </div>
           </div>
           <div v-if="isTyping" class="message ai-message typing">
             <div class="typing-indicator">
@@ -71,13 +111,24 @@
 
 <script>
 import { ref, onMounted, watch, nextTick, computed } from 'vue';
-import { IconSend } from '@arco-design/web-vue/es/icon';
+import { Message } from '@arco-design/web-vue';
+import {
+  IconSend,
+  IconCopy,
+  IconThumbUp,
+  IconThumbDown,
+  IconShareAlt
+} from '@arco-design/web-vue/es/icon';
 import ApiService from '../services/api';
 
 export default {
   name: 'ChatInterface',
   components: {
-    IconSend
+    IconSend,
+    IconCopy,
+    IconThumbUp,
+    IconThumbDown,
+    IconShareAlt
   },
   props: {
     title: {
@@ -140,6 +191,47 @@ export default {
       }
       return messages.value[0]?.content || '';
     });
+
+    const feedbackMap = ref({});
+
+    const getFeedback = (key) => {
+      return feedbackMap.value[key] || '';
+    };
+
+    const toggleFeedback = (key, type) => {
+      feedbackMap.value[key] = feedbackMap.value[key] === type ? '' : type;
+    };
+
+    const copyMessage = async (content) => {
+      try {
+        await navigator.clipboard.writeText(content);
+        Message.success('已复制');
+      } catch (error) {
+        const textarea = document.createElement('textarea');
+        textarea.value = content;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        Message.success('已复制');
+      }
+    };
+
+    const shareMessage = async (content) => {
+      if (navigator.share) {
+        try {
+          await navigator.share({ text: content });
+          return;
+        } catch (error) {
+          // 用户取消时不提示
+        }
+      }
+      await copyMessage(content);
+      Message.info('内容已复制，可直接分享');
+    };
 
     const handleInputEnter = (event) => {
       if (event.shiftKey) {
@@ -263,6 +355,10 @@ export default {
       processMessageContent,
       isEmptyConversation,
       emptyMessage,
+      getFeedback,
+      toggleFeedback,
+      copyMessage,
+      shareMessage,
       handleInputEnter
     };
   }
@@ -378,6 +474,31 @@ export default {
       word-break: break-word;
       overflow-wrap: anywhere;
       white-space: pre-wrap;
+    }
+
+    .message-actions {
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #8e8e93;
+    }
+
+    .action-btn {
+      color: #8e8e93;
+      padding: 0 4px;
+      border-radius: 8px;
+    }
+
+    .action-btn.active {
+      color: #4080ff;
+      background: rgba(64, 128, 255, 0.1);
+    }
+
+    :deep(.action-btn .arco-btn-icon) {
+      margin-right: 4px;
     }
     
     &.user-message {
