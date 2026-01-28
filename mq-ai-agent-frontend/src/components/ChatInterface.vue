@@ -11,58 +11,60 @@
       </div>
 
       <div ref="chatMessages" class="chat-messages">
-      <div v-for="(message, index) in messages" :key="index" 
-           :class="['message', message.isUser ? 'user-message' : 'ai-message']">
-        <div class="message-content">
-          <span v-if="message.isUser">{{ message.content }}</span>
-          <span v-else v-html="processMessageContent(message.content)"></span>
+        <div class="chat-messages-inner">
+          <div v-for="(message, index) in messages" :key="index" 
+               :class="['message', message.isUser ? 'user-message' : 'ai-message']">
+            <div class="message-content">
+              <span v-if="message.isUser">{{ message.content }}</span>
+              <span v-else v-html="processMessageContent(message.content)"></span>
+            </div>
+            <div class="message-time">{{ formatTime(message.timestamp) }}</div>
+          </div>
+          <div v-if="isTyping" class="message ai-message typing">
+            <div class="typing-indicator">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
         </div>
-        <div class="message-time">{{ formatTime(message.timestamp) }}</div>
       </div>
-      <div v-if="isTyping" class="message ai-message typing">
-        <div class="typing-indicator">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-      </div>
-    </div>
     
     <div class="chat-input">
-      <a-input
-        v-model="userInput"
-        placeholder="输入您的问题..."
-        :disabled="isLoading"
-        @keyup.enter="sendMessage"
-      >
-        <template #suffix>
-          <div class="input-suffix">
-            <a-select
-              v-model="selectedModel"
-              size="mini"
-              class="model-select"
-              :disabled="isLoading"
+      <div class="chat-input-inner">
+        <a-textarea
+          v-model="userInput"
+          placeholder="输入您的问题..."
+          :disabled="isLoading"
+          :auto-size="{ minRows: 1, maxRows: 6 }"
+          @keydown.enter="handleInputEnter"
+        />
+        <div class="input-actions">
+          <a-select
+            v-model="selectedModel"
+            size="mini"
+            class="model-select"
+            :disabled="isLoading"
+          >
+            <a-option
+              v-for="option in modelOptions"
+              :key="option.value"
+              :value="option.value"
             >
-              <a-option
-                v-for="option in modelOptions"
-                :key="option.value"
-                :value="option.value"
-              >
-                {{ option.label }}
-              </a-option>
-            </a-select>
-            <a-button 
-              type="primary" 
-              shape="circle"
-              :loading="isLoading"
-              :disabled="!userInput.trim() || isLoading"
-              @click="sendMessage"
-            >
-              <icon-send />
-            </a-button>
-          </div>
-        </template>
-      </a-input>
+              {{ option.label }}
+            </a-option>
+          </a-select>
+          <a-button 
+            type="primary" 
+            shape="circle"
+            :loading="isLoading"
+            :disabled="!userInput.trim() || isLoading"
+            @click="sendMessage"
+          >
+            <icon-send />
+          </a-button>
+        </div>
+      </div>
     </div>
     </div>
   </div>
@@ -139,6 +141,14 @@ export default {
       }
       return messages.value[0]?.content || '';
     });
+
+    const handleInputEnter = (event) => {
+      if (event.shiftKey) {
+        return;
+      }
+      event.preventDefault();
+      sendMessage();
+    };
     watch(messages, () => {
       nextTick(() => {
         scrollToBottom();
@@ -253,7 +263,8 @@ export default {
       formatTime,
       processMessageContent,
       isEmptyConversation,
-      emptyMessage
+      emptyMessage,
+      handleInputEnter
     };
   }
 };
@@ -312,7 +323,7 @@ export default {
 }
 
 .chat-body.is-empty .chat-input {
-  width: min(92%, 720px);
+  width: min(92%, 760px);
   margin: 0 auto;
   border-radius: 16px;
   box-shadow: none;
@@ -321,7 +332,7 @@ export default {
   padding: 0;
 }
 
-.chat-body.is-empty .chat-input :deep(.arco-input-wrapper) {
+.chat-body.is-empty .chat-input .chat-input-inner {
   width: 100%;
 }
 
@@ -346,6 +357,15 @@ export default {
   min-height: 0;
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
+  display: flex;
+  justify-content: center;
+
+  .chat-messages-inner {
+    width: min(92%, 760px);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+  }
   
   .message {
     margin-bottom: 16px;
@@ -357,6 +377,8 @@ export default {
       font-size: 16px;
       line-height: 1.5;
       word-break: break-word;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
     }
     
     .message-time {
@@ -429,42 +451,68 @@ export default {
   flex-shrink: 0;
   display: flex;
   justify-content: center;
-  
-  :deep(.arco-input-wrapper) {
-    width: min(92%, 720px);
-    min-height: 48px;
-    border-radius: 24px;
-    border: 1px solid #e5e6eb;
+
+  .chat-input-inner {
+    width: min(92%, 760px);
     background-color: #fff;
-    box-shadow: none;
+    border-radius: 16px;
+    border: 1px solid #e5e6eb;
+    padding: 10px 12px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     transition: all 0.3s ease;
   }
 
-  :deep(.arco-input) {
-    border-radius: 24px;
-    padding-right: 12px;
-  }
-  :deep(.arco-input-suffix) {
-    cursor: default;
+  .chat-input-inner:hover {
+    border-color: #4080ff;
   }
 
-  .input-suffix {
+  .chat-input-inner:focus-within {
+    border-color: #4080ff;
+    box-shadow: 0 0 0 3px rgba(64, 128, 255, 0.1);
+  }
+
+  :deep(.arco-textarea-wrapper) {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    background: transparent;
+  }
+
+  :deep(.arco-textarea) {
+    border: none;
+    box-shadow: none;
+    resize: none;
+    padding: 0;
+    font-size: 15px;
+    line-height: 1.6;
+    background: transparent;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  .input-actions {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 8px;
   }
 
   :deep(.model-select) {
-    min-width: 104px;
+    min-width: 72px;
+    max-width: 96px;
   }
 
   :deep(.model-select .arco-select-view) {
-    height: 28px;
+    height: 26px;
     border-radius: 16px;
-    padding: 0 10px;
+    padding: 0 8px;
     border: 1px solid #e5e6eb;
     background-color: #f2f3f5;
     box-shadow: none;
+    font-size: 12px;
   }
 
   :deep(.model-select .arco-select-view:hover) {

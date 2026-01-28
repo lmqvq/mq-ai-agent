@@ -103,60 +103,62 @@
         <div ref="chatMessages" class="chat-messages">
 
         
-        <div v-for="(message, index) in messages" :key="message.id || index" 
-             :class="['message', message.messageType === 'user' ? 'user-message' : 'ai-message']">
-          <div class="message-content">
-            <span v-if="message.messageType === 'user'">{{ message.message }}</span>
-            <span v-else v-html="processMessageContent(message.message)"></span>
+        <div class="chat-messages-inner">
+          <div v-for="(message, index) in messages" :key="message.id || index" 
+               :class="['message', message.messageType === 'user' ? 'user-message' : 'ai-message']">
+            <div class="message-content">
+              <span v-if="message.messageType === 'user'">{{ message.message }}</span>
+              <span v-else v-html="processMessageContent(message.message)"></span>
+            </div>
+            <div class="message-time">{{ formatTime(message.createTime) }}</div>
           </div>
-          <div class="message-time">{{ formatTime(message.createTime) }}</div>
-        </div>
-        
-        <div v-if="isTyping" class="message ai-message typing">
-          <div class="typing-indicator">
-            <span></span>
-            <span></span>
-            <span></span>
+          
+          <div v-if="isTyping" class="message ai-message typing">
+            <div class="typing-indicator">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
           </div>
         </div>
       </div>
       
       <div class="chat-input">
-        <a-input
-          v-model="userInput"
-          :placeholder="currentDialogueId ? '输入您的问题...' : '输入消息开始新对话...'"
-          :disabled="isLoading"
-          @keyup.enter="sendMessage"
-        >
-          <template #suffix>
-            <div class="input-suffix">
-              <a-select
-                v-model="selectedModel"
-                size="mini"
-                class="model-select"
-                :disabled="isLoading"
+        <div class="chat-input-inner">
+          <a-textarea
+            v-model="userInput"
+            :placeholder="currentDialogueId ? '输入您的问题...' : '输入消息开始新对话...'"
+            :disabled="isLoading"
+            :auto-size="{ minRows: 1, maxRows: 6 }"
+            @keydown.enter="handleInputEnter"
+          />
+          <div class="input-actions">
+            <a-select
+              v-model="selectedModel"
+              size="mini"
+              class="model-select"
+              :disabled="isLoading"
+            >
+              <a-option
+                v-for="option in modelOptions"
+                :key="option.value"
+                :value="option.value"
               >
-                <a-option
-                  v-for="option in modelOptions"
-                  :key="option.value"
-                  :value="option.value"
-                >
-                  {{ option.label }}
-                </a-option>
-              </a-select>
-              <a-button
-                type="primary"
-                shape="circle"
-                :loading="isLoading"
-                :disabled="!userInput.trim() || isLoading"
-                @click="sendMessage"
-                aria-label="发送消息"
-              >
-                <icon-send />
-              </a-button>
-            </div>
-          </template>
-        </a-input>
+                {{ option.label }}
+              </a-option>
+            </a-select>
+            <a-button
+              type="primary"
+              shape="circle"
+              :loading="isLoading"
+              :disabled="!userInput.trim() || isLoading"
+              @click="sendMessage"
+              aria-label="发送消息"
+            >
+              <icon-send />
+            </a-button>
+          </div>
+        </div>
       </div>
       </div>
     </div>
@@ -388,6 +390,14 @@ export default {
     const toggleDialogueList = () => {
       isDialogueExpanded.value = !isDialogueExpanded.value;
       updateDialogueLayout();
+    };
+
+    const handleInputEnter = (event) => {
+      if (event.shiftKey) {
+        return;
+      }
+      event.preventDefault();
+      sendMessage();
     };
 
     // 监听消息变化，自动滚动到底部
@@ -1005,6 +1015,7 @@ export default {
       showDeleteConfirm,
       confirmDeleteDialogue,
       toggleDialogueList,
+      handleInputEnter,
       sendMessage,
       formatTime,
       formatDialogueTime,
@@ -1333,6 +1344,15 @@ export default {
     min-height: 0; // 确保能正确收缩
     overscroll-behavior: contain;
     scrollbar-gutter: stable;
+    display: flex;
+    justify-content: center;
+
+    .chat-messages-inner {
+      width: min(92%, 760px);
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+    }
 
 
 
@@ -1352,6 +1372,8 @@ export default {
         font-size: 16px;
         line-height: 1.5;
         word-break: break-word;
+        overflow-wrap: anywhere;
+        white-space: pre-wrap;
         position: relative;
         max-width: 100%;
         display: inline-block;
@@ -1491,108 +1513,119 @@ export default {
     display: flex;
     justify-content: center;
 
-    :deep(.arco-input-wrapper) {
-      width: min(92%, 720px);
-      min-height: 48px;
-      border-radius: 24px;
-      border: 1px solid #e5e6eb;
+    .chat-input-inner {
+      width: min(92%, 760px);
       background-color: #fff;
+      border-radius: 16px;
+      border: 1px solid #e5e6eb;
+      padding: 10px 12px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
       transition: all 0.3s ease;
-      box-shadow: none;
 
       &:hover {
         border-color: #1890ff;
-        background-color: #fff;
       }
 
-      &.arco-input-focus {
+      &:focus-within {
         border-color: #1890ff;
-        background-color: #fff;
         box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1);
       }
     }
 
-    :deep(.arco-input) {
-      background: transparent;
+    :deep(.arco-textarea-wrapper) {
       border: none;
-      padding: 12px 16px;
+      box-shadow: none;
+      padding: 0;
+      background: transparent;
+    }
+
+    :deep(.arco-textarea) {
+      border: none;
+      box-shadow: none;
+      resize: none;
+      padding: 0;
       font-size: 15px;
-      line-height: 1.5;
+      line-height: 1.6;
+      background: transparent;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: anywhere;
 
       &::placeholder {
         color: #999;
       }
     }
-    .input-suffix {
+
+    .input-actions {
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: flex-end;
+      gap: 12px;
     }
 
     :deep(.model-select) {
-      min-width: 112px;
+      min-width: 72px;
+      max-width: 96px;
     }
 
     :deep(.model-select .arco-select-view) {
-      height: 30px;
+      height: 26px;
       border-radius: 16px;
-      padding: 0 12px;
+      padding: 0 8px;
       border: 1px solid #d9d9d9;
       background-color: #ffffff;
       box-shadow: none;
+      font-size: 12px;
     }
 
     :deep(.model-select .arco-select-view:hover) {
       border-color: #1890ff;
     }
-    :deep(.arco-input-suffix) {
-      cursor: default;
-      padding-right: 8px;
 
-      .arco-btn {
-        width: 36px;
-        height: 36px;
+    .arco-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+      border: none;
+      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
         border-radius: 50%;
-        background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
-        border: none;
-        box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.3s, height 0.3s;
+      }
 
-        /* 添加点击波纹效果 */
+      &:hover {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 6px 16px rgba(24, 144, 255, 0.4);
+      }
+
+      &:active {
+        transform: translateY(0) scale(0.95);
+
         &::before {
-          content: '';
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 0;
-          height: 0;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.3);
-          transform: translate(-50%, -50%);
-          transition: width 0.3s, height 0.3s;
+          width: 100%;
+          height: 100%;
         }
+      }
 
-        &:hover {
-          transform: translateY(-2px) scale(1.05);
-          box-shadow: 0 6px 16px rgba(24, 144, 255, 0.4);
-        }
-
-        &:active {
-          transform: translateY(0) scale(0.95);
-
-          &::before {
-            width: 100%;
-            height: 100%;
-          }
-        }
-
-        &:disabled {
-          background: #d9d9d9;
-          box-shadow: none;
-          transform: none;
-        }
+      &:disabled {
+        background: #d9d9d9;
+        box-shadow: none;
+        transform: none;
       }
     }
   }
@@ -1653,7 +1686,7 @@ export default {
 }
 
 .chat-area .chat-body.is-empty .chat-input {
-  width: min(92%, 720px);
+  width: min(92%, 760px);
   margin: 0 auto;
   border-radius: 16px;
   box-shadow: none;
@@ -1662,7 +1695,7 @@ export default {
   padding: 0;
 }
 
-.chat-area .chat-body.is-empty .chat-input :deep(.arco-input-wrapper) {
+.chat-area .chat-body.is-empty .chat-input .chat-input-inner {
   width: 100%;
 }
 
