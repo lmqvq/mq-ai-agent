@@ -27,32 +27,48 @@
         </a-button>
       </div>
       
-      <div class="dialogue-list">
-        <div class="list-header">历史对话</div>
-        <div 
-          v-for="dialogue in dialogueList" 
-          :key="dialogue.id"
-          :class="['dialogue-item', { active: currentDialogueId === dialogue.id }]"
-          @click="switchDialogue(dialogue.id)"
+      <div class="dialogue-list" ref="dialogueListContainer">
+        <div ref="dialogueListHeader" class="list-header">历史对话</div>
+        <div
+          ref="dialogueListContent"
+          class="dialogue-list-content"
+          :class="{ 'is-collapsed': showDialogueToggle && !isDialogueExpanded }"
+          :style="dialogueListContentStyle"
         >
-          <div class="dialogue-title">{{ dialogue.title || '新对话' }}</div>
-          <div class="dialogue-time">{{ formatDialogueTime(dialogue.updateTime) }}</div>
-          <div class="dialogue-actions">
-            <a-button
-              type="text"
-              size="mini"
-              @click.stop="showDeleteConfirm(dialogue)"
-              :loading="isDeletingDialogue === dialogue.id"
-              aria-label="删除对话"
-            >
-              <icon-delete />
-            </a-button>
+          <div 
+            v-for="dialogue in dialogueList" 
+            :key="dialogue.id"
+            :class="['dialogue-item', { active: currentDialogueId === dialogue.id }]"
+            @click="switchDialogue(dialogue.id)"
+          >
+            <div class="dialogue-title">{{ dialogue.title || '新对话' }}</div>
+            <div class="dialogue-time">{{ formatDialogueTime(dialogue.updateTime) }}</div>
+            <div class="dialogue-actions">
+              <a-button
+                type="text"
+                size="mini"
+                @click.stop="showDeleteConfirm(dialogue)"
+                :loading="isDeletingDialogue === dialogue.id"
+                aria-label="删除对话"
+              >
+                <icon-delete />
+              </a-button>
+            </div>
+          </div>
+          
+          <div v-if="dialogueList.length === 0" class="empty-state">
+            <icon-message />
+            <span>暂无对话历史</span>
           </div>
         </div>
-        
-        <div v-if="dialogueList.length === 0" class="empty-state">
-          <icon-message />
-          <span>暂无对话历史</span>
+        <div v-if="showDialogueToggle" ref="dialogueToggle" class="dialogue-toggle">
+          <a-button type="text" size="small" class="toggle-btn" @click="toggleDialogueList">
+            <template #icon>
+              <icon-down v-if="!isDialogueExpanded" />
+              <icon-up v-else />
+            </template>
+            {{ isDialogueExpanded ? '收起' : '展开更多' }}
+          </a-button>
         </div>
       </div>
     </div>
@@ -206,7 +222,9 @@ import {
   IconDelete,
   IconMessage,
   IconSend,
-  IconLeft
+  IconLeft,
+  IconDown,
+  IconUp
 } from '@arco-design/web-vue/es/icon';
 import ApiService from '../services/api';
 import LocalStorageService from '../services/localStorage';
@@ -220,7 +238,9 @@ export default {
     IconDelete,
     IconMessage,
     IconSend,
-    IconLeft
+    IconLeft,
+    IconDown,
+    IconUp
   },
   props: {
     title: {
@@ -255,6 +275,13 @@ export default {
     const isDeletingDialogue = ref(null);
     const deleteConfirmVisible = ref(false);
     const dialogueToDelete = ref(null);
+    const dialogueListContainer = ref(null);
+    const dialogueListHeader = ref(null);
+    const dialogueListContent = ref(null);
+    const dialogueToggle = ref(null);
+    const isDialogueExpanded = ref(false);
+    const showDialogueToggle = ref(false);
+    const collapsedMaxHeight = ref(240);
 
     let eventSource = null;
     
@@ -317,8 +344,52 @@ export default {
         messages.value = [];
         showWelcomeMessage();
       }
+
+      updateDialogueLayout();
+      window.addEventListener('resize', updateDialogueLayout);
     });
     
+    const dialogueListContentStyle = computed(() => {
+      if (!showDialogueToggle.value || isDialogueExpanded.value) {
+        return {};
+      }
+      return { maxHeight: `${collapsedMaxHeight.value}px` };
+    });
+
+    const updateDialogueLayout = () => {
+      nextTick(() => {
+        const containerHeight = dialogueListContainer.value?.clientHeight || 0;
+        const headerHeight = dialogueListHeader.value?.offsetHeight || 0;
+        const baseAvailableHeight = Math.max(0, containerHeight - headerHeight - 8);
+
+        if (!dialogueListContent.value || baseAvailableHeight === 0) {
+          showDialogueToggle.value = false;
+          return;
+        }
+
+        const contentHeight = dialogueListContent.value.scrollHeight || 0;
+        const baseCollapsed = Math.min(
+          Math.max(180, Math.round(baseAvailableHeight * 0.55)),
+          baseAvailableHeight
+        );
+        const shouldToggle = contentHeight > baseCollapsed + 4;
+        const toggleReserve = shouldToggle ? (dialogueToggle.value?.offsetHeight || 36) : 0;
+        const availableHeight = Math.max(0, baseAvailableHeight - toggleReserve);
+        const targetCollapsed = Math.max(180, Math.round(availableHeight * 0.55));
+
+        collapsedMaxHeight.value = Math.min(targetCollapsed, availableHeight);
+        showDialogueToggle.value = shouldToggle;
+        if (!showDialogueToggle.value) {
+          isDialogueExpanded.value = false;
+        }
+      });
+    };
+
+    const toggleDialogueList = () => {
+      isDialogueExpanded.value = !isDialogueExpanded.value;
+      updateDialogueLayout();
+    };
+
     // 监听消息变化，自动滚动到底部
     const isEmptyConversation = computed(() => {
       if (messages.value.length === 0) {
@@ -342,6 +413,10 @@ export default {
       });
     }, { deep: true });
 
+    watch(dialogueList, () => {
+      updateDialogueLayout();
+    }, { deep: true });
+
     // 组件卸载前清理资源
     onBeforeUnmount(() => {
       // 关闭EventSource连接
@@ -349,6 +424,7 @@ export default {
         eventSource.close();
         eventSource = null;
       }
+      window.removeEventListener('resize', updateDialogueLayout);
     });
     
     // 加载对话列表
@@ -916,11 +992,19 @@ export default {
       isDeletingDialogue,
       deleteConfirmVisible,
       dialogueToDelete,
+      dialogueListContainer,
+      dialogueListHeader,
+      dialogueListContent,
+      dialogueToggle,
+      isDialogueExpanded,
+      showDialogueToggle,
+      dialogueListContentStyle,
       createNewDialogue,
       switchDialogue,
       deleteDialogue,
       showDeleteConfirm,
       confirmDeleteDialogue,
+      toggleDialogueList,
       sendMessage,
       formatTime,
       formatDialogueTime,
@@ -1017,7 +1101,10 @@ export default {
 
   .dialogue-list {
     flex: 1;
-    overflow-y: auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 
     .list-header {
       padding: 16px 16px 8px;
@@ -1027,107 +1114,150 @@ export default {
       letter-spacing: 0.3px;
     }
 
-    .dialogue-item {
-      margin: 4px 8px;
-      padding: 12px;
-      cursor: pointer;
-      border-radius: 8px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    .dialogue-list-content {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 4px;
       position: relative;
-      border: 1px solid transparent;
-      transform: translateX(0);
-      overflow: hidden;
+      transition: max-height 0.3s ease;
 
-      /* 添加微妙的阴影效果 */
-      &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-        transition: left 0.5s;
+      &.is-collapsed {
+        flex: 0 0 auto;
+        overflow: hidden;
+
+        &::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          height: 32px;
+          background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.95));
+          pointer-events: none;
+        }
       }
 
-      &:hover {
-        background-color: #f8f9fa;
-        border-color: #e8e8e8;
-        transform: translateX(4px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      .dialogue-item {
+        margin: 4px 8px;
+        padding: 12px;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        border: 1px solid transparent;
+        transform: translateX(0);
+        overflow: hidden;
+
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+          transition: left 0.5s;
+        }
+
+        &:hover {
+          background-color: #f8f9fa;
+          border-color: #e8e8e8;
+          transform: translateX(4px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+          .dialogue-actions {
+            opacity: 1;
+          }
+
+          &::before {
+            left: 100%;
+          }
+        }
+
+        &.active {
+          background-color: #e6f7ff;
+          border-color: #1890ff;
+          box-shadow: 0 2px 8px rgba(24, 144, 255, 0.15);
+        }
+
+        .dialogue-title {
+          font-size: 14px;
+          color: #333;
+          margin-bottom: 6px;
+          font-weight: 500;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          line-height: 1.4;
+        }
+
+        .dialogue-time {
+          font-size: 12px;
+          color: #999;
+          font-weight: 400;
+        }
 
         .dialogue-actions {
-          opacity: 1;
-        }
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          transform: translateY(-50%);
+          opacity: 0;
+          transition: opacity 0.2s ease;
 
-        /* 触发光效动画 */
-        &::before {
-          left: 100%;
-        }
-      }
+          :deep(.arco-btn) {
+            color: #999;
+            width: 24px;
+            height: 24px;
 
-      &.active {
-        background-color: #e6f7ff;
-        border-color: #1890ff;
-        box-shadow: 0 2px 8px rgba(24, 144, 255, 0.15);
-      }
-
-      .dialogue-title {
-        font-size: 14px;
-        color: #333;
-        margin-bottom: 6px;
-        font-weight: 500;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        line-height: 1.4;
-      }
-
-      .dialogue-time {
-        font-size: 12px;
-        color: #999;
-        font-weight: 400;
-      }
-
-      .dialogue-actions {
-        position: absolute;
-        right: 8px;
-        top: 50%;
-        transform: translateY(-50%);
-        opacity: 0;
-        transition: opacity 0.2s ease;
-
-        :deep(.arco-btn) {
-          color: #999;
-          width: 24px;
-          height: 24px;
-
-          &:hover {
-            color: #ff4d4f;
-            background-color: rgba(255, 77, 79, 0.1);
+            &:hover {
+              color: #ff4d4f;
+              background-color: rgba(255, 77, 79, 0.1);
+            }
           }
+        }
+      }
+
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+        color: #999;
+
+        :deep(svg) {
+          width: 40px;
+          height: 40px;
+          margin-bottom: 12px;
+          opacity: 0.6;
+        }
+
+        span {
+          font-size: 14px;
+          font-weight: 500;
         }
       }
     }
 
-    .empty-state {
+    .dialogue-toggle {
+      padding: 6px 12px 12px;
       display: flex;
-      flex-direction: column;
-      align-items: center;
       justify-content: center;
-      padding: 60px 20px;
-      color: #999;
 
-      :deep(svg) {
-        width: 40px;
-        height: 40px;
-        margin-bottom: 12px;
-        opacity: 0.6;
-      }
-
-      span {
-        font-size: 14px;
+      .toggle-btn {
+        color: #4080ff;
         font-weight: 500;
+        border-radius: 16px;
+        padding: 0 10px;
+
+        :deep(.arco-btn-icon) {
+          margin-right: 6px;
+        }
+
+        &:hover {
+          background-color: rgba(64, 128, 255, 0.08);
+        }
       }
     }
   }
@@ -1718,6 +1848,12 @@ body[arco-theme='dark'] .chat-area .chat-empty-state {
         color: #c0c0c0;
       }
 
+      .dialogue-list-content {
+        &.is-collapsed::after {
+          background: linear-gradient(180deg, rgba(20, 20, 30, 0), rgba(20, 20, 30, 0.95));
+        }
+      }
+
       .dialogue-item {
         &:hover {
           background: linear-gradient(135deg, rgba(141, 154, 255, 0.12) 0%, rgba(157, 125, 197, 0.1) 100%);
@@ -1756,6 +1892,16 @@ body[arco-theme='dark'] .chat-area .chat-empty-state {
 
         :deep(svg) {
           opacity: 0.4;
+        }
+      }
+
+      .dialogue-toggle {
+        .toggle-btn {
+          color: #a5b4ff;
+
+          &:hover {
+            background-color: rgba(141, 154, 255, 0.16);
+          }
         }
       }
     }
