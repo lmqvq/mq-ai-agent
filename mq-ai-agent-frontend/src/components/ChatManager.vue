@@ -110,7 +110,6 @@
               <span v-if="message.messageType === 'user'">{{ message.message }}</span>
               <span v-else v-html="processMessageContent(message.message)"></span>
             </div>
-            <div class="message-time">{{ formatTime(message.createTime) }}</div>
           </div>
           
           <div v-if="isTyping" class="message ai-message typing">
@@ -1380,14 +1379,6 @@ export default {
         text-align: left;
       }
 
-      .message-time {
-        font-size: 12px;
-        color: #8E8E93;
-        margin-top: 4px;
-        font-weight: 400;
-        opacity: 0.8;
-        align-self: flex-start;
-      }
 
       &.user-message {
         margin-left: auto;
@@ -1425,12 +1416,6 @@ export default {
           }
         }
 
-        .message-time {
-          align-self: flex-end;
-          color: #8E8E93;
-          font-size: 12px;
-          margin-top: 4px;
-        }
       }
 
       &.ai-message {

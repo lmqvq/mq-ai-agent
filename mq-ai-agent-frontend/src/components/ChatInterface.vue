@@ -18,7 +18,6 @@
               <span v-if="message.isUser">{{ message.content }}</span>
               <span v-else v-html="processMessageContent(message.content)"></span>
             </div>
-            <div class="message-time">{{ formatTime(message.timestamp) }}</div>
           </div>
           <div v-if="isTyping" class="message ai-message typing">
             <div class="typing-indicator">
@@ -381,12 +380,6 @@ export default {
       white-space: pre-wrap;
     }
     
-    .message-time {
-      font-size: 12px;
-      color: #999;
-      margin-top: 4px;
-    }
-    
     &.user-message {
       margin-left: auto;
       text-align: right;
@@ -398,9 +391,6 @@ export default {
         box-shadow: 0 2px 6px rgba(64, 128, 255, 0.3);
       }
       
-      .message-time {
-        text-align: right;
-      }
     }
     
     &.ai-message {
