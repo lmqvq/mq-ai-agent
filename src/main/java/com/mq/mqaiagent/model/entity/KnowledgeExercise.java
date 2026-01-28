@@ -1,16 +1,19 @@
 package com.mq.mqaiagent.model.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import java.util.Date;
+import java.util.List;
 import lombok.Data;
 
 /**
  * 健身动作指导表
  * @TableName knowledge_exercise
  */
-@TableName(value ="knowledge_exercise")
+@TableName(value ="knowledge_exercise", autoResultMap = true)
 @Data
 public class KnowledgeExercise {
     /**
@@ -52,12 +55,14 @@ public class KnowledgeExercise {
     /**
      * 动作步骤数组（JSON格式）
      */
-    private Object instructions;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> instructions;
 
     /**
      * 提示数组（JSON格式）
      */
-    private Object tips;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> tips;
 
     /**
      * 排序字段

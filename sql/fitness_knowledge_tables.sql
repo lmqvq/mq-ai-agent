@@ -83,3 +83,24 @@ create table if not exists knowledge_program
     INDEX idx_sort (sortOrder, isDelete)
 ) comment '训练计划表' collate = utf8mb4_unicode_ci;
 
+-- 5. 饮食计划表
+-- 饮食计划表创建脚本
+-- 用于存储健身营养模块中的推荐饮食计划
+create table if not exists knowledge_meal
+(
+    id          bigint auto_increment comment 'id' primary key,
+    name        varchar(256)                       not null comment '餐食名称',
+    mealType    varchar(100)                       not null comment '餐食类型（早餐/午餐/晚餐/加餐/训练前/训练后）',
+    description varchar(512)                       null comment '简短描述',
+    image       varchar(1024)                      null comment '图片URL',
+    calories    int                                not null comment '卡路里(kcal)',
+    protein     int                                not null comment '蛋白质(g)',
+    carbs       int                                not null comment '碳水化合物(g)',
+    fat         int                                not null comment '脂肪(g)',
+    sortOrder   int      default 0                 not null comment '排序字段',
+    createTime  datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime  datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete    tinyint  default 0                 not null comment '是否删除',
+    INDEX idx_type (mealType, isDelete),
+    INDEX idx_sort (sortOrder, isDelete)
+) comment '饮食计划表' collate = utf8mb4_unicode_ci;

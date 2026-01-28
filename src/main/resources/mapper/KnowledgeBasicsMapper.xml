@@ -13,7 +13,7 @@
             <result property="readTime" column="readTime" jdbcType="INTEGER"/>
             <result property="views" column="views" jdbcType="INTEGER"/>
             <result property="content" column="content" jdbcType="VARCHAR"/>
-            <result property="tips" column="tips" jdbcType="OTHER"/>
+            <result property="tips" column="tips" jdbcType="OTHER" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
             <result property="sortOrder" column="sortOrder" jdbcType="INTEGER"/>
             <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>

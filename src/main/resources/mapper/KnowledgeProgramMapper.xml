@@ -13,7 +13,7 @@
             <result property="duration" column="duration" jdbcType="VARCHAR"/>
             <result property="intensity" column="intensity" jdbcType="VARCHAR"/>
             <result property="level" column="level" jdbcType="VARCHAR"/>
-            <result property="schedule" column="schedule" jdbcType="OTHER"/>
+            <result property="schedule" column="schedule" jdbcType="OTHER" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
             <result property="sortOrder" column="sortOrder" jdbcType="INTEGER"/>
             <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>

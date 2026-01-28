@@ -10,7 +10,7 @@
             <result property="description" column="description" jdbcType="VARCHAR"/>
             <result property="color" column="color" jdbcType="VARCHAR"/>
             <result property="icon" column="icon" jdbcType="VARCHAR"/>
-            <result property="benefits" column="benefits" jdbcType="OTHER"/>
+            <result property="benefits" column="benefits" jdbcType="OTHER" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
             <result property="sortOrder" column="sortOrder" jdbcType="INTEGER"/>
             <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>

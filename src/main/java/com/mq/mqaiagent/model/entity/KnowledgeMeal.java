@@ -1,21 +1,19 @@
 package com.mq.mqaiagent.model.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
-import java.util.Date;
-import java.util.List;
 import lombok.Data;
 
+import java.util.Date;
+
 /**
- * 健身基础知识表
- * @TableName knowledge_basics
+ * 饮食计划表
+ * @TableName knowledge_meal
  */
-@TableName(value ="knowledge_basics", autoResultMap = true)
+@TableName(value = "knowledge_meal")
 @Data
-public class KnowledgeBasics {
+public class KnowledgeMeal {
     /**
      * id
      */
@@ -23,9 +21,14 @@ public class KnowledgeBasics {
     private Long id;
 
     /**
-     * 标题
+     * 餐食名称
      */
-    private String title;
+    private String name;
+
+    /**
+     * 餐食类型（早餐/午餐/晚餐/加餐/训练前/训练后）
+     */
+    private String mealType;
 
     /**
      * 简短描述
@@ -38,30 +41,24 @@ public class KnowledgeBasics {
     private String image;
 
     /**
-     * 难度级别（初级/中级/高级）
+     * 卡路里(kcal)
      */
-    private String difficulty;
+    private Integer calories;
 
     /**
-     * 阅读时长（分钟）
+     * 蛋白质(g)
      */
-    private Integer readTime;
+    private Integer protein;
 
     /**
-     * 浏览次数
+     * 碳水化合物(g)
      */
-    private Integer views;
+    private Integer carbs;
 
     /**
-     * 详细内容
+     * 脂肪(g)
      */
-    private String content;
-
-    /**
-     * 提示数组（JSON格式）
-     */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private List<String> tips;
+    private Integer fat;
 
     /**
      * 排序字段

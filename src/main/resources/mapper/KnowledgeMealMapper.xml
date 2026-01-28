@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mq.mqaiagent.mapper.KnowledgeMealMapper">
+
+    <resultMap id="BaseResultMap" type="com.mq.mqaiagent.model.entity.KnowledgeMeal">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="mealType" column="mealType" jdbcType="VARCHAR"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="image" column="image" jdbcType="VARCHAR"/>
+        <result property="calories" column="calories" jdbcType="INTEGER"/>
+        <result property="protein" column="protein" jdbcType="INTEGER"/>
+        <result property="carbs" column="carbs" jdbcType="INTEGER"/>
+        <result property="fat" column="fat" jdbcType="INTEGER"/>
+        <result property="sortOrder" column="sortOrder" jdbcType="INTEGER"/>
+        <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+        <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, name, mealType, description, image,
+        calories, protein, carbs, fat,
+        sortOrder, createTime, updateTime, isDelete
+    </sql>
+</mapper>

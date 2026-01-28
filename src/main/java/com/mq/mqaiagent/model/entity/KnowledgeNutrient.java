@@ -1,16 +1,19 @@
 package com.mq.mqaiagent.model.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import java.util.Date;
+import java.util.List;
 import lombok.Data;
 
 /**
  * 营养知识表
  * @TableName knowledge_nutrient
  */
-@TableName(value ="knowledge_nutrient")
+@TableName(value ="knowledge_nutrient", autoResultMap = true)
 @Data
 public class KnowledgeNutrient {
     /**
@@ -42,7 +45,8 @@ public class KnowledgeNutrient {
     /**
      * 益处数组（JSON格式）
      */
-    private Object benefits;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> benefits;
 
     /**
      * 排序字段

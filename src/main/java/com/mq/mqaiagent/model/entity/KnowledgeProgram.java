@@ -1,16 +1,19 @@
 package com.mq.mqaiagent.model.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import java.util.Date;
+import java.util.List;
 import lombok.Data;
 
 /**
  * 训练计划表
  * @TableName knowledge_program
  */
-@TableName(value ="knowledge_program")
+@TableName(value ="knowledge_program", autoResultMap = true)
 @Data
 public class KnowledgeProgram {
     /**
@@ -57,7 +60,8 @@ public class KnowledgeProgram {
     /**
      * 训练安排数组（JSON格式）
      */
-    private Object schedule;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<Object> schedule;
 
     /**
      * 排序字段

@@ -12,8 +12,8 @@
             <result property="image" column="image" jdbcType="VARCHAR"/>
             <result property="muscleGroup" column="muscleGroup" jdbcType="VARCHAR"/>
             <result property="difficulty" column="difficulty" jdbcType="VARCHAR"/>
-            <result property="instructions" column="instructions" jdbcType="OTHER"/>
-            <result property="tips" column="tips" jdbcType="OTHER"/>
+            <result property="instructions" column="instructions" jdbcType="OTHER" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+            <result property="tips" column="tips" jdbcType="OTHER" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
             <result property="sortOrder" column="sortOrder" jdbcType="INTEGER"/>
             <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
