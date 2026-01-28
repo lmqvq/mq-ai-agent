@@ -57,14 +57,17 @@ html, body {
 
 #app {
   min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
 .app-content {
-  flex: 1 0 auto;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  overflow: auto;
 }
 
 // 全局页脚样式

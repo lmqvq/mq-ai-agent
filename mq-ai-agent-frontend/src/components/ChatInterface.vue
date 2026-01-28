@@ -298,6 +298,7 @@ export default {
   min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .chat-body.is-empty {
@@ -343,6 +344,8 @@ export default {
   overflow-y: auto;
   background-color: #f9f9f9;
   min-height: 0;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
   
   .message {
     margin-bottom: 16px;

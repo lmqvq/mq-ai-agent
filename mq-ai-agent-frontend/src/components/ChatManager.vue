@@ -1036,6 +1036,8 @@ export default {
   border-right: 1px solid #e8e8e8;
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 
   .sidebar-header {
     padding: 16px 16px 12px 16px;
@@ -1120,6 +1122,8 @@ export default {
       padding-bottom: 4px;
       position: relative;
       transition: max-height 0.3s ease;
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable;
 
       &.is-collapsed {
         flex: 0 0 auto;
@@ -1270,6 +1274,7 @@ export default {
   flex-direction: column;
   background-color: #fff;
   min-height: 0; // 确保flex子元素能正确收缩
+  overflow: hidden;
 
   .chat-header {
     padding: 20px 24px;
@@ -1326,6 +1331,8 @@ export default {
     overflow-y: auto;
     background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
     min-height: 0; // 确保能正确收缩
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
 
 
 
@@ -1632,6 +1639,7 @@ export default {
   min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .chat-area .chat-body.is-empty {
