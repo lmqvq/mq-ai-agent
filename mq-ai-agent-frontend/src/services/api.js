@@ -897,6 +897,303 @@ const ApiService = {
         } catch (error) {
             throw error.response?.data || error
         }
+    },
+
+    // ==================== 健身知识库相关 ====================
+
+    /**
+     * 获取基础知识列表
+     * @param {Object} params 查询参数
+     * @returns {Promise} 分页数据
+     */
+    async getKnowledgeBasicsList(params = {}) {
+        try {
+            const response = await apiClient.post('/knowledge/basics/list', {
+                current: 1,
+                pageSize: 100,
+                ...params
+            })
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    /**
+     * 获取动作指导列表
+     * @param {Object} params 查询参数
+     * @returns {Promise} 分页数据
+     */
+    async getKnowledgeExercisesList(params = {}) {
+        try {
+            const response = await apiClient.post('/knowledge/exercises/list', {
+                current: 1,
+                pageSize: 100,
+                ...params
+            })
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    /**
+     * 获取营养知识列表
+     * @param {Object} params 查询参数
+     * @returns {Promise} 列表数据
+     */
+    async getKnowledgeNutrientsList(params = {}) {
+        try {
+            const response = await apiClient.post('/knowledge/nutrients/list', params)
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    /**
+     * 获取训练计划列表
+     * @param {Object} params 查询参数
+     * @returns {Promise} 列表数据
+     */
+    async getKnowledgeProgramsList(params = {}) {
+        try {
+            const response = await apiClient.post('/knowledge/programs/list', params)
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    /**
+     * 获取饮食计划列表
+     * @param {Object} params 查询参数
+     * @returns {Promise} 列表数据
+     */
+    async getKnowledgeMealsList(params = {}) {
+        try {
+            const response = await apiClient.post('/knowledge/meals/list', params)
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    /**
+     * 上传知识库图片（管理员）
+     * @param {File} file 图片文件
+     * @param {string} type 图片类型 (basics/exercise/meal)
+     * @returns {Promise} 图片URL
+     */
+    async uploadKnowledgeImage(file, type) {
+        try {
+            const formData = new FormData()
+            formData.append('file', file)
+            formData.append('type', type)
+            const response = await apiClient.post('/knowledge/image/upload', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            })
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    // ==================== 知识库管理接口（管理员） ====================
+
+    /**
+     * 添加基础知识
+     * @param {Object} data 知识数据
+     */
+    async addKnowledgeBasics(data) {
+        try {
+            const response = await apiClient.post('/knowledge/basics/add', data)
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    /**
+     * 更新基础知识
+     * @param {Object} data 知识数据
+     */
+    async updateKnowledgeBasics(data) {
+        try {
+            const response = await apiClient.post('/knowledge/basics/update', data)
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    /**
+     * 删除基础知识
+     * @param {number} id 知识ID
+     */
+    async deleteKnowledgeBasics(id) {
+        try {
+            const response = await apiClient.post('/knowledge/basics/delete', { id })
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    /**
+     * 添加动作指导
+     * @param {Object} data 动作数据
+     */
+    async addKnowledgeExercise(data) {
+        try {
+            const response = await apiClient.post('/knowledge/exercises/add', data)
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    /**
+     * 更新动作指导
+     * @param {Object} data 动作数据
+     */
+    async updateKnowledgeExercise(data) {
+        try {
+            const response = await apiClient.post('/knowledge/exercises/update', data)
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    /**
+     * 删除动作指导
+     * @param {number} id 动作ID
+     */
+    async deleteKnowledgeExercise(id) {
+        try {
+            const response = await apiClient.post('/knowledge/exercises/delete', { id })
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    /**
+     * 添加营养知识
+     * @param {Object} data 营养数据
+     */
+    async addKnowledgeNutrient(data) {
+        try {
+            const response = await apiClient.post('/knowledge/nutrients/add', data)
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    /**
+     * 更新营养知识
+     * @param {Object} data 营养数据
+     */
+    async updateKnowledgeNutrient(data) {
+        try {
+            const response = await apiClient.post('/knowledge/nutrients/update', data)
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    /**
+     * 删除营养知识
+     * @param {number} id 营养ID
+     */
+    async deleteKnowledgeNutrient(id) {
+        try {
+            const response = await apiClient.post('/knowledge/nutrients/delete', { id })
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    /**
+     * 添加训练计划
+     * @param {Object} data 计划数据
+     */
+    async addKnowledgeProgram(data) {
+        try {
+            const response = await apiClient.post('/knowledge/programs/add', data)
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    /**
+     * 更新训练计划
+     * @param {Object} data 计划数据
+     */
+    async updateKnowledgeProgram(data) {
+        try {
+            const response = await apiClient.post('/knowledge/programs/update', data)
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    /**
+     * 删除训练计划
+     * @param {number} id 计划ID
+     */
+    async deleteKnowledgeProgram(id) {
+        try {
+            const response = await apiClient.post('/knowledge/programs/delete', { id })
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    /**
+     * 添加饮食计划
+     * @param {Object} data 饮食数据
+     */
+    async addKnowledgeMeal(data) {
+        try {
+            const response = await apiClient.post('/knowledge/meals/add', data)
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    /**
+     * 更新饮食计划
+     * @param {Object} data 饮食数据
+     */
+    async updateKnowledgeMeal(data) {
+        try {
+            const response = await apiClient.post('/knowledge/meals/update', data)
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    /**
+     * 删除饮食计划
+     * @param {number} id 饮食ID
+     */
+    async deleteKnowledgeMeal(id) {
+        try {
+            const response = await apiClient.post('/knowledge/meals/delete', { id })
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
     }
 }
 

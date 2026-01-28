@@ -73,6 +73,15 @@ const routes = [
         meta: {
             title: '注册 - AI健身教练'
         }
+    },
+    {
+        path: '/admin/knowledge',
+        name: 'KnowledgeManage',
+        component: () => import('../views/KnowledgeManage.vue'),
+        meta: {
+            title: '知识库管理 - AI健身教练',
+            requiresAdmin: true
+        }
     }
 ]
 
@@ -81,11 +90,31 @@ const router = createRouter({
     routes
 })
 
-// 全局前置守卫设置页面标题
+// 全局前置守卫设置页面标题和权限检查
 router.beforeEach((to, from, next) => {
     if (to.meta.title) {
         document.title = to.meta.title
     }
+    
+    // 管理员权限检查
+    if (to.meta.requiresAdmin) {
+        const userStr = localStorage.getItem('user_info')
+        if (!userStr) {
+            next({ name: 'Login', query: { redirect: to.fullPath } })
+            return
+        }
+        try {
+            const user = JSON.parse(userStr)
+            if (user.userRole !== 'admin') {
+                next({ name: 'Home' })
+                return
+            }
+        } catch {
+            next({ name: 'Login', query: { redirect: to.fullPath } })
+            return
+        }
+    }
+    
     next()
 })
 
