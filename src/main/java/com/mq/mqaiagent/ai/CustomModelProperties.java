@@ -5,19 +5,42 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
- * 自定义模型（OpenAI 兼容）的配置。
- * 支持配置多个模型实例，每个实例有独立的 base-url、api-key、model 等参数。
+ * 统一的 AI 模型配置（OpenAI 兼容格式）。
+ * 支持配置多个模型实例，包括 DeepSeek、GLM、Gemini 等所有 OpenAI 兼容的模型。
+ * 
+ * 配置示例：
+ * <pre>
+ * mq:
+ *   ai:
+ *     models:
+ *       deepseek:
+ *         name: "DeepSeek"
+ *         description: "DeepSeek 官方模型"
+ *         api-key: ${DEEPSEEK_API_KEY}
+ *         base-url: https://api.deepseek.com
+ *         model: deepseek-chat
+ *         enabled: true
+ *       "glm-4.7":
+ *         name: "GLM-4.7"
+ *         description: "智谱 GLM-4.7 模型"
+ *         api-key: ${CUSTOM_API_KEY}
+ *         base-url: https://your-api.com/v1
+ *         model: glm-4.7
+ *         enabled: true
+ * </pre>
  */
 @Component
-@ConfigurationProperties(prefix = "mq.ai.custom")
+@ConfigurationProperties(prefix = "mq.ai")
 @Data
 public class CustomModelProperties {
 
     /**
-     * 多个自定义模型的配置，key 为模型标识（如 glm-4.7、gemini-2.5-flash）。
+     * 多个模型的配置，key 为模型标识（如 deepseek、glm-4.7、gemini-2.5-flash）。
      */
     private Map<String, ModelConfig> models = new HashMap<>();
 
@@ -26,6 +49,16 @@ public class CustomModelProperties {
      */
     @Data
     public static class ModelConfig {
+        /**
+         * 模型显示名称（前端展示用）。
+         */
+        private String name;
+
+        /**
+         * 模型描述（前端展示用）。
+         */
+        private String description;
+
         /**
          * 模型 API Key。
          */
@@ -59,8 +92,23 @@ public class CustomModelProperties {
     /**
      * 根据模型标识获取配置。
      */
-    public ModelConfig getModelConfig(String modelName) {
-        return models.get(modelName);
+    public ModelConfig getModelConfig(String modelId) {
+        return models.get(modelId);
+    }
+
+    /**
+     * 获取所有已启用的模型配置。
+     */
+    public List<ModelInfo> getEnabledModels() {
+        return models.entrySet().stream()
+                .filter(entry -> entry.getValue().isConfigured())
+                .map(entry -> new ModelInfo(
+                        entry.getKey(),
+                        entry.getValue().getName() != null ? entry.getValue().getName() : entry.getKey(),
+                        entry.getValue().getDescription(),
+                        "openai-compatible"
+                ))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -68,5 +116,11 @@ public class CustomModelProperties {
      */
     public boolean hasAnyConfiguredModel() {
         return models.values().stream().anyMatch(ModelConfig::isConfigured);
+    }
+
+    /**
+     * 模型信息（用于 API 返回）。
+     */
+    public record ModelInfo(String id, String name, String description, String type) {
     }
 }

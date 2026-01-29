@@ -1,8 +1,11 @@
 package com.mq.mqaiagent.controller;
 
 import com.mq.mqaiagent.agent.MqManus;
+import com.mq.mqaiagent.ai.AiModelRouter;
 import com.mq.mqaiagent.ai.AiModelType;
 import com.mq.mqaiagent.app.KeepApp;
+import com.mq.mqaiagent.common.BaseResponse;
+import com.mq.mqaiagent.common.ResultUtils;
 import com.mq.mqaiagent.model.entity.User;
 import com.mq.mqaiagent.pool.ChatClientPool;
 import com.mq.mqaiagent.service.UserService;
@@ -18,6 +21,9 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import reactor.core.publisher.Flux;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * ClassName：AiController
@@ -43,6 +49,9 @@ public class AiController {
 
     @Resource
     private ChatClientPool chatClientPool;
+
+    @Resource
+    private AiModelRouter aiModelRouter;
 
     /**
      * KeepApp 使用流式对话（支持用户认证）前端调用的接口
@@ -117,5 +126,22 @@ public class AiController {
         AiModelType modelType = chatClientPool.resolveModel(model).modelType();
         MqManus mqManus = new MqManus(allTools, chatClientPool, currentUser.getId(), modelType);
         return mqManus.runStream(message);
+    }
+
+    /**
+     * 获取可用的 AI 模型列表
+     * 
+     * @return 模型列表，包含 ID、名称、描述等信息
+     */
+    @GetMapping("/models")
+    public BaseResponse<Map<String, Object>> getAvailableModels() {
+        List<AiModelRouter.ModelInfo> models = aiModelRouter.getAvailableModels();
+        String defaultModel = aiModelRouter.getDefaultModelId();
+        
+        Map<String, Object> result = new HashMap<>();
+        result.put("models", models);
+        result.put("defaultModel", defaultModel);
+        
+        return ResultUtils.success(result);
     }
 }

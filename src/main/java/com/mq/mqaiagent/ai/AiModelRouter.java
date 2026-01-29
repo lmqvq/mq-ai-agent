@@ -4,106 +4,133 @@ import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.ChatOptions;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
  * 模型路由器：根据配置或参数选择实际使用的模型与选项。
+ * 支持内置模型（qwen-plus）和所有 OpenAI 兼容的自定义模型（deepseek、glm、gemini 等）。
  */
 @Component
 @Slf4j
 public class AiModelRouter {
 
     private final AiModelProperties aiModelProperties;
-    private final DeepSeekProperties deepSeekProperties;
+    private final CustomModelProperties customModelProperties;
     private final ChatModel dashscopeChatModel;
-    private final ObjectProvider<ChatModel> deepseekChatModelProvider;
-    private final ObjectProvider<ChatOptions> deepseekToolCallOptionsProvider;
-    private final Map<String, CustomModelChatModelConfig.CustomModelInstance> customModelPool;
+    private final Map<String, CustomModelChatModelConfig.ModelInstance> openAiCompatibleModelPool;
 
     public AiModelRouter(
             AiModelProperties aiModelProperties,
-            DeepSeekProperties deepSeekProperties,
+            CustomModelProperties customModelProperties,
             @Qualifier("dashscopeChatModel") ChatModel dashscopeChatModel,
-            @Qualifier("deepseekChatModel") ObjectProvider<ChatModel> deepseekChatModelProvider,
-            @Qualifier("deepseekToolCallOptions") ObjectProvider<ChatOptions> deepseekToolCallOptionsProvider,
-            @Qualifier("customModelPool") Map<String, CustomModelChatModelConfig.CustomModelInstance> customModelPool) {
+            @Qualifier("openAiCompatibleModelPool") Map<String, CustomModelChatModelConfig.ModelInstance> openAiCompatibleModelPool) {
         this.aiModelProperties = aiModelProperties;
-        this.deepSeekProperties = deepSeekProperties;
+        this.customModelProperties = customModelProperties;
         this.dashscopeChatModel = dashscopeChatModel;
-        this.deepseekChatModelProvider = deepseekChatModelProvider;
-        this.deepseekToolCallOptionsProvider = deepseekToolCallOptionsProvider;
-        this.customModelPool = customModelPool;
+        this.openAiCompatibleModelPool = openAiCompatibleModelPool;
     }
 
     public AiModelType getDefaultModelType() {
         return aiModelProperties.getDefaultModelType();
     }
 
+    public String getDefaultModelId() {
+        return aiModelProperties.getDefaultModel();
+    }
+
     public AiModelType resolveRequestedType(String rawModel) {
         return AiModelType.from(rawModel, getDefaultModelType());
     }
 
+    /**
+     * 根据原始模型名称解析模型。
+     */
     public ResolvedModel resolve(String rawModel) {
         return resolve(resolveRequestedType(rawModel), rawModel);
     }
 
     /**
      * 根据模型类型解析（不支持自定义模型的动态查找）。
-     * 注意：如果需要使用自定义模型，请使用 resolve(String rawModel) 或 resolve(AiModelType, String)。
      */
     public ResolvedModel resolve(AiModelType requestedType) {
-        // 对于 CUSTOM 类型，由于没有原始模型名称，无法从池中查找，回退到默认模型
         if (requestedType == AiModelType.CUSTOM) {
-            log.warn("调用 resolve(AiModelType.CUSTOM) 但未提供原始模型名称，无法匹配自定义模型，回退到默认模型");
+            log.warn("调用 resolve(AiModelType.CUSTOM) 但未提供原始模型名称，回退到默认模型");
             return resolve(getDefaultModelType(), null);
         }
         return resolve(requestedType, null);
     }
 
+    /**
+     * 核心路由方法：根据模型类型和原始名称解析到具体模型实例。
+     */
     public ResolvedModel resolve(AiModelType requestedType, String rawModel) {
         AiModelType effectiveType = requestedType == null ? getDefaultModelType() : requestedType;
 
-        if (effectiveType == AiModelType.CUSTOM) {
-            // 尝试从自定义模型池中查找
+        // 对于 CUSTOM 和 DEEPSEEK 类型，都从统一的模型池中查找
+        if (effectiveType == AiModelType.CUSTOM || effectiveType == AiModelType.DEEPSEEK) {
             String normalizedModelName = rawModel != null ? rawModel.trim().toLowerCase() : null;
-            if (normalizedModelName != null && customModelPool.containsKey(normalizedModelName)) {
-                CustomModelChatModelConfig.CustomModelInstance instance = customModelPool.get(normalizedModelName);
-                log.debug("路由到自定义模型: {}", normalizedModelName);
-                return new ResolvedModel(AiModelType.CUSTOM, instance.chatModel(), instance.chatOptions());
+            
+            // 如果是 DEEPSEEK 类型但没有提供原始名称，使用 "deepseek" 作为默认键
+            if (effectiveType == AiModelType.DEEPSEEK && normalizedModelName == null) {
+                normalizedModelName = "deepseek";
             }
-            log.warn("请求自定义模型: {}，但未在模型池中找到，回退到 qwen-plus", normalizedModelName);
+            
+            if (normalizedModelName != null && openAiCompatibleModelPool.containsKey(normalizedModelName)) {
+                CustomModelChatModelConfig.ModelInstance instance = openAiCompatibleModelPool.get(normalizedModelName);
+                log.debug("路由到模型: {}", normalizedModelName);
+                return new ResolvedModel(effectiveType, instance.chatModel(), instance.chatOptions());
+            }
+            
+            log.warn("请求模型: {}，但未在模型池中找到，回退到 qwen-plus", normalizedModelName);
             effectiveType = AiModelType.QWEN_PLUS;
         }
 
-        if (effectiveType == AiModelType.DEEPSEEK) {
-            ChatModel deepseekChatModel = deepseekChatModelProvider.getIfAvailable();
-            ChatOptions deepseekToolCallOptions = deepseekToolCallOptionsProvider.getIfAvailable();
-            if (deepseekChatModel != null && deepseekToolCallOptions != null) {
-                return new ResolvedModel(AiModelType.DEEPSEEK, deepseekChatModel, deepseekToolCallOptions);
-            }
-            log.warn("请求 DeepSeek，但 deepseekChatModel 未就绪（apiKeyPresent: {}），回退到 qwen-plus",
-                    deepSeekProperties.isConfigured());
-            effectiveType = AiModelType.QWEN_PLUS;
-        }
-
+        // 默认使用 qwen-plus
         return new ResolvedModel(effectiveType, dashscopeChatModel, buildDashscopeToolCallOptions());
     }
 
+    /**
+     * 获取所有可用模型列表（用于前端展示）。
+     */
+    public List<ModelInfo> getAvailableModels() {
+        List<ModelInfo> models = new ArrayList<>();
+        
+        // 添加内置模型 qwen-plus
+        models.add(new ModelInfo("qwen-plus", "通义千问", "阿里云通义千问大模型", "builtin", true));
+        
+        // 添加所有配置的 OpenAI 兼容模型
+        customModelProperties.getModels().forEach((modelId, config) -> {
+            if (config.isConfigured()) {
+                String name = config.getName() != null ? config.getName() : modelId;
+                String description = config.getDescription() != null ? config.getDescription() : "";
+                models.add(new ModelInfo(modelId, name, description, "openai-compatible", true));
+            }
+        });
+        
+        return models;
+    }
+
     private ChatOptions buildDashscopeToolCallOptions() {
-        // 关闭内置工具调用执行，交由我们自己的 ToolCallingManager 处理
         return DashScopeChatOptions.builder()
                 .withProxyToolCalls(true)
                 .build();
     }
 
     /**
-     * 路由后的模型信息（包含实际生效的模型类型，便于缓存键隔离）。
+     * 路由后的模型信息。
      */
     public record ResolvedModel(AiModelType modelType, ChatModel chatModel, ChatOptions toolCallOptions) {
+    }
+
+    /**
+     * 模型信息（用于 API 返回）。
+     */
+    public record ModelInfo(String id, String name, String description, String type, boolean enabled) {
     }
 }
 

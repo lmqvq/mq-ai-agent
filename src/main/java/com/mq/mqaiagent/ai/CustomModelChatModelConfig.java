@@ -13,21 +13,29 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 自定义模型（OpenAI 兼容）配置。
- * 根据配置动态创建多个模型实例。
+ * 统一的 AI 模型配置（OpenAI 兼容格式）。
+ * 根据配置动态创建模型池，支持 DeepSeek、GLM、Gemini 等所有 OpenAI 兼容的模型。
  */
 @Configuration
 @Slf4j
 public class CustomModelChatModelConfig {
 
     /**
-     * 创建自定义模型池，根据配置动态初始化所有启用的模型。
+     * 创建统一模型池，根据配置动态初始化所有启用的 OpenAI 兼容模型。
+     * 包括 DeepSeek、GLM、Gemini 等所有配置在 mq.ai.models 下的模型。
      */
-    @Bean(name = "customModelPool")
-    public Map<String, CustomModelInstance> customModelPool(CustomModelProperties properties) {
-        Map<String, CustomModelInstance> modelPool = new HashMap<>();
+    @Bean(name = "openAiCompatibleModelPool")
+    public Map<String, ModelInstance> openAiCompatibleModelPool(CustomModelProperties properties) {
+        Map<String, ModelInstance> modelPool = new HashMap<>();
 
-        properties.getModels().forEach((modelName, config) -> {
+        log.info("配置的模型数量: {}", properties.getModels().size());
+        properties.getModels().forEach((modelId, config) -> {
+            log.info("检查模型 {}: apiKey={}, baseUrl={}, enabled={}, isConfigured={}",
+                    modelId, 
+                    config.getApiKey() != null ? "***" : "null",
+                    config.getBaseUrl(),
+                    config.getEnabled(),
+                    config.isConfigured());
             if (config.isConfigured()) {
                 try {
                     OpenAiApi openAiApi = OpenAiApi.builder()
@@ -47,25 +55,26 @@ public class CustomModelChatModelConfig {
                             .defaultOptions(defaultOptions)
                             .build();
 
-                    log.info("初始化自定义模型: {}, baseUrl: {}, model: {}",
-                            modelName, config.getBaseUrl(), config.getModel());
+                    String displayName = config.getName() != null ? config.getName() : modelId;
+                    log.info("初始化模型: {} ({}), baseUrl: {}, model: {}",
+                            displayName, modelId, config.getBaseUrl(), config.getModel());
 
-                    modelPool.put(modelName.toLowerCase(), new CustomModelInstance(chatModel, defaultOptions));
+                    modelPool.put(modelId.toLowerCase(), new ModelInstance(chatModel, defaultOptions));
                 } catch (Exception e) {
-                    log.error("初始化自定义模型失败: {}", modelName, e);
+                    log.error("初始化模型失败: {}", modelId, e);
                 }
             } else {
-                log.debug("自定义模型 {} 未配置或未启用，跳过", modelName);
+                log.debug("模型 {} 未配置或未启用，跳过", modelId);
             }
         });
 
-        log.info("自定义模型池初始化完成，共 {} 个模型", modelPool.size());
+        log.info("模型池初始化完成，共 {} 个 OpenAI 兼容模型可用", modelPool.size());
         return modelPool;
     }
 
     /**
-     * 自定义模型实例封装。
+     * 模型实例封装。
      */
-    public record CustomModelInstance(ChatModel chatModel, ChatOptions chatOptions) {
+    public record ModelInstance(ChatModel chatModel, ChatOptions chatOptions) {
     }
 }
