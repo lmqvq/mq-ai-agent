@@ -9,7 +9,8 @@ import java.util.Objects;
 public enum AiModelType {
 
     QWEN_PLUS("qwen-plus"),
-    DEEPSEEK("deepseek");
+    DEEPSEEK("deepseek"),
+    CUSTOM("custom");
 
     private final String code;
 
@@ -33,7 +34,8 @@ public enum AiModelType {
         return switch (normalized) {
             case "qwen", "qwen-plus", "dashscope", "tongyi", "通义千问" -> QWEN_PLUS;
             case "deepseek", "deepseek-chat", "deep-seek" -> DEEPSEEK;
-            default -> Objects.requireNonNullElse(defaultType, QWEN_PLUS);
+            // 其他不识别的模型名称都当作 CUSTOM 处理，交由 AiModelRouter 进行动态匹配
+            default -> CUSTOM;
         };
     }
 }
