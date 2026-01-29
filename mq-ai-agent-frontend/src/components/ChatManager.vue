@@ -174,18 +174,12 @@
           <div class="input-actions">
             <a-select
               v-model="selectedModel"
-              size="mini"
+              :options="modelOptions"
+              size="small"
               class="model-select"
               :disabled="isLoading"
-            >
-              <a-option
-                v-for="option in modelOptions"
-                :key="option.value"
-                :value="option.value"
-              >
-                {{ option.label }}
-              </a-option>
-            </a-select>
+              :bordered="false"
+            />
             <a-button
               type="primary"
               shape="circle"
@@ -264,7 +258,6 @@ import {
   IconMessage,
   IconSend,
   IconLeft,
-  IconDown,
   IconUp,
   IconCopy,
   IconThumbUp,
@@ -284,7 +277,6 @@ export default {
     IconMessage,
     IconSend,
     IconLeft,
-    IconDown,
     IconUp,
     IconCopy,
     IconThumbUp,
@@ -314,10 +306,9 @@ export default {
     const isTyping = ref(false);
     const chatMessages = ref(null);
     const selectedModel = ref('qwen-plus');
-    const modelOptions = [
-      { label: 'Qwen', value: 'qwen-plus' },
-      { label: 'DeepSeek', value: 'deepseek' }
-    ];
+    const modelOptions = ref([
+      { label: 'qwen-plus', value: 'qwen-plus' }
+    ]);
     const currentDialogueId = ref(null);
     const dialogueList = ref([]);
     const isCreatingDialogue = ref(false);
@@ -334,10 +325,33 @@ export default {
 
     let eventSource = null;
     
+    // 加载可用模型列表
+    const loadAvailableModels = async () => {
+      try {
+        const response = await ApiService.getAvailableModels();
+        if (response.code === 0 && response.data) {
+          const { models, defaultModel } = response.data;
+          modelOptions.value = models.map(m => ({
+            label: m.name,
+            value: m.id
+          }));
+          // 设置默认模型
+          if (defaultModel) {
+            selectedModel.value = defaultModel;
+          }
+        }
+      } catch (error) {
+        console.error('加载模型列表失败:', error);
+      }
+    };
+
     // 初始化
     onMounted(async () => {
       try {
         console.log('=== ChatManager 初始化开始 ===');
+        
+        // 加载可用模型列表
+        await loadAvailableModels();
 
         // 清理过期缓存
         LocalStorageService.cleanExpiredCache();
@@ -1668,23 +1682,31 @@ export default {
       gap: 12px;
     }
 
-    :deep(.model-select) {
-      min-width: 72px;
-      max-width: 96px;
-    }
-
-    :deep(.model-select .arco-select-view) {
-      height: 26px;
-      border-radius: 16px;
-      padding: 0 8px;
-      border: 1px solid #d9d9d9;
-      background-color: #ffffff;
-      box-shadow: none;
-      font-size: 12px;
-    }
-
-    :deep(.model-select .arco-select-view:hover) {
-      border-color: #1890ff;
+    .model-select {
+      width: auto;
+      max-width: 140px;
+      flex-shrink: 0;
+      
+      :deep(.arco-select-view) {
+        height: 32px;
+        border-radius: 8px;
+        padding: 0 10px;
+        border: 1px solid #e5e6eb;
+        background-color: #fff;
+        font-size: 13px;
+        
+        &:hover {
+          border-color: #c9cdd4;
+        }
+      }
+      
+      :deep(.arco-select-view-single) {
+        padding-right: 26px;
+      }
+      
+      :deep(.arco-select-view-suffix) {
+        padding-right: 6px;
+      }
     }
 
     .arco-btn {
@@ -2264,19 +2286,5 @@ body[arco-theme='dark'] .chat-area .chat-empty-state {
   }
 }
 </style>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

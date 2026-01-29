@@ -102,6 +102,29 @@ const ApiService = {
     },
 
     /**
+     * 获取可用的 AI 模型列表
+     * @returns {Promise} 模型列表，包含 models 和 defaultModel
+     */
+    async getAvailableModels() {
+        try {
+            const response = await apiClient.get('/ai/models')
+            return response.data
+        } catch (error) {
+            console.error('获取模型列表失败:', error)
+            // 返回默认模型列表作为回退
+            return {
+                code: 0,
+                data: {
+                    models: [
+                        { id: 'qwen-plus', name: '通义千问', description: '阿里云通义千问大模型', type: 'builtin', enabled: true }
+                    ],
+                    defaultModel: 'qwen-plus'
+                }
+            }
+        }
+    },
+
+    /**
      * 创建SSE连接 - AI健身教练
      * @param {string} message 消息内容
      * @param {string} chatId 聊天室ID

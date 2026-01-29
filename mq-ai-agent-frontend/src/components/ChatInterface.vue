@@ -81,19 +81,13 @@
         <div class="input-actions">
           <a-select
             v-model="selectedModel"
-            size="mini"
+            :options="modelOptions"
+            size="small"
             class="model-select"
             :disabled="isLoading"
-          >
-            <a-option
-              v-for="option in modelOptions"
-              :key="option.value"
-              :value="option.value"
-            >
-              {{ option.label }}
-            </a-option>
-          </a-select>
-          <a-button 
+            :bordered="false"
+          />
+          <a-button
             type="primary" 
             shape="circle"
             :loading="isLoading"
@@ -153,15 +147,36 @@ export default {
     const chatMessages = ref(null);
     const chatId = ref('');
     const selectedModel = ref('qwen-plus');
-    const modelOptions = [
-      { label: 'Qwen', value: 'qwen-plus' },
-      { label: 'DeepSeek', value: 'deepseek' }
-    ];
+    const modelOptions = ref([
+      { label: '通义千问', value: 'qwen-plus' }
+    ]);
     let eventSource = null;
     
+    const loadAvailableModels = async () => {
+      try {
+        const response = await ApiService.getAvailableModels();
+        if (response.code === 0 && response.data) {
+          const { models, defaultModel } = response.data;
+          modelOptions.value = models.map(m => ({
+            label: m.name,
+            value: m.id
+          }));
+          // 设置默认模型
+          if (defaultModel) {
+            selectedModel.value = defaultModel;
+          }
+        }
+      } catch (error) {
+        console.error('加载模型列表失败:', error);
+      }
+    };
+    
     // 初始化聊天
-    onMounted(() => {
+    onMounted(async () => {
       chatId.value = ApiService.generateChatId();
+      
+      // 加载可用模型列表
+      await loadAvailableModels();
       // 添加欢迎消息
       const welcomeMessage = props.chatType === 'fitness' 
         ? "欢迎使用AI健身教练！您可以向我咨询任何健身相关的问题。"
@@ -608,27 +623,34 @@ export default {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 8px;
+    gap: 12px;
   }
 
-  :deep(.model-select) {
-    min-width: 72px;
-    max-width: 96px;
-  }
-
-  :deep(.model-select .arco-select-view) {
-    height: 26px;
-    border-radius: 16px;
-    padding: 0 8px;
-    border: 1px solid #e5e6eb;
-    background-color: #f2f3f5;
-    box-shadow: none;
-    font-size: 12px;
-  }
-
-  :deep(.model-select .arco-select-view:hover) {
-    border-color: #4080ff;
-    background-color: #fff;
+  .model-select {
+    width: auto;
+    max-width: 140px;
+    flex-shrink: 0;
+    
+    :deep(.arco-select-view) {
+      height: 32px;
+      border-radius: 8px;
+      padding: 0 10px;
+      border: 1px solid #e5e6eb;
+      background-color: #fff;
+      font-size: 13px;
+      
+      &:hover {
+        border-color: #c9cdd4;
+      }
+    }
+    
+    :deep(.arco-select-view-single) {
+      padding-right: 26px;
+    }
+    
+    :deep(.arco-select-view-suffix) {
+      padding-right: 6px;
+    }
   }
 }
 
@@ -656,6 +678,7 @@ export default {
     padding: 12px;
   }
 }
-</style> 
+</style>
+
 
 
