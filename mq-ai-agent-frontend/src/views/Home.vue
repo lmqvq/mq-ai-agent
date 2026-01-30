@@ -126,46 +126,22 @@
         </div>
       </div>
 
-      <!-- 健身数据概览 -->
-      <div class="fitness-overview">
-        <h2>您的健身数据</h2>
-        <div class="overview-cards">
-          <div class="overview-card">
-            <div class="card-icon">
-              <icon-trophy />
-            </div>
-            <div class="card-content">
-              <h3>本周训练</h3>
-              <div class="value">{{ workoutStats.thisWeek }} <span>次</span></div>
-            </div>
-          </div>
-          <div class="overview-card">
-            <div class="card-icon">
-              <icon-fire />
-            </div>
-            <div class="card-content">
-              <h3>总消耗卡路里</h3>
-              <div class="value">{{ workoutStats.totalCalories.toLocaleString() }} <span>kcal</span></div>
-            </div>
-          </div>
-          <div class="overview-card">
-            <div class="card-icon">
-              <icon-clock-circle />
-            </div>
-            <div class="card-content">
-              <h3>平均时长</h3>
-              <div class="value">{{ workoutStats.avgDuration }} <span>分钟</span></div>
-            </div>
-          </div>
-          <div class="overview-card">
-            <div class="card-icon">
-              <icon-heart />
-            </div>
-            <div class="card-content">
-              <h3>连续天数</h3>
-              <div class="value">{{ workoutStats.consecutiveDays }} <span>天</span></div>
-            </div>
-          </div>
+      <!-- 本周健身概览（登录用户可见） -->
+      <div v-if="isLoggedIn" class="weekly-overview-section">
+        <WeeklyFitnessOverview 
+          ref="weeklyOverviewRef"
+          @exercise-added="handleExerciseAdded" 
+        />
+      </div>
+
+      <!-- 健身数据概览（未登录用户可见） -->
+      <div v-else class="fitness-overview">
+        <h2>开始您的健身之旅</h2>
+        <div class="login-prompt">
+          <p>登录后可记录运动数据、追踪健身进度、获取个性化建议</p>
+          <a-button type="primary" size="large" @click="goToLogin">
+            立即登录
+          </a-button>
         </div>
       </div>
     </div>
@@ -176,27 +152,25 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import AppCard from '@/components/AppCard.vue';
+import WeeklyFitnessOverview from '@/components/WeeklyFitnessOverview.vue';
 import {
   IconHome, IconUser, IconBarChart, IconTrophy,
-  IconFire, IconClockCircle, IconHeart, IconBook, IconEdit, IconPoweroff, IconRobot,
+  IconBook, IconEdit, IconPoweroff, IconRobot,
   IconMoon, IconSun, IconGithub
 } from '@arco-design/web-vue/es/icon';
 import { Message } from '@arco-design/web-vue';
 import { useUserStore } from '@/stores/user';
 import { useThemeStore } from '@/stores/theme';
-import ApiService from '@/services/api';
 
 export default {
   name: 'HomePage',
   components: {
     AppCard,
+    WeeklyFitnessOverview,
     IconHome,
     IconUser,
     IconBarChart,
     IconTrophy,
-    IconFire,
-    IconClockCircle,
-    IconHeart,
     IconBook,
     IconEdit,
     IconPoweroff,
@@ -211,14 +185,7 @@ export default {
     const themeStore = useThemeStore();
     const showUserMenu = ref(false);
     const userInfoRef = ref(null);
-
-    // 运动数据统计
-    const workoutStats = ref({
-      thisWeek: 0,
-      totalCalories: 0,
-      avgDuration: 0,
-      consecutiveDays: 0
-    });
+    const weeklyOverviewRef = ref(null);
 
     // 应用列表
     const apps = [
@@ -305,134 +272,15 @@ export default {
       return userStore.getRoleText(role);
     };
 
-    // 加载运动数据统计
-    const loadExerciseStats = async () => {
-      try {
-        const response = await ApiService.getMyExerciseLogByPage({
-          current: 1,
-          pageSize: 100  // 获取足够多的数据用于统计
-        });
-
-        if (response.code === 0 && response.data?.records) {
-          calculateWorkoutStats(response.data.records);
-        } else {
-          // 如果没有数据或者加载失败，使用默认值
-          workoutStats.value = {
-            thisWeek: 0,
-            totalCalories: 0,
-            avgDuration: 0,
-            consecutiveDays: 0
-          };
-        }
-      } catch (error) {
-        console.error('加载运动数据失败:', error);
-        // 静默失败，使用默认值
-        workoutStats.value = {
-          thisWeek: 0,
-          totalCalories: 0,
-          avgDuration: 0,
-          consecutiveDays: 0
-        };
-      }
-    };
-
-    // 计算运动统计数据
-    const calculateWorkoutStats = (records) => {
-      if (!records || records.length === 0) {
-        workoutStats.value = {
-          thisWeek: 0,
-          totalCalories: 0,
-          avgDuration: 0,
-          consecutiveDays: 0
-        };
-        return;
-      }
-
-      const now = new Date();
-      const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-
-      let weekCount = 0;
-      let totalCalories = 0;
-      let totalDuration = 0;
-
-      records.forEach(record => {
-        const recordDate = new Date(record.dateRecorded);
-        
-        if (recordDate >= oneWeekAgo) {
-          weekCount++;
-        }
-        
-        totalCalories += record.caloriesBurned || 0;
-        totalDuration += record.duration || 0;
-      });
-
-      const avgDuration = records.length > 0 ? Math.round(totalDuration / records.length) : 0;
-      
-      // 计算连续训练天数
-      const consecutiveDays = calculateConsecutiveDays(records);
-
-      workoutStats.value = {
-        thisWeek: weekCount,
-        totalCalories: Math.round(totalCalories),
-        avgDuration: avgDuration,
-        consecutiveDays: consecutiveDays
-      };
-    };
-
-    // 计算连续训练天数
-    const calculateConsecutiveDays = (records) => {
-      if (!records || records.length === 0) return 0;
-
-      // 按日期降序排列（最新的在前）
-      const sortedRecords = [...records].sort((a, b) => 
-        new Date(b.dateRecorded) - new Date(a.dateRecorded)
-      );
-
-      // 获取所有训练日期（去重）
-      const uniqueDates = [...new Set(sortedRecords.map(record => {
-        const date = new Date(record.dateRecorded);
-        return date.toISOString().split('T')[0];
-      }))];
-
-      if (uniqueDates.length === 0) return 0;
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      const latestWorkoutDate = new Date(uniqueDates[0]);
-      latestWorkoutDate.setHours(0, 0, 0, 0);
-
-      // 如果最后一次训练不是今天或昨天，连续天数为0
-      const daysDiff = Math.floor((today - latestWorkoutDate) / (1000 * 60 * 60 * 24));
-      if (daysDiff > 1) return 0;
-
-      // 计算连续天数
-      let consecutive = 1;
-      let currentDate = new Date(latestWorkoutDate);
-
-      for (let i = 1; i < uniqueDates.length; i++) {
-        const prevDate = new Date(uniqueDates[i]);
-        prevDate.setHours(0, 0, 0, 0);
-        
-        const expectedDate = new Date(currentDate);
-        expectedDate.setDate(expectedDate.getDate() - 1);
-        
-        if (prevDate.getTime() === expectedDate.getTime()) {
-          consecutive++;
-          currentDate = prevDate;
-        } else {
-          break;
-        }
-      }
-
-      return consecutive;
+    // 处理运动记录添加事件
+    const handleExerciseAdded = () => {
+      // 子组件已经刷新了数据，这里可以做额外处理（如显示提示等）
+      console.log('运动记录已添加');
     };
 
     // 组件挂载时检查登录状态
     onMounted(async () => {
       await userStore.checkLoginStatus();
-      // 加载运动数据统计
-      await loadExerciseStats();
       // 添加全局点击事件监听
       document.addEventListener('click', handleClickOutside);
     });
@@ -446,15 +294,16 @@ export default {
       apps,
       showUserMenu,
       userInfoRef,
+      weeklyOverviewRef,
       isLoggedIn: userStore.isLoggedIn,
       userInfo: userStore.userInfo,
-      workoutStats,
       themeStore,
       goToLogin,
       toggleUserMenu,
       goToProfile,
       handleLogout,
-      getRoleText
+      getRoleText,
+      handleExerciseAdded
     };
   }
 };
@@ -810,6 +659,16 @@ export default {
   }
 }
 
+// 本周健身概览区域
+.weekly-overview-section {
+  max-width: 1000px;
+  margin: 0 auto 48px;
+  animation: slideUp 0.6s ease-out;
+  animation-fill-mode: both;
+  animation-delay: 0.3s;
+}
+
+// 未登录提示
 .fitness-overview {
   margin-bottom: 48px;
   max-width: 1000px;
@@ -820,73 +679,30 @@ export default {
     font-size: 28px;
     font-weight: 700;
     color: var(--theme-text-primary);
-    margin: 0 0 32px 0;
+    margin: 0 0 24px 0;
     text-align: center;
     letter-spacing: -0.5px;
   }
 
-  .overview-cards {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
+  .login-prompt {
+    background: var(--theme-bg-card);
+    border-radius: 20px;
+    padding: 48px 32px;
+    text-align: center;
+    box-shadow: var(--theme-shadow-md);
+    border: 1px solid var(--theme-border-secondary);
 
-    .overview-card {
-      background: var(--theme-bg-card);
-      border-radius: 16px;
-      padding: 28px;
-      box-shadow: var(--theme-shadow-md);
-      border: 1px solid var(--theme-border-secondary);
-      position: relative;
-      overflow: hidden;
+    p {
+      font-size: 16px;
+      color: var(--theme-text-secondary);
+      margin: 0 0 24px 0;
+      line-height: 1.6;
+    }
 
-      &:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--theme-shadow-lg);
-        background: var(--theme-bg-card-hover);
-      }
-
-      .card-icon {
-        width: 52px;
-        height: 52px;
-        border-radius: 14px;
-        background: var(--theme-btn-primary-bg);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 16px;
-
-        :deep(svg) {
-          width: 24px;
-          height: 24px;
-          color: white;
-        }
-      }
-
-      .card-content {
-        position: relative;
-        z-index: 1;
-
-        h3 {
-          margin: 0 0 10px 0;
-          font-size: 15px;
-          color: var(--theme-text-secondary);
-          font-weight: 600;
-        }
-
-        .value {
-          font-size: 32px;
-          font-weight: 800;
-          color: var(--theme-text-primary);
-          letter-spacing: -1px;
-
-          span {
-            font-size: 16px;
-            color: var(--theme-color-primary);
-            font-weight: 600;
-            margin-left: 4px;
-          }
-        }
-      }
+    :deep(.arco-btn) {
+      min-width: 160px;
+      border-radius: 20px;
+      font-weight: 600;
     }
   }
 }
