@@ -1,0 +1,575 @@
+// =================================================================
+// Aceternity UI 风格按钮样式系统
+// 
+// 设计特点:
+// 1. 精致的渐变和光泽效果
+// 2. 流畅的悬停动画（发光、位移、涟漪）
+// 3. 优雅的暗色模式适配
+// 4. 多种按钮变体支持
+// =================================================================
+
+// -----------------------------------------------------------------
+// 按钮动画关键帧
+// -----------------------------------------------------------------
+
+// 光泽扫过动画
+@keyframes btn-shimmer {
+  0% {
+    transform: translateX(-100%) skewX(-15deg);
+  }
+  100% {
+    transform: translateX(200%) skewX(-15deg);
+  }
+}
+
+// 脉冲发光动画
+@keyframes btn-pulse-glow {
+  0%, 100% {
+    box-shadow: var(--btn-shadow-base);
+  }
+  50% {
+    box-shadow: var(--btn-shadow-pulse);
+  }
+}
+
+// 涟漪扩散动画
+@keyframes btn-ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+// 边框流动动画
+@keyframes btn-border-flow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+// 加载旋转动画
+@keyframes btn-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// -----------------------------------------------------------------
+// Arco Design 按钮基础样式覆盖
+// -----------------------------------------------------------------
+
+// 所有按钮通用基础
+.arco-btn {
+  position: relative;
+  font-weight: 500;
+  border-radius: var(--btn-radius, 8px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  isolation: isolate;
+
+  // 禁用默认的 transform 过渡冲突
+  &:not(:disabled):not(.arco-btn-loading) {
+    &:hover {
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0) scale(0.98);
+    }
+  }
+
+  // 聚焦状态 - 无障碍友好
+  &:focus-visible {
+    outline: 2px solid var(--theme-color-primary);
+    outline-offset: 2px;
+  }
+
+  // 禁用状态
+  &:disabled,
+  &.arco-btn-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    
+    &::before,
+    &::after {
+      display: none;
+    }
+  }
+}
+
+// -----------------------------------------------------------------
+// Primary 主要按钮 - 渐变发光风格
+// -----------------------------------------------------------------
+.arco-btn-primary {
+  background: var(--btn-primary-bg);
+  border: none;
+  color: #ffffff;
+  box-shadow: var(--btn-primary-shadow);
+  
+  // 光泽层
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    transform: translateX(-100%) skewX(-15deg);
+    transition: none;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  // 内部高光
+  &::after {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    right: 1px;
+    height: 40%;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.15),
+      transparent
+    );
+    border-radius: var(--btn-radius, 8px) var(--btn-radius, 8px) 50% 50%;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  &:not(:disabled):not(.arco-btn-loading) {
+    &:hover {
+      background: var(--btn-primary-bg-hover);
+      box-shadow: var(--btn-primary-shadow-hover);
+      
+      &::before {
+        animation: btn-shimmer 0.8s ease-in-out;
+      }
+    }
+
+    &:active {
+      box-shadow: var(--btn-primary-shadow-active);
+    }
+  }
+
+  // 加载状态
+  &.arco-btn-loading {
+    background: var(--btn-primary-bg);
+    opacity: 0.85;
+  }
+}
+
+// -----------------------------------------------------------------
+// Secondary 次要按钮 - 玻璃拟态风格
+// -----------------------------------------------------------------
+.arco-btn-secondary {
+  background: var(--btn-secondary-bg);
+  border: 1px solid var(--btn-secondary-border);
+  color: var(--btn-secondary-text);
+  box-shadow: var(--btn-secondary-shadow);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  // 悬停高亮边框
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      var(--btn-secondary-border-glow-start),
+      var(--btn-secondary-border-glow-end)
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  &:not(:disabled):not(.arco-btn-loading) {
+    &:hover {
+      background: var(--btn-secondary-bg-hover);
+      border-color: var(--btn-secondary-border-hover);
+      color: var(--btn-secondary-text-hover);
+      box-shadow: var(--btn-secondary-shadow-hover);
+
+      &::before {
+        opacity: 1;
+      }
+    }
+
+    &:active {
+      background: var(--btn-secondary-bg-active);
+    }
+  }
+}
+
+// -----------------------------------------------------------------
+// Outline 轮廓按钮 - 边框动画风格
+// -----------------------------------------------------------------
+.arco-btn-outline {
+  background: transparent;
+  border: 1px solid var(--btn-outline-border);
+  color: var(--btn-outline-text);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--btn-outline-fill-hover);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+  }
+
+  &:not(:disabled):not(.arco-btn-loading) {
+    &:hover {
+      border-color: var(--btn-outline-border-hover);
+      color: var(--btn-outline-text-hover);
+      
+      &::before {
+        opacity: 1;
+      }
+    }
+
+    &:active {
+      &::before {
+        opacity: 0.8;
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------
+// Text 文本按钮 - 极简悬停风格
+// -----------------------------------------------------------------
+.arco-btn-text {
+  background: transparent;
+  border: none;
+  color: var(--btn-text-color);
+  padding: 4px 8px;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--btn-radius, 8px);
+    background: var(--btn-text-bg-hover);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: -1;
+  }
+
+  &:not(:disabled):not(.arco-btn-loading) {
+    &:hover {
+      color: var(--btn-text-color-hover);
+      transform: translateY(-1px);
+      
+      &::before {
+        opacity: 1;
+      }
+    }
+
+    &:active {
+      transform: translateY(0);
+      
+      &::before {
+        opacity: 0.7;
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------
+// Danger 危险按钮
+// -----------------------------------------------------------------
+.arco-btn-primary.arco-btn-status-danger,
+.arco-btn-status-danger.arco-btn-primary {
+  background: var(--btn-danger-bg);
+  box-shadow: var(--btn-danger-shadow);
+
+  &:not(:disabled):not(.arco-btn-loading) {
+    &:hover {
+      background: var(--btn-danger-bg-hover);
+      box-shadow: var(--btn-danger-shadow-hover);
+    }
+  }
+}
+
+.arco-btn-text.arco-btn-status-danger,
+.arco-btn-outline.arco-btn-status-danger {
+  color: var(--theme-color-error);
+  
+  &:not(:disabled):not(.arco-btn-loading) {
+    &:hover {
+      color: var(--btn-danger-text-hover);
+      
+      &::before {
+        background: var(--btn-danger-bg-light);
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------
+// Success 成功按钮
+// -----------------------------------------------------------------
+.arco-btn-primary.arco-btn-status-success,
+.arco-btn-status-success.arco-btn-primary {
+  background: var(--btn-success-bg);
+  box-shadow: var(--btn-success-shadow);
+
+  &:not(:disabled):not(.arco-btn-loading) {
+    &:hover {
+      background: var(--btn-success-bg-hover);
+      box-shadow: var(--btn-success-shadow-hover);
+    }
+  }
+}
+
+// -----------------------------------------------------------------
+// Warning 警告按钮
+// -----------------------------------------------------------------
+.arco-btn-primary.arco-btn-status-warning,
+.arco-btn-status-warning.arco-btn-primary {
+  background: var(--btn-warning-bg);
+  box-shadow: var(--btn-warning-shadow);
+  color: #1a1a1a;
+
+  &:not(:disabled):not(.arco-btn-loading) {
+    &:hover {
+      background: var(--btn-warning-bg-hover);
+      box-shadow: var(--btn-warning-shadow-hover);
+    }
+  }
+}
+
+// -----------------------------------------------------------------
+// 按钮尺寸
+// -----------------------------------------------------------------
+.arco-btn-size-mini {
+  --btn-radius: 6px;
+  font-size: 12px;
+  padding: 2px 8px;
+  height: 24px;
+}
+
+.arco-btn-size-small {
+  --btn-radius: 6px;
+  font-size: 13px;
+  padding: 4px 12px;
+  height: 28px;
+}
+
+.arco-btn-size-medium {
+  --btn-radius: 8px;
+  font-size: 14px;
+  padding: 6px 16px;
+  height: 32px;
+}
+
+.arco-btn-size-large {
+  --btn-radius: 10px;
+  font-size: 16px;
+  padding: 8px 24px;
+  height: 40px;
+}
+
+// -----------------------------------------------------------------
+// 按钮形状
+// -----------------------------------------------------------------
+.arco-btn-shape-circle {
+  --btn-radius: 50%;
+  padding: 0;
+  
+  &.arco-btn-size-mini {
+    width: 24px;
+    height: 24px;
+  }
+  
+  &.arco-btn-size-small {
+    width: 28px;
+    height: 28px;
+  }
+  
+  &.arco-btn-size-medium {
+    width: 32px;
+    height: 32px;
+  }
+  
+  &.arco-btn-size-large {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+.arco-btn-shape-round {
+  --btn-radius: 100px;
+}
+
+// -----------------------------------------------------------------
+// Long 按钮（全宽）
+// -----------------------------------------------------------------
+.arco-btn-long {
+  width: 100%;
+  justify-content: center;
+}
+
+// -----------------------------------------------------------------
+// 图标按钮优化
+// -----------------------------------------------------------------
+.arco-btn {
+  .arco-btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+  }
+
+  &:not(:disabled):hover .arco-btn-icon {
+    transform: scale(1.1);
+  }
+}
+
+// 仅图标按钮
+.arco-btn-icon-only {
+  .arco-btn-icon {
+    margin: 0;
+  }
+}
+
+// -----------------------------------------------------------------
+// 按钮组
+// -----------------------------------------------------------------
+.arco-btn-group {
+  .arco-btn {
+    border-radius: 0;
+    
+    &:first-child {
+      border-radius: var(--btn-radius, 8px) 0 0 var(--btn-radius, 8px);
+    }
+    
+    &:last-child {
+      border-radius: 0 var(--btn-radius, 8px) var(--btn-radius, 8px) 0;
+    }
+    
+    &:not(:first-child) {
+      margin-left: -1px;
+    }
+  }
+}
+
+// -----------------------------------------------------------------
+// 特殊场景按钮样式
+// -----------------------------------------------------------------
+
+// 消息操作按钮（聊天界面）
+.action-btn {
+  &.arco-btn-text {
+    color: var(--theme-text-tertiary);
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    
+    &:hover {
+      color: var(--theme-color-primary);
+      background: var(--theme-color-primary-light);
+    }
+    
+    &.active {
+      color: var(--theme-color-primary);
+      background: var(--theme-color-primary-light);
+    }
+  }
+}
+
+// 新对话按钮（侧边栏）
+.new-chat-btn {
+  &.arco-btn-primary {
+    width: 100%;
+    border-radius: 10px;
+    font-weight: 600;
+    
+    .arco-btn-icon {
+      margin-right: 6px;
+    }
+  }
+}
+
+// 删除确认弹窗按钮
+.delete-confirm-modal {
+  .cancel-btn {
+    &.arco-btn {
+      background: var(--btn-secondary-bg);
+      border: 1px solid var(--btn-secondary-border);
+      color: var(--btn-secondary-text);
+      border-radius: 10px;
+      min-width: 100px;
+      
+      &:hover {
+        background: var(--btn-secondary-bg-hover);
+        border-color: var(--btn-secondary-border-hover);
+      }
+    }
+  }
+  
+  .delete-btn {
+    &.arco-btn-primary {
+      border-radius: 10px;
+      min-width: 100px;
+    }
+  }
+}
+
+// -----------------------------------------------------------------
+// 暗色模式特殊处理（补充）
+// -----------------------------------------------------------------
+html.dark-theme {
+  // Primary 按钮在暗色模式下的光泽调整
+  .arco-btn-primary {
+    &::after {
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.08),
+        transparent
+      );
+    }
+  }
+  
+  // Secondary 按钮玻璃效果增强
+  .arco-btn-secondary {
+    background: var(--btn-secondary-bg);
+    border-color: var(--btn-secondary-border);
+  }
+  
+  // Text 按钮对比度优化
+  .arco-btn-text {
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+  }
+}

@@ -60,6 +60,59 @@
   --theme-icon-active: #667eea;
   --theme-btn-primary-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --theme-menu-active-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  
+  /* === 按钮系统 - Aceternity 风格 === */
+  /* Primary 按钮 */
+  --btn-primary-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --btn-primary-bg-hover: linear-gradient(135deg, #5a6fd6 0%, #6a4190 100%);
+  --btn-primary-shadow: 0 4px 14px 0 rgba(102, 126, 234, 0.39);
+  --btn-primary-shadow-hover: 0 6px 20px rgba(102, 126, 234, 0.5), 0 0 40px rgba(102, 126, 234, 0.2);
+  --btn-primary-shadow-active: 0 2px 8px rgba(102, 126, 234, 0.4);
+  
+  /* Secondary 按钮 */
+  --btn-secondary-bg: rgba(255, 255, 255, 0.8);
+  --btn-secondary-bg-hover: rgba(255, 255, 255, 0.95);
+  --btn-secondary-bg-active: rgba(255, 255, 255, 0.7);
+  --btn-secondary-border: rgba(0, 0, 0, 0.08);
+  --btn-secondary-border-hover: rgba(102, 126, 234, 0.3);
+  --btn-secondary-border-glow-start: rgba(102, 126, 234, 0.5);
+  --btn-secondary-border-glow-end: rgba(118, 75, 162, 0.5);
+  --btn-secondary-text: #374151;
+  --btn-secondary-text-hover: #667eea;
+  --btn-secondary-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --btn-secondary-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.1);
+  
+  /* Outline 按钮 */
+  --btn-outline-border: #e5e7eb;
+  --btn-outline-border-hover: #667eea;
+  --btn-outline-text: #374151;
+  --btn-outline-text-hover: #667eea;
+  --btn-outline-fill-hover: rgba(102, 126, 234, 0.06);
+  
+  /* Text 按钮 */
+  --btn-text-color: #6b7280;
+  --btn-text-color-hover: #667eea;
+  --btn-text-bg-hover: rgba(102, 126, 234, 0.08);
+  
+  /* Danger 按钮 */
+  --btn-danger-bg: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  --btn-danger-bg-hover: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  --btn-danger-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+  --btn-danger-shadow-hover: 0 6px 20px rgba(239, 68, 68, 0.45);
+  --btn-danger-text-hover: #dc2626;
+  --btn-danger-bg-light: rgba(239, 68, 68, 0.1);
+  
+  /* Success 按钮 */
+  --btn-success-bg: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  --btn-success-bg-hover: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  --btn-success-shadow: 0 4px 14px rgba(34, 197, 94, 0.35);
+  --btn-success-shadow-hover: 0 6px 20px rgba(34, 197, 94, 0.45);
+  
+  /* Warning 按钮 */
+  --btn-warning-bg: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  --btn-warning-bg-hover: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  --btn-warning-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+  --btn-warning-shadow-hover: 0 6px 20px rgba(245, 158, 11, 0.45);
 }
 
 /* -----------------------------------------------------------------
@@ -114,6 +167,59 @@ html.dark-theme {
   --theme-icon-active: #3b82f6;
   --theme-btn-primary-bg: #3b82f6;
   --theme-menu-active-bg: #3b82f6;
+  
+  /* === 按钮系统 - Aceternity 风格 (暗色模式) === */
+  /* Primary 按钮 */
+  --btn-primary-bg: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  --btn-primary-bg-hover: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  --btn-primary-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+  --btn-primary-shadow-hover: 0 6px 24px rgba(59, 130, 246, 0.5), 0 0 60px rgba(59, 130, 246, 0.25);
+  --btn-primary-shadow-active: 0 2px 8px rgba(59, 130, 246, 0.4);
+  
+  /* Secondary 按钮 */
+  --btn-secondary-bg: rgba(255, 255, 255, 0.06);
+  --btn-secondary-bg-hover: rgba(255, 255, 255, 0.1);
+  --btn-secondary-bg-active: rgba(255, 255, 255, 0.05);
+  --btn-secondary-border: rgba(255, 255, 255, 0.1);
+  --btn-secondary-border-hover: rgba(59, 130, 246, 0.5);
+  --btn-secondary-border-glow-start: rgba(59, 130, 246, 0.6);
+  --btn-secondary-border-glow-end: rgba(139, 92, 246, 0.6);
+  --btn-secondary-text: #e5e7eb;
+  --btn-secondary-text-hover: #60a5fa;
+  --btn-secondary-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --btn-secondary-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.4);
+  
+  /* Outline 按钮 */
+  --btn-outline-border: rgba(255, 255, 255, 0.15);
+  --btn-outline-border-hover: #3b82f6;
+  --btn-outline-text: #e5e7eb;
+  --btn-outline-text-hover: #60a5fa;
+  --btn-outline-fill-hover: rgba(59, 130, 246, 0.15);
+  
+  /* Text 按钮 */
+  --btn-text-color: #9ca3af;
+  --btn-text-color-hover: #60a5fa;
+  --btn-text-bg-hover: rgba(59, 130, 246, 0.15);
+  
+  /* Danger 按钮 */
+  --btn-danger-bg: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  --btn-danger-bg-hover: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+  --btn-danger-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+  --btn-danger-shadow-hover: 0 6px 24px rgba(239, 68, 68, 0.5), 0 0 40px rgba(239, 68, 68, 0.2);
+  --btn-danger-text-hover: #f87171;
+  --btn-danger-bg-light: rgba(239, 68, 68, 0.15);
+  
+  /* Success 按钮 */
+  --btn-success-bg: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  --btn-success-bg-hover: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  --btn-success-shadow: 0 4px 14px rgba(34, 197, 94, 0.4);
+  --btn-success-shadow-hover: 0 6px 24px rgba(34, 197, 94, 0.5), 0 0 40px rgba(34, 197, 94, 0.2);
+  
+  /* Warning 按钮 */
+  --btn-warning-bg: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  --btn-warning-bg-hover: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  --btn-warning-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+  --btn-warning-shadow-hover: 0 6px 24px rgba(245, 158, 11, 0.5), 0 0 40px rgba(245, 158, 11, 0.2);
 }
 
 /* -----------------------------------------------------------------

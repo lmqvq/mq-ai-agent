@@ -1,3 +1,10 @@
+// =================================================================
+// 主样式文件
+// =================================================================
+
+// 引入按钮样式系统
+@import 'buttons';
+
 // 主题色定义
 :root {
     --color-primary: #4080ff;
@@ -26,13 +33,14 @@
     background-color: transparent;
 }
 
-// 全局按钮hover效果增强
-.arco-btn {
-    transition: all 0.3s ease;
-
-    &:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+// 暗色模式滚动条
+html.dark-theme {
+    ::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.15);
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(255, 255, 255, 0.25);
     }
 }
 
