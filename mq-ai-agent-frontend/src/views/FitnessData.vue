@@ -337,8 +337,8 @@ export default {
     const bodyFatChange = ref({ type: '', text: '暂无数据' });
     const muscleChange = ref({ type: '', text: '暂无数据' });
 
-    const weightPeriod = ref('30d');
-    const bodyFatPeriod = ref('30d');
+    const weightPeriod = ref('1y');
+    const bodyFatPeriod = ref('1y');
     
     // 图表实例
     let weightChartInstance = null;
@@ -711,7 +711,12 @@ export default {
           
           response.data.forEach(item => {
             if (item.weight) {
-              dates.push(new Date(item.dateRecorded).toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' }));
+              // 格式化为 年/月/日
+              const date = new Date(item.dateRecorded);
+              const year = date.getFullYear().toString().slice(-2); // 取后两位年份
+              const month = String(date.getMonth() + 1).padStart(2, '0');
+              const day = String(date.getDate()).padStart(2, '0');
+              dates.push(`${year}/${month}/${day}`);
               weights.push(item.weight);
             }
           });
@@ -723,7 +728,13 @@ export default {
             },
             tooltip: {
               trigger: 'axis',
-              formatter: '{b}<br/>体重: {c} kg'
+              formatter: function(params) {
+                const dateStr = params[0].name;
+                // 将 YY/MM/DD 转换为完整格式显示
+                const parts = dateStr.split('/');
+                const fullYear = '20' + parts[0];
+                return `${fullYear}/${parts[1]}/${parts[2]}<br/>体重: ${params[0].value} kg`;
+              }
             },
             grid: {
               left: '3%',
@@ -826,7 +837,12 @@ export default {
           
           response.data.forEach(item => {
             if (item.bodyFat) {
-              dates.push(new Date(item.dateRecorded).toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' }));
+              // 格式化为 年/月/日
+              const date = new Date(item.dateRecorded);
+              const year = date.getFullYear().toString().slice(-2); // 取后两位年份
+              const month = String(date.getMonth() + 1).padStart(2, '0');
+              const day = String(date.getDate()).padStart(2, '0');
+              dates.push(`${year}/${month}/${day}`);
               bodyFats.push(item.bodyFat);
             }
           });
@@ -838,7 +854,13 @@ export default {
             },
             tooltip: {
               trigger: 'axis',
-              formatter: '{b}<br/>体脂率: {c}%'
+              formatter: function(params) {
+                const dateStr = params[0].name;
+                // 将 YY/MM/DD 转换为完整格式显示
+                const parts = dateStr.split('/');
+                const fullYear = '20' + parts[0];
+                return `${fullYear}/${parts[1]}/${parts[2]}<br/>体脂率: ${params[0].value}%`;
+              }
             },
             grid: {
               left: '3%',

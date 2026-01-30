@@ -229,3 +229,504 @@ html.dark-theme .arco-select-view-suffix .arco-select-view-icon,
 .arco-select-view-suffix .arco-select-view-icon {
   color: #5a6c7d;
 }
+
+/* -----------------------------------------------------------------
+   Radio 单选按钮 - 暗黑模式
+----------------------------------------------------------------- */
+html.dark-theme .arco-radio,
+.dark-theme .arco-radio {
+  color: #ffffff !important;
+}
+
+html.dark-theme .arco-radio-label,
+.dark-theme .arco-radio-label {
+  color: #9ca3af !important;
+}
+
+html.dark-theme .arco-radio:hover .arco-radio-label,
+html.dark-theme .arco-radio-checked .arco-radio-label,
+.dark-theme .arco-radio:hover .arco-radio-label,
+.dark-theme .arco-radio-checked .arco-radio-label {
+  color: #ffffff !important;
+}
+
+html.dark-theme .arco-radio .arco-radio-icon,
+.dark-theme .arco-radio .arco-radio-icon {
+  border-color: rgba(255,255,255,0.3) !important;
+  background-color: transparent !important;
+}
+
+html.dark-theme .arco-radio:hover .arco-radio-icon,
+.dark-theme .arco-radio:hover .arco-radio-icon {
+  border-color: #3b82f6 !important;
+}
+
+html.dark-theme .arco-radio-checked .arco-radio-icon,
+.dark-theme .arco-radio-checked .arco-radio-icon {
+  border-color: #3b82f6 !important;
+  background-color: #3b82f6 !important;
+}
+
+html.dark-theme .arco-radio-checked .arco-radio-icon::after,
+.dark-theme .arco-radio-checked .arco-radio-icon::after {
+  background-color: #ffffff !important;
+}
+
+/* -----------------------------------------------------------------
+   Modal 弹窗 - 暗黑模式
+----------------------------------------------------------------- */
+html.dark-theme .arco-modal,
+.dark-theme .arco-modal {
+  background-color: #1a1b20 !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.6) !important;
+}
+
+html.dark-theme .arco-modal-header,
+.dark-theme .arco-modal-header {
+  background-color: #1a1b20 !important;
+  border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+html.dark-theme .arco-modal-title,
+.dark-theme .arco-modal-title {
+  color: #ffffff !important;
+}
+
+html.dark-theme .arco-modal-body,
+.dark-theme .arco-modal-body {
+  background-color: #1a1b20 !important;
+  color: #ffffff !important;
+}
+
+html.dark-theme .arco-modal-footer,
+.dark-theme .arco-modal-footer {
+  background-color: #1a1b20 !important;
+  border-top: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+html.dark-theme .arco-modal-close-btn,
+.dark-theme .arco-modal-close-btn {
+  color: #9ca3af !important;
+}
+
+html.dark-theme .arco-modal-close-btn:hover,
+.dark-theme .arco-modal-close-btn:hover {
+  color: #ffffff !important;
+  background-color: rgba(255,255,255,0.1) !important;
+}
+
+/* -----------------------------------------------------------------
+   Form 表单元素 - 暗黑模式
+----------------------------------------------------------------- */
+html.dark-theme .arco-form-item-label,
+.dark-theme .arco-form-item-label {
+  color: #ffffff !important;
+}
+
+html.dark-theme .arco-form-item-label-required-symbol,
+.dark-theme .arco-form-item-label-required-symbol {
+  color: #ef4444 !important;
+}
+
+/* Input 输入框 - 暗黑模式 */
+html.dark-theme .arco-input-wrapper,
+.dark-theme .arco-input-wrapper {
+  background-color: #131419 !important;
+  border-color: rgba(255,255,255,0.15) !important;
+}
+
+html.dark-theme .arco-input-wrapper:hover,
+.dark-theme .arco-input-wrapper:hover {
+  border-color: rgba(255,255,255,0.25) !important;
+}
+
+html.dark-theme .arco-input-wrapper:focus-within,
+html.dark-theme .arco-input-wrapper.arco-input-focus,
+.dark-theme .arco-input-wrapper:focus-within,
+.dark-theme .arco-input-wrapper.arco-input-focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.2) !important;
+}
+
+html.dark-theme .arco-input,
+.dark-theme .arco-input {
+  color: #ffffff !important;
+  background-color: transparent !important;
+}
+
+html.dark-theme .arco-input::placeholder,
+.dark-theme .arco-input::placeholder {
+  color: #6b7280 !important;
+}
+
+/* InputNumber 数字输入框 - 暗黑模式 */
+html.dark-theme .arco-input-number,
+.dark-theme .arco-input-number {
+  background-color: #131419 !important;
+  border-color: rgba(255,255,255,0.15) !important;
+}
+
+html.dark-theme .arco-input-number:hover,
+.dark-theme .arco-input-number:hover {
+  border-color: rgba(255,255,255,0.25) !important;
+}
+
+html.dark-theme .arco-input-number:focus-within,
+.dark-theme .arco-input-number:focus-within {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.2) !important;
+}
+
+html.dark-theme .arco-input-number .arco-input,
+.dark-theme .arco-input-number .arco-input {
+  color: #ffffff !important;
+}
+
+html.dark-theme .arco-input-number-step-button,
+.dark-theme .arco-input-number-step-button {
+  color: #9ca3af !important;
+  background-color: rgba(255,255,255,0.05) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+
+html.dark-theme .arco-input-number-step-button:hover,
+.dark-theme .arco-input-number-step-button:hover {
+  color: #3b82f6 !important;
+  background-color: rgba(59,130,246,0.1) !important;
+}
+
+html.dark-theme .arco-input-number.arco-input-number-disabled,
+html.dark-theme .arco-input-number[disabled],
+.dark-theme .arco-input-number.arco-input-number-disabled,
+.dark-theme .arco-input-number[disabled] {
+  background-color: rgba(255,255,255,0.05) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+
+html.dark-theme .arco-input-number.arco-input-number-disabled .arco-input,
+html.dark-theme .arco-input-number[disabled] .arco-input,
+.dark-theme .arco-input-number.arco-input-number-disabled .arco-input,
+.dark-theme .arco-input-number[disabled] .arco-input {
+  color: #6b7280 !important;
+}
+
+/* Textarea 文本域 - 暗黑模式 */
+html.dark-theme .arco-textarea-wrapper,
+.dark-theme .arco-textarea-wrapper {
+  background-color: #131419 !important;
+  border-color: rgba(255,255,255,0.15) !important;
+}
+
+html.dark-theme .arco-textarea-wrapper:hover,
+.dark-theme .arco-textarea-wrapper:hover {
+  border-color: rgba(255,255,255,0.25) !important;
+}
+
+html.dark-theme .arco-textarea-wrapper:focus-within,
+.dark-theme .arco-textarea-wrapper:focus-within {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.2) !important;
+}
+
+html.dark-theme .arco-textarea,
+.dark-theme .arco-textarea {
+  color: #ffffff !important;
+  background-color: transparent !important;
+}
+
+html.dark-theme .arco-textarea::placeholder,
+.dark-theme .arco-textarea::placeholder {
+  color: #6b7280 !important;
+}
+
+/* DatePicker 日期选择器 - 暗黑模式 */
+html.dark-theme .arco-picker,
+.dark-theme .arco-picker {
+  background-color: #131419 !important;
+  border-color: rgba(255,255,255,0.15) !important;
+}
+
+html.dark-theme .arco-picker:hover,
+.dark-theme .arco-picker:hover {
+  border-color: rgba(255,255,255,0.25) !important;
+}
+
+html.dark-theme .arco-picker:focus-within,
+html.dark-theme .arco-picker.arco-picker-focused,
+.dark-theme .arco-picker:focus-within,
+.dark-theme .arco-picker.arco-picker-focused {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.2) !important;
+}
+
+html.dark-theme .arco-picker-input input,
+.dark-theme .arco-picker-input input {
+  color: #ffffff !important;
+}
+
+html.dark-theme .arco-picker-input input::placeholder,
+.dark-theme .arco-picker-input input::placeholder {
+  color: #6b7280 !important;
+}
+
+html.dark-theme .arco-picker-suffix,
+.dark-theme .arco-picker-suffix {
+  color: #9ca3af !important;
+}
+
+/* DatePicker 下拉面板 - 暗黑模式 */
+html.dark-theme .arco-picker-panel,
+.dark-theme .arco-picker-panel,
+html.dark-theme .arco-panel-date,
+.dark-theme .arco-panel-date {
+  background-color: #1a1b20 !important;
+}
+
+html.dark-theme .arco-picker-header,
+.dark-theme .arco-picker-header,
+body.dark-theme .arco-picker-header {
+  background-color: #1a1b20 !important;
+  border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+/* 日期选择器头部年月显示和箭头按钮 */
+html.dark-theme .arco-picker-header-value,
+html.dark-theme .arco-picker-header-icon,
+html.dark-theme .arco-picker-header-label,
+html.dark-theme .arco-picker-header .arco-picker-header-label,
+html.dark-theme .arco-picker-header-value span,
+html.dark-theme .arco-picker-header-value button,
+.dark-theme .arco-picker-header-value,
+.dark-theme .arco-picker-header-icon,
+.dark-theme .arco-picker-header-label,
+.dark-theme .arco-picker-header .arco-picker-header-label,
+.dark-theme .arco-picker-header-value span,
+.dark-theme .arco-picker-header-value button,
+body.dark-theme .arco-picker-header-value,
+body.dark-theme .arco-picker-header-icon,
+body.dark-theme .arco-picker-header-label,
+body.dark-theme .arco-picker-header-value span,
+body.dark-theme .arco-picker-header-value button {
+  color: #ffffff !important;
+  background-color: transparent !important;
+}
+
+html.dark-theme .arco-picker-header-icon:hover,
+.dark-theme .arco-picker-header-icon:hover,
+body.dark-theme .arco-picker-header-icon:hover {
+  background-color: rgba(255,255,255,0.1) !important;
+  color: #ffffff !important;
+}
+
+/* 年月选择按钮悬停效果 */
+html.dark-theme .arco-picker-header-value:hover,
+html.dark-theme .arco-picker-header-label:hover,
+.dark-theme .arco-picker-header-value:hover,
+.dark-theme .arco-picker-header-label:hover,
+body.dark-theme .arco-picker-header-value:hover,
+body.dark-theme .arco-picker-header-label:hover {
+  color: #3b82f6 !important;
+}
+
+html.dark-theme .arco-picker-week-list-item,
+.dark-theme .arco-picker-week-list-item {
+  color: #9ca3af !important;
+}
+
+/* 日期单元格文字颜色 - 重要 */
+html.dark-theme .arco-picker-cell .arco-picker-date,
+html.dark-theme .arco-picker-cell .arco-picker-date-value,
+html.dark-theme .arco-picker-cell-text,
+.dark-theme .arco-picker-cell .arco-picker-date,
+.dark-theme .arco-picker-cell .arco-picker-date-value,
+.dark-theme .arco-picker-cell-text {
+  color: #ffffff !important;
+}
+
+/* 日期单元格背景透明 */
+html.dark-theme .arco-picker-cell .arco-picker-date-value,
+.dark-theme .arco-picker-cell .arco-picker-date-value {
+  background-color: transparent !important;
+}
+
+/* 非当前月份的日期（上一月/下一月的日期） */
+html.dark-theme .arco-picker-cell-in-view .arco-picker-date-value,
+.dark-theme .arco-picker-cell-in-view .arco-picker-date-value {
+  color: #ffffff !important;
+}
+
+html.dark-theme .arco-picker-cell:not(.arco-picker-cell-in-view) .arco-picker-date-value,
+.dark-theme .arco-picker-cell:not(.arco-picker-cell-in-view) .arco-picker-date-value {
+  color: #6b7280 !important;
+}
+
+html.dark-theme .arco-picker-cell:not(.arco-picker-cell-disabled):hover .arco-picker-date-value,
+.dark-theme .arco-picker-cell:not(.arco-picker-cell-disabled):hover .arco-picker-date-value {
+  background-color: rgba(255,255,255,0.1) !important;
+  color: #ffffff !important;
+}
+
+html.dark-theme .arco-picker-cell-selected .arco-picker-date-value,
+html.dark-theme .arco-picker-cell-selected .arco-picker-cell-text,
+.dark-theme .arco-picker-cell-selected .arco-picker-date-value,
+.dark-theme .arco-picker-cell-selected .arco-picker-cell-text {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+html.dark-theme .arco-picker-cell-today .arco-picker-date-value::after,
+.dark-theme .arco-picker-cell-today .arco-picker-date-value::after {
+  background-color: #3b82f6 !important;
+}
+
+html.dark-theme .arco-picker-cell-disabled .arco-picker-date-value,
+html.dark-theme .arco-picker-cell-disabled .arco-picker-cell-text,
+.dark-theme .arco-picker-cell-disabled .arco-picker-date-value,
+.dark-theme .arco-picker-cell-disabled .arco-picker-cell-text {
+  color: #4b5563 !important;
+}
+
+html.dark-theme .arco-picker-footer,
+.dark-theme .arco-picker-footer {
+  background-color: #1a1b20 !important;
+  border-top: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+/* “今天”链接 */
+html.dark-theme .arco-picker-footer .arco-picker-btn-shortcuts,
+html.dark-theme .arco-picker-footer .arco-link,
+.dark-theme .arco-picker-footer .arco-picker-btn-shortcuts,
+.dark-theme .arco-picker-footer .arco-link {
+  color: #3b82f6 !important;
+}
+
+html.dark-theme .arco-picker-footer .arco-picker-btn-shortcuts:hover,
+html.dark-theme .arco-picker-footer .arco-link:hover,
+.dark-theme .arco-picker-footer .arco-picker-btn-shortcuts:hover,
+.dark-theme .arco-picker-footer .arco-link:hover {
+  color: #60a5fa !important;
+}
+
+/* DatePicker 容器 - 暗黑模式 */
+html.dark-theme .arco-trigger-popup .arco-picker-container,
+.dark-theme .arco-trigger-popup .arco-picker-container {
+  background-color: #1a1b20 !important;
+  border: 1px solid rgba(255,255,255,0.15) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6) !important;
+}
+
+/* DatePicker 面板主体区域 */
+html.dark-theme .arco-picker-body,
+html.dark-theme .arco-picker-date-panel,
+html.dark-theme .arco-picker-week-list,
+.dark-theme .arco-picker-body,
+.dark-theme .arco-picker-date-panel,
+.dark-theme .arco-picker-week-list {
+  background-color: #1a1b20 !important;
+}
+
+/* DatePicker 月/年选择面板 */
+html.dark-theme .arco-picker-cell-in-range .arco-picker-date-value,
+.dark-theme .arco-picker-cell-in-range .arco-picker-date-value {
+  background-color: rgba(59,130,246,0.2) !important;
+}
+
+/* 确保日期选择器弹出层在 body 上的样式生效 */
+body.dark-theme .arco-picker-panel,
+body.dark-theme .arco-picker-body,
+body.dark-theme .arco-picker-date-panel {
+  background-color: #1a1b20 !important;
+}
+
+body.dark-theme .arco-picker-cell .arco-picker-date-value,
+body.dark-theme .arco-picker-cell-in-view .arco-picker-date-value {
+  color: #ffffff !important;
+}
+
+body.dark-theme .arco-picker-cell:not(.arco-picker-cell-in-view) .arco-picker-date-value {
+  color: #6b7280 !important;
+}
+
+/* Button 按钮 - 暗黑模式 */
+html.dark-theme .arco-btn-secondary,
+.dark-theme .arco-btn-secondary {
+  background-color: rgba(255,255,255,0.1) !important;
+  border-color: rgba(255,255,255,0.15) !important;
+  color: #ffffff !important;
+}
+
+html.dark-theme .arco-btn-secondary:hover,
+.dark-theme .arco-btn-secondary:hover {
+  background-color: rgba(255,255,255,0.15) !important;
+  border-color: rgba(255,255,255,0.25) !important;
+}
+
+/* -----------------------------------------------------------------
+   DatePicker 弹出层样式补充 - 解决年月显示不清晰问题
+   Arco 的 Trigger 弹出层是直接挂载到 body 上的
+----------------------------------------------------------------- */
+
+/* 全局选择器 - 确保所有情况都能覆盖 */
+html.dark-theme .arco-trigger-popup .arco-picker-header,
+html.dark-theme .arco-trigger-popup .arco-picker-header-value,
+html.dark-theme .arco-trigger-popup .arco-picker-header-icon,
+html.dark-theme .arco-trigger-popup .arco-picker-header-label,
+.dark-theme .arco-trigger-popup .arco-picker-header,
+.dark-theme .arco-trigger-popup .arco-picker-header-value,
+.dark-theme .arco-trigger-popup .arco-picker-header-icon,
+.dark-theme .arco-trigger-popup .arco-picker-header-label {
+  background-color: #1a1b20 !important;
+  color: #ffffff !important;
+}
+
+/* 年月切换按钮内的文字和图标 */
+html.dark-theme .arco-trigger-popup .arco-picker-header-value *,
+html.dark-theme .arco-trigger-popup .arco-picker-header-icon *,
+.dark-theme .arco-trigger-popup .arco-picker-header-value *,
+.dark-theme .arco-trigger-popup .arco-picker-header-icon * {
+  color: #ffffff !important;
+}
+
+/* 确保前后箭头可见 */
+html.dark-theme .arco-trigger-popup .arco-picker-header-icon svg,
+html.dark-theme .arco-trigger-popup .arco-icon,
+.dark-theme .arco-trigger-popup .arco-picker-header-icon svg,
+.dark-theme .arco-trigger-popup .arco-icon {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+
+/* 日期面板内所有文字 */
+html.dark-theme .arco-trigger-popup .arco-picker-panel *,
+.dark-theme .arco-trigger-popup .arco-picker-panel * {
+  color: #ffffff;
+}
+
+/* 非当前月的日期较淡 */
+html.dark-theme .arco-trigger-popup .arco-picker-cell:not(.arco-picker-cell-in-view) .arco-picker-date-value,
+.dark-theme .arco-trigger-popup .arco-picker-cell:not(.arco-picker-cell-in-view) .arco-picker-date-value {
+  color: #6b7280 !important;
+}
+
+/* 选中状态 */
+html.dark-theme .arco-trigger-popup .arco-picker-cell-selected .arco-picker-date-value,
+.dark-theme .arco-trigger-popup .arco-picker-cell-selected .arco-picker-date-value {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+/* “今天”按钮 */
+html.dark-theme .arco-trigger-popup .arco-picker-footer,
+html.dark-theme .arco-trigger-popup .arco-picker-footer *,
+.dark-theme .arco-trigger-popup .arco-picker-footer,
+.dark-theme .arco-trigger-popup .arco-picker-footer * {
+  background-color: #1a1b20 !important;
+}
+
+html.dark-theme .arco-trigger-popup .arco-picker-footer .arco-link,
+html.dark-theme .arco-trigger-popup .arco-picker-btn-shortcuts,
+.dark-theme .arco-trigger-popup .arco-picker-footer .arco-link,
+.dark-theme .arco-trigger-popup .arco-picker-btn-shortcuts {
+  color: #3b82f6 !important;
+}
