@@ -53,11 +53,31 @@
         </div>
         <div class="data-charts">
           <div class="chart-item">
-            <h4>体重变化</h4>
+            <div class="chart-item-header">
+              <h4>体重变化趋势</h4>
+              <div class="chart-controls">
+                <a-radio-group v-model="weightPeriod" size="small" @change="updateWeightChart">
+                  <a-radio value="7d">7天</a-radio>
+                  <a-radio value="30d">30天</a-radio>
+                  <a-radio value="90d">90天</a-radio>
+                  <a-radio value="1y">1年</a-radio>
+                </a-radio-group>
+              </div>
+            </div>
             <div class="chart-container" ref="weightChart"></div>
           </div>
           <div class="chart-item">
-            <h4>体脂率变化</h4>
+            <div class="chart-item-header">
+              <h4>体脂率变化趋势</h4>
+              <div class="chart-controls">
+                <a-radio-group v-model="bodyFatPeriod" size="small" @change="updateBodyFatChart">
+                  <a-radio value="7d">7天</a-radio>
+                  <a-radio value="30d">30天</a-radio>
+                  <a-radio value="90d">90天</a-radio>
+                  <a-radio value="1y">1年</a-radio>
+                </a-radio-group>
+              </div>
+            </div>
             <div class="chart-container" ref="bodyFatChart"></div>
           </div>
         </div>
@@ -268,6 +288,10 @@ export default {
     const bodyFatChart = ref(null);
     let weightChartInstance = null;
     let bodyFatChartInstance = null;
+    
+    // 图表时间周期
+    const weightPeriod = ref('1y');
+    const bodyFatPeriod = ref('1y');
 
     // 弹窗控制
     const showDataModal = ref(false);
@@ -774,8 +798,17 @@ export default {
         
         weightChartInstance = echarts.init(weightChart.value);
         
+        // 根据时间周期获取天数
+        const daysMap = {
+          '7d': 7,
+          '30d': 30,
+          '90d': 90,
+          '1y': 365
+        };
+        const days = daysMap[weightPeriod.value] || 365;
+        
         // 获取趋势数据
-        const response = await ApiService.getFitnessTrends(30);
+        const response = await ApiService.getFitnessTrends(days);
         
         if (response.code === 0 && response.data && response.data.length > 0) {
           const dates = [];
@@ -786,7 +819,12 @@ export default {
           
           response.data.forEach(item => {
             if (item.weight) {
-              dates.push(new Date(item.dateRecorded).toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' }));
+              // 格式化为 年/月/日
+              const date = new Date(item.dateRecorded);
+              const year = date.getFullYear().toString().slice(-2); // 取后两位年份
+              const month = String(date.getMonth() + 1).padStart(2, '0');
+              const day = String(date.getDate()).padStart(2, '0');
+              dates.push(`${year}/${month}/${day}`);
               weights.push(item.weight);
             }
           });
@@ -794,7 +832,13 @@ export default {
           const option = {
             tooltip: {
               trigger: 'axis',
-              formatter: '{b}<br/>体重: {c} kg'
+              formatter: function(params) {
+                const dateStr = params[0].name;
+                // 将 YY/MM/DD 转换为完整格式显示
+                const parts = dateStr.split('/');
+                const fullYear = '20' + parts[0];
+                return `${fullYear}/${parts[1]}/${parts[2]}<br/>体重: ${params[0].value} kg`;
+              }
             },
             grid: {
               left: '3%',
@@ -876,8 +920,17 @@ export default {
         
         bodyFatChartInstance = echarts.init(bodyFatChart.value);
         
+        // 根据时间周期获取天数
+        const daysMap = {
+          '7d': 7,
+          '30d': 30,
+          '90d': 90,
+          '1y': 365
+        };
+        const days = daysMap[bodyFatPeriod.value] || 365;
+        
         // 获取趋势数据
-        const response = await ApiService.getFitnessTrends(30);
+        const response = await ApiService.getFitnessTrends(days);
         
         if (response.code === 0 && response.data && response.data.length > 0) {
           const dates = [];
@@ -888,7 +941,12 @@ export default {
           
           response.data.forEach(item => {
             if (item.bodyFat) {
-              dates.push(new Date(item.dateRecorded).toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' }));
+              // 格式化为 年/月/日
+              const date = new Date(item.dateRecorded);
+              const year = date.getFullYear().toString().slice(-2); // 取后两位年份
+              const month = String(date.getMonth() + 1).padStart(2, '0');
+              const day = String(date.getDate()).padStart(2, '0');
+              dates.push(`${year}/${month}/${day}`);
               bodyFats.push(item.bodyFat);
             }
           });
@@ -896,7 +954,13 @@ export default {
           const option = {
             tooltip: {
               trigger: 'axis',
-              formatter: '{b}<br/>体脂率: {c}%'
+              formatter: function(params) {
+                const dateStr = params[0].name;
+                // 将 YY/MM/DD 转换为完整格式显示
+                const parts = dateStr.split('/');
+                const fullYear = '20' + parts[0];
+                return `${fullYear}/${parts[1]}/${parts[2]}<br/>体脂率: ${params[0].value}%`;
+              }
             },
             grid: {
               left: '3%',
@@ -1000,6 +1064,10 @@ export default {
       // 图表ref
       weightChart,
       bodyFatChart,
+      weightPeriod,
+      bodyFatPeriod,
+      updateWeightChart: initWeightChart,
+      updateBodyFatChart: initBodyFatChart,
       // 头像上传相关
       fileList,
       previewUrl,
@@ -1234,6 +1302,29 @@ export default {
       box-shadow: var(--theme-shadow-md);
       transform: translateY(-2px);
       border-color: var(--theme-color-primary);
+    }
+
+    .chart-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+
+      h4 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--theme-text-primary);
+      }
+
+      .chart-controls {
+        :deep(.arco-radio-group) {
+          display: flex;
+          gap: 4px;
+        }
+      }
     }
 
     h4 {
