@@ -706,19 +706,32 @@ export default {
           const dates = [];
           const weights = [];
           
-          // 按日期排序
+          // 按日期排序（升序）
           response.data.sort((a, b) => new Date(a.dateRecorded) - new Date(b.dateRecorded));
           
+          // 去重逻辑：同一天只保留最新的一条记录
+          const dailyLatestMap = new Map();
           response.data.forEach(item => {
             if (item.weight) {
-              // 格式化为 年/月/日
               const date = new Date(item.dateRecorded);
-              const year = date.getFullYear().toString().slice(-2); // 取后两位年份
-              const month = String(date.getMonth() + 1).padStart(2, '0');
-              const day = String(date.getDate()).padStart(2, '0');
-              dates.push(`${year}/${month}/${day}`);
-              weights.push(item.weight);
+              const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+              // 同一天的数据，后面的会覆盖前面的（因为已按时间排序，后面的是最新的）
+              dailyLatestMap.set(dateKey, item);
             }
+          });
+          
+          // 转换为数组并按日期排序
+          const uniqueData = Array.from(dailyLatestMap.entries())
+            .sort((a, b) => new Date(a[0]) - new Date(b[0]));
+          
+          uniqueData.forEach(([dateKey, item]) => {
+            // 格式化为 年/月/日
+            const date = new Date(dateKey);
+            const year = date.getFullYear().toString().slice(-2); // 取后两位年份
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            dates.push(`${year}/${month}/${day}`);
+            weights.push(item.weight);
           });
           
           const option = {
@@ -832,19 +845,32 @@ export default {
           const dates = [];
           const bodyFats = [];
           
-          // 按日期排序
+          // 按日期排序（升序）
           response.data.sort((a, b) => new Date(a.dateRecorded) - new Date(b.dateRecorded));
           
+          // 去重逻辑：同一天只保留最新的一条记录
+          const dailyLatestMap = new Map();
           response.data.forEach(item => {
             if (item.bodyFat) {
-              // 格式化为 年/月/日
               const date = new Date(item.dateRecorded);
-              const year = date.getFullYear().toString().slice(-2); // 取后两位年份
-              const month = String(date.getMonth() + 1).padStart(2, '0');
-              const day = String(date.getDate()).padStart(2, '0');
-              dates.push(`${year}/${month}/${day}`);
-              bodyFats.push(item.bodyFat);
+              const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+              // 同一天的数据，后面的会覆盖前面的（因为已按时间排序，后面的是最新的）
+              dailyLatestMap.set(dateKey, item);
             }
+          });
+          
+          // 转换为数组并按日期排序
+          const uniqueData = Array.from(dailyLatestMap.entries())
+            .sort((a, b) => new Date(a[0]) - new Date(b[0]));
+          
+          uniqueData.forEach(([dateKey, item]) => {
+            // 格式化为 年/月/日
+            const date = new Date(dateKey);
+            const year = date.getFullYear().toString().slice(-2); // 取后两位年份
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            dates.push(`${year}/${month}/${day}`);
+            bodyFats.push(item.bodyFat);
           });
           
           const option = {
