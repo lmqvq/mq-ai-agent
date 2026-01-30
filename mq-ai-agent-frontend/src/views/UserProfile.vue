@@ -1086,6 +1086,7 @@ export default {
       bmiCalculating,
       getBMIStatusClass,
       calculateBMIRealtime,
+      calculateBodyFatPercentage,
       // 其他方法
       getRoleText,
       formatDate,
