@@ -97,7 +97,9 @@
       
       <div class="chat-body" :class="{ 'is-empty': isEmptyConversation }">
         <div v-if="isEmptyConversation" class="chat-empty-state">
-          <div v-if="emptyMessage" class="empty-message" v-html="processMessageContent(emptyMessage)"></div>
+          <div v-if="emptyMessage" class="empty-message">
+            <MarkdownRenderer :content="emptyMessage" />
+          </div>
         </div>
 
         <div ref="chatMessages" class="chat-messages">
@@ -108,7 +110,7 @@
                :class="['message', message.messageType === 'user' ? 'user-message' : 'ai-message']">
             <div class="message-content">
               <span v-if="message.messageType === 'user'">{{ message.message }}</span>
-              <span v-else v-html="processMessageContent(message.message)"></span>
+              <MarkdownRenderer v-else :content="message.message" />
             </div>
             <div v-if="message.messageType !== 'user'" class="message-actions">
               <a-button type="text" size="mini" class="action-btn" @click="copyMessage(message.message)">
@@ -268,6 +270,7 @@ import {
 } from '@arco-design/web-vue/es/icon';
 import ApiService from '../services/api';
 import LocalStorageService from '../services/localStorage';
+import MarkdownRenderer from './MarkdownRenderer.vue';
 
 export default {
   name: 'ChatManager',
@@ -283,7 +286,8 @@ export default {
     IconCopy,
     IconThumbUp,
     IconThumbDown,
-    IconShareAlt
+    IconShareAlt,
+    MarkdownRenderer
   },
   props: {
     title: {
@@ -1076,17 +1080,6 @@ export default {
       }
     };
 
-    // 处理消息内容，支持简单的markdown格式
-    const processMessageContent = (content) => {
-      // 替换换行符为<br>
-      let processed = content.replace(/\n/g, '<br>');
-      // 处理加粗 **text**
-      processed = processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      // 处理斜体 *text*
-      processed = processed.replace(/\*(.*?)\*/g, '<em>$1</em>');
-      return processed;
-    };
-
     // 返回主页
     const goToHome = () => {
       router.push('/');
@@ -1127,7 +1120,6 @@ export default {
       sendMessage,
       formatTime,
       formatDialogueTime,
-      processMessageContent,
       isEmptyConversation,
       emptyMessage,
       goToHome,
@@ -1451,43 +1443,51 @@ export default {
     }
 
     .message {
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       max-width: 85%;
-      animation: messageSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      opacity: 0;
-      animation-fill-mode: forwards;
+      animation: messageSlideIn 0.3s ease-out forwards;
       display: flex;
       flex-direction: column;
       align-items: flex-start;
 
       .message-content {
-        padding: 12px 16px;
-        border-radius: 18px;
-        font-size: 16px;
-        line-height: 1.5;
+        padding: 14px 18px;
+        border-radius: 16px;
+        font-size: 15px;
+        line-height: 1.6;
         word-break: break-word;
         overflow-wrap: anywhere;
-        white-space: pre-wrap;
         position: relative;
         max-width: 100%;
-        display: inline-block;
-        text-align: left;
       }
 
       .message-actions {
-        margin-top: 6px;
+        margin-top: 8px;
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        gap: 8px;
+        gap: 4px;
         font-size: 12px;
         color: var(--theme-text-muted);
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+
+      &:hover .message-actions {
+        opacity: 1;
       }
 
       .action-btn {
         color: var(--theme-text-muted);
-        padding: 0 4px;
-        border-radius: 8px;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 12px;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: var(--theme-bg-card-hover);
+          color: var(--theme-text-secondary);
+        }
       }
 
       .action-btn.active {
@@ -1505,26 +1505,10 @@ export default {
         max-width: 80%;
 
         .message-content {
-          background: var(--theme-message-user-bg);
+          background: linear-gradient(135deg, var(--theme-color-primary) 0%, #667eea 100%);
           color: #ffffff;
-          border-radius: 18px 18px 4px 18px;
-          box-shadow: var(--theme-shadow-sm);
-          position: relative;
-          font-weight: 400;
-          letter-spacing: 0.3px;
-
-          &::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            right: -6px;
-            width: 0;
-            height: 0;
-            border: 6px solid transparent;
-            border-left-color: var(--theme-color-primary);
-            border-bottom: none;
-            border-right: none;
-          }
+          border-radius: 16px 16px 4px 16px;
+          box-shadow: 0 2px 8px rgba(64, 128, 255, 0.25);
 
           span {
             display: block;
@@ -1536,36 +1520,14 @@ export default {
 
       &.ai-message {
         margin-right: auto;
-        max-width: 80%;
+        max-width: 85%;
 
         .message-content {
           background-color: var(--theme-message-ai-bg);
           color: var(--theme-text-primary);
-          border-radius: 18px 18px 18px 4px;
-          box-shadow: var(--theme-shadow-sm);
-          position: relative;
-          font-weight: 400;
-          letter-spacing: 0.3px;
+          border-radius: 16px 16px 16px 4px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
           border: 1px solid var(--theme-border-secondary);
-
-          &::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: -6px;
-            width: 0;
-            height: 0;
-            border: 6px solid transparent;
-            border-right-color: var(--theme-message-ai-bg);
-            border-bottom: none;
-            border-left: none;
-          }
-
-          span {
-            display: block;
-            word-wrap: break-word;
-            white-space: pre-wrap;
-          }
         }
       }
 
@@ -1573,19 +1535,20 @@ export default {
         .typing-indicator {
           display: inline-flex;
           align-items: center;
-          padding: 12px 16px;
+          padding: 14px 18px;
           background-color: var(--theme-bg-card);
-          border-radius: 12px;
-          box-shadow: var(--theme-shadow-sm);
-          border: 1px solid var(--theme-border-primary);
+          border-radius: 16px 16px 16px 4px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+          border: 1px solid var(--theme-border-secondary);
 
           span {
             height: 8px;
             width: 8px;
-            margin: 0 2px;
+            margin: 0 3px;
             border-radius: 50%;
             background-color: var(--theme-color-primary);
-            animation: typing 1.5s infinite ease-in-out;
+            opacity: 0.6;
+            animation: typing 1.4s infinite ease-in-out;
 
             &:nth-child(2) {
               animation-delay: 0.2s;
@@ -1747,14 +1710,13 @@ export default {
 }
 
 @keyframes messageSlideIn {
-  0% {
+  from {
     opacity: 0;
-    transform: translateY(20px) scale(0.95);
+    transform: translateY(10px);
   }
-
-  100% {
+  to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 

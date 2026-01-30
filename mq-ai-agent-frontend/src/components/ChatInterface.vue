@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="chat-container">
     <div class="chat-header">
       <h1>{{ title }}</h1>
@@ -7,7 +7,9 @@
     
     <div class="chat-body" :class="{ 'is-empty': isEmptyConversation }">
       <div v-if="isEmptyConversation" class="empty-state">
-        <div v-if="emptyMessage" class="empty-message" v-html="processMessageContent(emptyMessage)"></div>
+        <div v-if="emptyMessage" class="empty-message">
+          <MarkdownRenderer :content="emptyMessage" />
+        </div>
       </div>
 
       <div ref="chatMessages" class="chat-messages">
@@ -16,7 +18,7 @@
                :class="['message', message.isUser ? 'user-message' : 'ai-message']">
             <div class="message-content">
               <span v-if="message.isUser">{{ message.content }}</span>
-              <span v-else v-html="processMessageContent(message.content)"></span>
+              <MarkdownRenderer v-else :content="message.content" />
             </div>
             <div v-if="!message.isUser" class="message-actions">
               <a-button type="text" size="mini" class="action-btn" @click="copyMessage(message.content)">
@@ -116,6 +118,7 @@ import {
   IconShareAlt
 } from '@arco-design/web-vue/es/icon';
 import ApiService from '../services/api';
+import MarkdownRenderer from './MarkdownRenderer.vue';
 
 export default {
   name: 'ChatInterface',
@@ -124,7 +127,8 @@ export default {
     IconCopy,
     IconThumbUp,
     IconThumbDown,
-    IconShareAlt
+    IconShareAlt,
+    MarkdownRenderer
   },
   props: {
     title: {
@@ -348,16 +352,7 @@ export default {
       return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
     };
     
-    // 处理消息内容，支持简单的markdown格式
-    const processMessageContent = (content) => {
-      // 替换换行符为<br>
-      let processed = content.replace(/\n/g, '<br>');
-      // 处理加粗 **text**
-      processed = processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      // 处理斜体 *text*
-      processed = processed.replace(/\*(.*?)\*/g, '<em>$1</em>');
-      return processed;
-    };
+    // 格式化时间已不再需要processMessageContent，使用MarkdownRenderer组件代替
     
     return {
       messages,
@@ -369,7 +364,6 @@ export default {
       modelOptions,
       sendMessage,
       formatTime,
-      processMessageContent,
       isEmptyConversation,
       emptyMessage,
       getFeedback,
@@ -480,38 +474,53 @@ export default {
   }
   
   .message {
-    margin-bottom: 16px;
-    max-width: 80%;
+    margin-bottom: 20px;
+    max-width: 85%;
+    display: flex;
+    flex-direction: column;
+    animation: messageSlideIn 0.3s ease-out;
     
     .message-content {
-      padding: 12px 16px;
-      border-radius: 12px;
-      font-size: 16px;
-      line-height: 1.5;
+      padding: 14px 18px;
+      border-radius: 16px;
+      font-size: 15px;
+      line-height: 1.6;
       word-break: break-word;
       overflow-wrap: anywhere;
-      white-space: pre-wrap;
     }
 
     .message-actions {
-      margin-top: 6px;
+      margin-top: 8px;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       font-size: 12px;
-      color: #8e8e93;
+      color: var(--theme-text-muted, #8e8e93);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    &:hover .message-actions {
+      opacity: 1;
     }
 
     .action-btn {
-      color: #8e8e93;
-      padding: 0 4px;
-      border-radius: 8px;
+      color: var(--theme-text-muted, #8e8e93);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: var(--theme-bg-card-hover, rgba(0, 0, 0, 0.04));
+        color: var(--theme-text-secondary, #666);
+      }
     }
 
     .action-btn.active {
-      color: #4080ff;
-      background: rgba(64, 128, 255, 0.1);
+      color: var(--theme-color-primary, #4080ff);
+      background: var(--theme-color-primary-light, rgba(64, 128, 255, 0.1));
     }
 
     :deep(.action-btn .arco-btn-icon) {
@@ -520,25 +529,26 @@ export default {
     
     &.user-message {
       margin-left: auto;
-      text-align: right;
+      align-items: flex-end;
       
       .message-content {
-        background-color: #4080ff;
+        background: linear-gradient(135deg, var(--theme-color-primary, #4080ff) 0%, #667eea 100%);
         color: #fff;
-        border-top-right-radius: 2px;
-        box-shadow: 0 2px 6px rgba(64, 128, 255, 0.3);
+        border-radius: 16px 16px 4px 16px;
+        box-shadow: 0 2px 8px rgba(64, 128, 255, 0.25);
       }
-      
     }
     
     &.ai-message {
       margin-right: auto;
+      align-items: flex-start;
       
       .message-content {
-        background-color: #fff;
-        color: #333;
-        border-top-left-radius: 2px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        background-color: var(--theme-bg-card, #fff);
+        color: var(--theme-text-primary, #333);
+        border-radius: 16px 16px 16px 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--theme-border-secondary, #f0f0f0);
       }
     }
     
@@ -546,18 +556,20 @@ export default {
       .typing-indicator {
         display: inline-flex;
         align-items: center;
-        padding: 12px 16px;
-        background-color: #fff;
-        border-radius: 12px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        padding: 14px 18px;
+        background-color: var(--theme-bg-card, #fff);
+        border-radius: 16px 16px 16px 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--theme-border-secondary, #f0f0f0);
         
         span {
           height: 8px;
           width: 8px;
-          margin: 0 2px;
+          margin: 0 3px;
           border-radius: 50%;
-          background-color: #999;
-          animation: typing 1.5s infinite ease-in-out;
+          background-color: var(--theme-color-primary, #4080ff);
+          opacity: 0.6;
+          animation: typing 1.4s infinite ease-in-out;
           
           &:nth-child(2) {
             animation-delay: 0.2s;
@@ -569,6 +581,17 @@ export default {
         }
       }
     }
+  }
+}
+
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
