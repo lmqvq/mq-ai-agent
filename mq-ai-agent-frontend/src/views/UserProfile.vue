@@ -1,5 +1,11 @@
 <template>
   <div class="user-profile">
+    <!-- 返回按钮 -->
+    <div class="back-button" @click="goBack">
+      <icon-left />
+      <span>返回</span>
+    </div>
+
     <div class="profile-container">
       <!-- 个人信息卡片 -->
       <div class="profile-card">
@@ -218,8 +224,9 @@
 
 <script>
 import { ref, reactive, onMounted, nextTick } from 'vue';
+import { useRouter } from 'vue-router';
 import {
-  IconUser, IconCamera, IconPlus, IconHeart, IconUpload
+  IconUser, IconCamera, IconPlus, IconHeart, IconUpload, IconLeft
 } from '@arco-design/web-vue/es/icon';
 import { Message } from '@arco-design/web-vue';
 import * as echarts from 'echarts';
@@ -229,9 +236,16 @@ import { useUserStore } from '@/stores/user';
 export default {
   name: 'UserProfile',
   components: {
-    IconUser, IconCamera, IconPlus, IconHeart, IconUpload
+    IconUser, IconCamera, IconPlus, IconHeart, IconUpload, IconLeft
   },
   setup() {
+    const router = useRouter();
+
+    // 返回主页
+    const goBack = () => {
+      router.push('/');
+    };
+
     // 用户状态管理
     const { setUserInfo } = useUserStore();
 
@@ -976,6 +990,7 @@ export default {
     });
 
     return {
+      goBack,
       userInfo,
       fitnessStats,
       latestBodyData,
@@ -1023,6 +1038,35 @@ export default {
   background: var(--theme-bg-page);
   padding: 20px;
   padding-bottom: 80px;
+  position: relative;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--theme-bg-card);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+  box-shadow: var(--theme-shadow-sm);
+  font-weight: 500;
+  color: var(--theme-text-primary);
+  border: 1px solid var(--theme-border-primary);
+
+  :deep(svg) {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    transform: translateX(-4px);
+    box-shadow: var(--theme-shadow-md);
+    border-color: var(--theme-color-primary);
+    color: var(--theme-color-primary);
+  }
 }
 
 .profile-container {

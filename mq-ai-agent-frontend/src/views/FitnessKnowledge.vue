@@ -1,5 +1,11 @@
 <template>
   <div class="fitness-knowledge">
+    <!-- 返回按钮 -->
+    <div class="back-button" @click="goBack">
+      <icon-left />
+      <span>返回</span>
+    </div>
+
     <div class="knowledge-container">
       <!-- 页面标题 -->
       <div class="page-header">
@@ -346,7 +352,8 @@ import { useRouter } from 'vue-router';
 import { Message } from '@arco-design/web-vue';
 import { 
   IconBook, IconTrophy, IconFire, IconHeart, IconUser, IconClockCircle, 
-  IconEye, IconPlayArrow, IconShareAlt, IconPrinter, IconStar, IconSettings, IconEdit
+  IconEye, IconPlayArrow, IconShareAlt, IconPrinter, IconStar, IconSettings, IconEdit,
+  IconLeft
 } from '@arco-design/web-vue/es/icon';
 import ApiService from '@/services/api';
 
@@ -354,7 +361,8 @@ export default {
   name: 'FitnessKnowledge',
   components: {
     IconBook, IconTrophy, IconFire, IconHeart, IconUser, IconClockCircle, 
-    IconEye, IconPlayArrow, IconShareAlt, IconPrinter, IconStar, IconSettings, IconEdit
+    IconEye, IconPlayArrow, IconShareAlt, IconPrinter, IconStar, IconSettings, IconEdit,
+    IconLeft
   },
   setup() {
     const router = useRouter();
@@ -552,6 +560,11 @@ export default {
       return false;
     });
 
+    // 返回主页
+    const goBack = () => {
+      router.push('/');
+    };
+
     // 跳转到管理页面
     const goToManage = () => {
       router.push('/admin/knowledge');
@@ -586,6 +599,7 @@ export default {
       shareKnowledge,
       printKnowledge,
       isAdmin,
+      goBack,
       goToManage,
       editItem
     };
@@ -625,6 +639,35 @@ img {
   background: var(--theme-bg-page);
   padding: 20px;
   padding-bottom: 80px;
+  position: relative;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--theme-bg-card);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+  box-shadow: var(--theme-shadow-sm);
+  font-weight: 500;
+  color: var(--theme-text-primary);
+  border: 1px solid var(--theme-border-primary);
+
+  :deep(svg) {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    transform: translateX(-4px);
+    box-shadow: var(--theme-shadow-md);
+    border-color: var(--theme-color-primary);
+    color: var(--theme-color-primary);
+  }
 }
 
 .knowledge-container {

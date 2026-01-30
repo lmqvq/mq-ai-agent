@@ -1,5 +1,11 @@
 <template>
   <div class="fitness-data">
+    <!-- 返回按钮 -->
+    <div class="back-button" @click="goBack">
+      <icon-left />
+      <span>返回</span>
+    </div>
+
     <div class="data-container">
       <!-- 页面标题 -->
       <div class="page-header">
@@ -295,10 +301,11 @@
 
 <script>
 import { ref, reactive, onMounted, nextTick, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { Message } from '@arco-design/web-vue';
 import {
   IconBarChart, IconUser, IconHeart, IconDashboard, IconTrophy,
-  IconFire, IconPlus, IconEdit, IconDelete
+  IconFire, IconPlus, IconEdit, IconDelete, IconLeft
 } from '@arco-design/web-vue/es/icon';
 import * as echarts from 'echarts';
 import ApiService from '@/services/api';
@@ -307,9 +314,16 @@ export default {
   name: 'FitnessData',
   components: {
     IconBarChart, IconUser, IconHeart, IconDashboard, IconTrophy, 
-    IconFire, IconPlus, IconEdit, IconDelete
+    IconFire, IconPlus, IconEdit, IconDelete, IconLeft
   },
   setup() {
+    const router = useRouter();
+
+    // 返回主页
+    const goBack = () => {
+      router.push('/');
+    };
+
     // 响应式数据
     const loading = ref(false);
     const currentData = ref({
@@ -1058,6 +1072,7 @@ export default {
     });
 
     return {
+      goBack,
       loading,
       currentData,
       weightChange,
@@ -1110,6 +1125,35 @@ export default {
   background: var(--theme-bg-container);
   padding: 20px;
   padding-bottom: 80px;
+  position: relative;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--theme-bg-card);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+  box-shadow: var(--theme-shadow-sm);
+  font-weight: 500;
+  color: var(--theme-text-primary);
+  border: 1px solid var(--theme-border-primary);
+
+  :deep(svg) {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    transform: translateX(-4px);
+    box-shadow: var(--theme-shadow-md);
+    border-color: var(--theme-color-primary);
+    color: var(--theme-color-primary);
+  }
 }
 
 .data-container {
