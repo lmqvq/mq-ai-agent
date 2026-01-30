@@ -1014,9 +1014,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+/* ================================================================
+   UserProfile.vue 样式 - 使用CSS变量实现主题切换
+================================================================ */
+
 .user-profile {
   min-height: 100vh;
-  background: #ffffff;
+  background: var(--theme-bg-page);
   padding: 20px;
   padding-bottom: 80px;
 }
@@ -1030,15 +1034,15 @@ export default {
 }
 
 .profile-card, .body-data-card {
-  background: #ffffff;
+  background: var(--theme-bg-card);
   border-radius: 16px;
   padding: 32px;
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
-  border: 1px solid #f0f0f0;
+  box-shadow: var(--theme-shadow-md);
+  border: 1px solid var(--theme-border-secondary);
   transition: all 0.3s ease;
 
   &:hover {
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--theme-shadow-lg);
   }
 }
 
@@ -1101,14 +1105,14 @@ export default {
 
     .user-role {
       margin: 0 0 8px 0;
-      color: #667eea;
+      color: var(--theme-color-primary);
       font-weight: 600;
       font-size: 16px;
     }
 
     .join-date {
       margin: 0;
-      color: #999;
+      color: var(--theme-text-muted);
       font-size: 14px;
     }
   }
@@ -1118,7 +1122,7 @@ export default {
   display: flex;
   justify-content: space-around;
   padding: 24px 0 0;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--theme-border-primary);
   margin-top: 8px;
 
   .stat-item {
@@ -1128,24 +1132,21 @@ export default {
     transition: all 0.3s ease;
 
     &:hover {
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+      background: var(--theme-color-primary-light);
       transform: translateY(-2px);
     }
 
     .stat-number {
       font-size: 36px;
       font-weight: 800;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--theme-color-primary);
       margin-bottom: 8px;
       letter-spacing: -1px;
     }
 
     .stat-label {
       font-size: 14px;
-      color: #666;
+      color: var(--theme-text-secondary);
       font-weight: 500;
     }
   }
@@ -1161,19 +1162,13 @@ export default {
     margin: 0;
     font-size: 24px;
     font-weight: 700;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--theme-color-primary);
     display: flex;
     align-items: center;
     gap: 10px;
 
     :deep(svg) {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--theme-color-primary);
     }
   }
 }
@@ -1185,35 +1180,35 @@ export default {
   margin-bottom: 28px;
 
   .chart-item {
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    background: var(--theme-bg-card-hover);
     border-radius: 12px;
     padding: 24px;
     transition: all 0.3s ease;
-    border: 1px solid #f0f0f0;
+    border: 1px solid var(--theme-border-secondary);
 
     &:hover {
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+      box-shadow: var(--theme-shadow-md);
       transform: translateY(-2px);
-      border-color: #667eea;
+      border-color: var(--theme-color-primary);
     }
 
     h4 {
       margin: 0 0 20px 0;
       font-size: 18px;
       font-weight: 700;
-      color: #333;
+      color: var(--theme-text-primary);
     }
 
     .chart-container {
       height: 220px;
-      background: #ffffff;
+      background: var(--theme-bg-card);
       border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #999;
+      color: var(--theme-text-muted);
       font-size: 14px;
-      border: 1px dashed #e0e0e0;
+      border: 1px dashed var(--theme-border-primary);
     }
   }
 }
@@ -1223,27 +1218,27 @@ export default {
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
   padding-top: 28px;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--theme-border-primary);
 
   .data-item {
     text-align: center;
     padding: 20px;
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    background: var(--theme-bg-card-hover);
     border-radius: 12px;
     transition: all 0.3s ease;
-    border: 1px solid #f0f0f0;
+    border: 1px solid var(--theme-border-secondary);
 
     &:hover {
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+      background: var(--theme-color-primary-light);
       transform: translateY(-4px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
-      border-color: #667eea;
+      box-shadow: var(--theme-shadow-md);
+      border-color: var(--theme-color-primary);
     }
 
     .label {
       display: block;
       font-size: 14px;
-      color: #666;
+      color: var(--theme-text-secondary);
       margin-bottom: 12px;
       font-weight: 600;
     }
@@ -1251,16 +1246,13 @@ export default {
     .value {
       font-size: 28px;
       font-weight: 800;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--theme-color-primary);
       letter-spacing: -0.5px;
 
       .unit {
         font-size: 16px;
         font-weight: 600;
-        color: #999;
+        color: var(--theme-text-muted);
         margin-left: 4px;
       }
     }
@@ -1309,14 +1301,14 @@ export default {
       margin: 0 0 12px 0;
       font-size: 16px;
       font-weight: 600;
-      color: #333;
+      color: var(--theme-text-primary);
     }
 
     .avatar-preview {
       width: 100px;
       height: 100px;
       border-radius: 50%;
-      background: linear-gradient(45deg, #4080ff, #40a9ff);
+      background: linear-gradient(45deg, var(--theme-color-primary), var(--theme-color-primary-hover));
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1344,26 +1336,27 @@ export default {
       margin: 0 0 12px 0;
       font-size: 16px;
       font-weight: 600;
-      color: #333;
+      color: var(--theme-text-primary);
     }
 
     .upload-area {
-      border: 2px dashed #d9d9d9;
+      border: 2px dashed var(--theme-border-primary);
       border-radius: 8px;
       padding: 40px 20px;
       text-align: center;
       cursor: pointer;
       transition: all 0.3s ease;
+      background: var(--theme-bg-card);
 
       &:hover {
-        border-color: #4080ff;
-        background: rgba(64, 128, 255, 0.02);
+        border-color: var(--theme-color-primary);
+        background: var(--theme-color-primary-light);
       }
 
       :deep(svg) {
         width: 48px;
         height: 48px;
-        color: #999;
+        color: var(--theme-text-muted);
         margin-bottom: 16px;
       }
 
@@ -1373,13 +1366,13 @@ export default {
 
           &:first-child {
             font-size: 16px;
-            color: #333;
+            color: var(--theme-text-primary);
             margin-bottom: 8px;
           }
 
           &.upload-hint {
             font-size: 14px;
-            color: #999;
+            color: var(--theme-text-muted);
           }
         }
       }
@@ -1392,16 +1385,16 @@ export default {
     gap: 12px;
     margin-top: 24px;
     padding-top: 24px;
-    border-top: 1px solid #f0f0f0;
+    border-top: 1px solid var(--theme-border-primary);
   }
 }
 
 // BMI结果显示样式
 .bmi-result-card {
-  background: #f8f9fa;
+  background: var(--theme-bg-card-hover);
   border-radius: 8px;
   padding: 16px;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--theme-border-primary);
 
   .bmi-info {
     .bmi-value {
@@ -1412,7 +1405,7 @@ export default {
 
       .label {
         font-weight: 600;
-        color: #333;
+        color: var(--theme-text-primary);
       }
 
       .value {
@@ -1420,25 +1413,25 @@ export default {
         font-weight: 700;
 
         &.underweight {
-          color: #1890ff;
+          color: var(--theme-color-primary);
         }
 
         &.normal {
-          color: #52c41a;
+          color: var(--theme-color-success);
         }
 
         &.overweight {
-          color: #faad14;
+          color: var(--theme-color-warning);
         }
 
         &.obese {
-          color: #f5222d;
+          color: var(--theme-color-error);
         }
       }
 
       .category {
-        background: #e6f7ff;
-        color: #1890ff;
+        background: var(--theme-color-primary-light);
+        color: var(--theme-color-primary);
         padding: 2px 8px;
         border-radius: 12px;
         font-size: 12px;
@@ -1452,16 +1445,16 @@ export default {
 
       .label {
         font-weight: 600;
-        color: #333;
+        color: var(--theme-text-primary);
         margin-right: 8px;
       }
 
       .value {
-        color: #666;
+        color: var(--theme-text-secondary);
       }
 
       .advice {
-        color: #666;
+        color: var(--theme-text-secondary);
         line-height: 1.4;
       }
     }
@@ -1472,7 +1465,7 @@ export default {
 .helper-text {
   margin-top: 4px;
   font-size: 12px;
-  color: #86909c;
+  color: var(--theme-text-muted);
   line-height: 1.5;
 }
 </style>

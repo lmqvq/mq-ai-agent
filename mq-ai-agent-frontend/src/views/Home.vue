@@ -448,37 +448,27 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+/* ================================================================
+   Home.vue 样式 - 使用CSS变量实现主题切换
+   亮色/暗色模式通过 var(--theme-xxx) 变量自动切换
+================================================================ */
+
 .home-container {
   display: flex;
   height: 100vh;
   width: 100%;
-  background: #ffffff;
+  background: var(--theme-bg-page);
   position: relative;
-  transition: background-color 0.3s ease;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.03) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.03) 0%, transparent 50%);
-    pointer-events: none;
-  }
 }
 
 .sidebar {
   width: 200px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-right: 1px solid rgba(255, 255, 255, 0.5);
+  background: var(--theme-bg-sidebar);
+  border-right: 1px solid var(--theme-border-secondary);
   height: 100%;
   padding: 20px 0;
   display: flex;
   flex-direction: column;
-  box-shadow: 4px 0 20px rgba(0,0,0,0.05);
   position: relative;
   z-index: 10;
 
@@ -490,20 +480,14 @@ export default {
     
     .logo-icon {
       font-size: 28px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--theme-color-primary);
     }
     
     .logo-text {
       margin-left: 10px;
       font-size: 20px;
       font-weight: 700;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--theme-color-primary);
       letter-spacing: -0.5px;
     }
   }
@@ -515,61 +499,64 @@ export default {
       display: flex;
       align-items: center;
       padding: 12px 20px;
-      color: #5c6572;
+      color: var(--theme-text-secondary);
       cursor: pointer;
-      transition: all 0.3s ease;
       font-size: 14px;
       text-decoration: none;
       border-radius: 8px;
       margin: 0 12px 4px;
       font-weight: 500;
 
+      :deep(svg) {
+        color: var(--theme-icon-color);
+        margin-right: 10px;
+      }
+
       &:hover {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-        color: #667eea;
-        transform: translateX(4px);
+        background: var(--theme-bg-hover);
+        color: var(--theme-color-primary);
+        
+        :deep(svg) {
+          color: var(--theme-color-primary);
+        }
       }
 
       &.active {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-      }
-
-      :deep(i) {
-        font-size: 16px;
-        margin-right: 10px;
+        background: var(--theme-menu-active-bg);
+        color: var(--theme-text-inverse);
+        
+        :deep(svg) {
+          color: var(--theme-text-inverse);
+        }
       }
     }
   }
 
   .user-area {
     padding: 16px 20px;
-    border-top: 1px solid #eaedf1;
+    border-top: 1px solid var(--theme-border-secondary);
 
     .login-button {
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 12px 16px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      background: var(--theme-btn-primary-bg);
+      color: var(--theme-text-inverse);
       border-radius: 10px;
       cursor: pointer;
-      transition: all 0.3s ease;
       font-size: 14px;
       font-weight: 600;
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 
       :deep(svg) {
         width: 16px;
         height: 16px;
         margin-right: 8px;
+        color: var(--theme-text-inverse);
       }
 
       &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        opacity: 0.9;
       }
     }
 
@@ -579,18 +566,17 @@ export default {
       padding: 8px;
       border-radius: 8px;
       cursor: pointer;
-      transition: all 0.2s ease;
       position: relative;
 
       &:hover {
-        background-color: #f2f5fa;
+        background: var(--theme-bg-hover);
       }
 
       .user-avatar {
         width: 32px;
         height: 32px;
         border-radius: 50%;
-        background: linear-gradient(45deg, #4080ff, #40a9ff);
+        background: var(--theme-color-primary);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -617,7 +603,7 @@ export default {
         .user-name {
           font-size: 14px;
           font-weight: 500;
-          color: #333;
+          color: var(--theme-text-primary);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -625,7 +611,7 @@ export default {
 
         .user-role {
           font-size: 12px;
-          color: #666;
+          color: var(--theme-text-secondary);
           margin-top: 2px;
         }
       }
@@ -635,10 +621,10 @@ export default {
         bottom: 100%;
         left: 0;
         right: 0;
-        background: white;
+        background: var(--theme-bg-card);
         border-radius: 8px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-        border: 1px solid #eaedf1;
+        box-shadow: var(--theme-shadow-lg);
+        border: 1px solid var(--theme-border-primary);
         z-index: 1000;
         margin-bottom: 8px;
 
@@ -651,7 +637,7 @@ export default {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: linear-gradient(45deg, #4080ff, #40a9ff);
+            background: var(--theme-color-primary);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -677,20 +663,20 @@ export default {
             .menu-user-name {
               font-size: 16px;
               font-weight: 600;
-              color: #333;
+              color: var(--theme-text-primary);
               margin-bottom: 4px;
             }
 
             .menu-user-role {
               font-size: 12px;
-              color: #666;
+              color: var(--theme-text-secondary);
             }
           }
         }
 
         .menu-divider {
           height: 1px;
-          background: #eaedf1;
+          background: var(--theme-border-secondary);
           margin: 0 16px;
         }
 
@@ -702,40 +688,34 @@ export default {
             align-items: center;
             padding: 12px 16px;
             cursor: pointer;
-            transition: all 0.2s ease;
             font-size: 14px;
-            color: #333;
+            color: var(--theme-text-primary);
 
             :deep(svg) {
               width: 16px;
               height: 16px;
               margin-right: 12px;
-              color: #666;
+              color: var(--theme-icon-color);
             }
 
             &:hover {
-              background-color: #f2f5fa;
-              color: #4080ff;
+              background: var(--theme-bg-hover);
+              color: var(--theme-color-primary);
 
               :deep(svg) {
-                color: #4080ff;
+                color: var(--theme-color-primary);
               }
             }
 
             &.logout {
-              color: #f53f3f;
+              color: var(--theme-color-error);
 
               :deep(svg) {
-                color: #f53f3f;
+                color: var(--theme-color-error);
               }
 
               &:hover {
-                background-color: #fff2f0;
-                color: #f53f3f;
-
-                :deep(svg) {
-                  color: #f53f3f;
-                }
+                background: rgba(245, 34, 45, 0.1);
               }
             }
           }
@@ -748,134 +728,12 @@ export default {
 .main-content {
   flex: 1;
   padding: 40px;
-  padding-bottom: 60px; /* 为页脚留出空间 */
+  padding-bottom: 60px;
   overflow-y: auto;
   position: relative;
   z-index: 1;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  
-  // 暗黑模式样式
-  &.dark-mode {
-    background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
-    color: #e8e8e8;
-    
-    // 增加一个微妙的网格纹理背景
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-image: 
-        radial-gradient(circle at 20% 30%, rgba(141, 154, 255, 0.08) 0%, transparent 50%),
-        radial-gradient(circle at 80% 70%, rgba(157, 125, 197, 0.06) 0%, transparent 50%),
-        linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
-      background-size: 100% 100%, 100% 100%, 50px 50px, 50px 50px;
-      pointer-events: none;
-      opacity: 0.5;
-    }
-    
-    .welcome-section {
-      h1 {
-        color: #ffffff !important;
-        text-shadow: 0 3px 20px rgba(141, 154, 255, 0.9),
-                     0 0 50px rgba(141, 154, 255, 0.6),
-                     0 0 100px rgba(141, 154, 255, 0.3);
-        font-weight: 900;
-        letter-spacing: -1px;
-        filter: brightness(1.2);
-      }
-      
-      p {
-        color: #e8e8e8 !important;
-        font-weight: 500;
-        text-shadow: 0 2px 8px rgba(141, 154, 255, 0.4),
-                     0 0 20px rgba(141, 154, 255, 0.2);
-        font-size: 19px;
-      }
-      
-      .welcome-icon {
-        background: linear-gradient(135deg, #8d9aff 0%, #a58dd0 100%);
-        box-shadow: 0 20px 60px rgba(141, 109, 178, 0.8),
-                    0 0 80px rgba(141, 154, 255, 0.5),
-                    0 0 120px rgba(141, 154, 255, 0.3),
-                    inset 0 2px 4px rgba(255, 255, 255, 0.3);
-        border: 3px solid rgba(141, 154, 255, 0.5);
-        transform: scale(1.05);
-      }
-    }
-    
-    .fitness-overview {
-      h2 {
-        color: #ffffff !important;
-        text-shadow: 0 3px 20px rgba(141, 154, 255, 0.9),
-                     0 0 50px rgba(141, 154, 255, 0.6),
-                     0 0 100px rgba(141, 154, 255, 0.3);
-        font-weight: 900;
-        letter-spacing: -1px;
-        filter: brightness(1.2);
-      }
-      
-      .overview-card {
-        background: linear-gradient(135deg, rgba(45, 48, 62, 0.98) 0%, rgba(38, 40, 52, 0.98) 100%);
-        border: 2px solid rgba(141, 154, 255, 0.5);
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), 
-                    0 0 0 1px rgba(141, 154, 255, 0.2) inset,
-                    0 4px 20px rgba(141, 154, 255, 0.3),
-                    0 0 60px rgba(141, 154, 255, 0.15);
-        backdrop-filter: blur(16px);
-        
-        &::before {
-          background: radial-gradient(circle at top right, rgba(141, 154, 255, 0.18) 0%, transparent 70%);
-        }
-        
-        &:hover {
-          box-shadow: 0 20px 60px rgba(141, 154, 255, 0.45), 
-                      0 0 80px rgba(141, 154, 255, 0.35),
-                      0 0 120px rgba(141, 154, 255, 0.2),
-                      0 0 0 3px rgba(141, 154, 255, 0.5) inset;
-          border-color: rgba(141, 154, 255, 0.8);
-          transform: translateY(-8px) scale(1.04);
-          background: linear-gradient(135deg, rgba(50, 53, 68, 1) 0%, rgba(42, 44, 58, 1) 100%);
-        }
-        
-        .card-icon {
-          background: linear-gradient(135deg, #9da8ff 0%, #a58dd0 100%);
-          box-shadow: 0 8px 32px rgba(141, 109, 178, 0.9), 
-                      0 0 50px rgba(141, 109, 178, 0.6),
-                      0 0 80px rgba(141, 154, 255, 0.4),
-                      inset 0 2px 4px rgba(255, 255, 255, 0.3);
-          border: 2px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .card-content {
-          h3 {
-            color: #e8e8e8;
-            font-weight: 700;
-            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-            font-size: 16px;
-          }
-          
-          .value {
-            color: #ffffff;
-            font-weight: 900;
-            text-shadow: 0 3px 12px rgba(141, 154, 255, 0.6),
-                         0 0 30px rgba(141, 154, 255, 0.3);
-            filter: brightness(1.1);
-            
-            span {
-              color: #b4c0ff;
-              font-weight: 700;
-              text-shadow: 0 2px 8px rgba(141, 154, 255, 0.5),
-                           0 0 20px rgba(141, 154, 255, 0.3);
-            }
-          }
-        }
-      }
-    }
-  }
+  background: var(--theme-bg-page);
+  color: var(--theme-text-primary);
 }
 
 .welcome-section {
@@ -890,10 +748,9 @@ export default {
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--theme-btn-primary-bg);
     color: white;
     margin-bottom: 28px;
-    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
     animation: float 3s ease-in-out infinite;
     
     :deep(svg) {
@@ -906,16 +763,13 @@ export default {
     font-size: 38px;
     font-weight: 800;
     margin-bottom: 16px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--theme-color-primary);
     letter-spacing: -0.5px;
   }
   
   p {
     font-size: 18px;
-    color: #5a6c7d;
+    color: var(--theme-text-secondary);
     max-width: 600px;
     margin: 0 auto;
     line-height: 1.6;
@@ -936,21 +790,10 @@ export default {
     animation: scaleIn 0.5s ease-out;
     animation-fill-mode: both;
     
-    &:nth-child(1) {
-      animation-delay: 0.1s;
-    }
-    
-    &:nth-child(2) {
-      animation-delay: 0.2s;
-    }
-    
-    &:nth-child(3) {
-      animation-delay: 0.3s;
-    }
-    
-    &:nth-child(4) {
-      animation-delay: 0.4s;
-    }
+    &:nth-child(1) { animation-delay: 0.1s; }
+    &:nth-child(2) { animation-delay: 0.2s; }
+    &:nth-child(3) { animation-delay: 0.3s; }
+    &:nth-child(4) { animation-delay: 0.4s; }
   }
 }
 
@@ -963,10 +806,7 @@ export default {
   h2 {
     font-size: 28px;
     font-weight: 700;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--theme-text-primary);
     margin: 0 0 32px 0;
     text-align: center;
     letter-spacing: -0.5px;
@@ -978,48 +818,29 @@ export default {
     gap: 24px;
 
     .overview-card {
-      background: white;
+      background: var(--theme-bg-card);
       border-radius: 16px;
       padding: 28px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: var(--theme-shadow-md);
+      border: 1px solid var(--theme-border-secondary);
       position: relative;
       overflow: hidden;
 
-      &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(102, 126, 234, 0.08) 0%, transparent 70%);
-        transform: translate(30%, -30%);
-        pointer-events: none;
-      }
-
       &:hover {
-        transform: translateY(-6px) scale(1.02);
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-
-        .card-icon {
-          transform: scale(1.1) rotate(-5deg);
-        }
+        transform: translateY(-4px);
+        box-shadow: var(--theme-shadow-lg);
+        background: var(--theme-bg-card-hover);
       }
 
       .card-icon {
         width: 52px;
         height: 52px;
         border-radius: 14px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--theme-btn-primary-bg);
         display: flex;
         align-items: center;
         justify-content: center;
         margin-bottom: 16px;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-        transition: all 0.4s ease;
 
         :deep(svg) {
           width: 24px;
@@ -1035,20 +856,19 @@ export default {
         h3 {
           margin: 0 0 10px 0;
           font-size: 15px;
-          color: #5a6c7d;
+          color: var(--theme-text-secondary);
           font-weight: 600;
-          letter-spacing: 0.3px;
         }
 
         .value {
           font-size: 32px;
           font-weight: 800;
-          color: #1a202c;
+          color: var(--theme-text-primary);
           letter-spacing: -1px;
 
           span {
             font-size: 16px;
-            color: #667eea;
+            color: var(--theme-color-primary);
             font-weight: 600;
             margin-left: 4px;
           }
@@ -1140,7 +960,7 @@ export default {
   }
 }
 
-// 主题切换按钮样式
+// 主题切换按钮 - 使用CSS变量
 .theme-toggle {
   position: absolute;
   top: 20px;
@@ -1148,60 +968,25 @@ export default {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: var(--theme-bg-card);
+  box-shadow: var(--theme-shadow-md);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.3s ease;
   z-index: 100;
-  border: 2px solid #f0f0f0;
+  border: 1px solid var(--theme-border-primary);
   
   :deep(svg) {
     width: 24px;
     height: 24px;
-    color: #667eea;
-    transition: all 0.3s ease;
+    color: var(--theme-color-primary);
   }
   
   &:hover {
-    transform: scale(1.1) rotate(15deg);
-    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-color: transparent;
-    
-    :deep(svg) {
-      color: white;
-      transform: rotate(-15deg);
-    }
-  }
-  
-  // 暗黑模式下的样式
-  .dark-mode & {
-    background: linear-gradient(135deg, rgba(40, 42, 54, 0.95) 0%, rgba(32, 34, 45, 0.95) 100%);
-    border: 2px solid rgba(141, 154, 255, 0.3);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5),
-                0 0 0 1px rgba(141, 154, 255, 0.15) inset;
-    backdrop-filter: blur(12px);
-    
-    :deep(svg) {
-      color: #ffd700;
-      filter: drop-shadow(0 2px 6px rgba(255, 215, 0, 0.5));
-    }
-    
-    &:hover {
-      background: linear-gradient(135deg, #8d9aff 0%, #9d7dc5 100%);
-      box-shadow: 0 8px 28px rgba(141, 109, 178, 0.5),
-                  0 0 40px rgba(141, 154, 255, 0.3),
-                  inset 0 1px 0 rgba(255, 255, 255, 0.2);
-      border-color: rgba(255, 255, 255, 0.2);
-      
-      :deep(svg) {
-        color: white;
-        filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.4));
-      }
-    }
+    transform: scale(1.1);
+    box-shadow: var(--theme-shadow-lg);
+    background: var(--theme-bg-card-hover);
   }
 }
 
@@ -1219,148 +1004,5 @@ export default {
 .icon-fade-leave-to {
   opacity: 0;
   transform: rotate(-180deg) scale(0.5);
-}
-
-// 全局暗黑模式样式
-:global(.dark-theme) {
-  .home-container {
-    background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
-    
-    &::before {
-      background: 
-        radial-gradient(circle at 20% 30%, rgba(141, 154, 255, 0.10) 0%, transparent 50%),
-        radial-gradient(circle at 80% 70%, rgba(157, 125, 197, 0.08) 0%, transparent 50%),
-        linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
-      background-size: 100% 100%, 100% 100%, 60px 60px, 60px 60px;
-    }
-  }
-  
-  .sidebar {
-    background: linear-gradient(180deg, rgba(25, 25, 35, 0.98) 0%, rgba(20, 20, 30, 0.98) 100%);
-    border-right: 1px solid rgba(141, 154, 255, 0.2);
-    box-shadow: 4px 0 32px rgba(0, 0, 0, 0.5), 
-                inset -1px 0 0 rgba(141, 154, 255, 0.1);
-    backdrop-filter: blur(12px);
-    
-    .sidebar-logo {
-      .logo-icon,
-      .logo-text {
-        background: linear-gradient(135deg, #9da8ff 0%, #b69dd6 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        filter: drop-shadow(0 2px 8px rgba(141, 154, 255, 0.5));
-      }
-    }
-    
-    .sidebar-menu .menu-item {
-      color: #d0d0d0;
-      font-weight: 500;
-      
-      &:hover {
-        background: linear-gradient(135deg, rgba(141, 154, 255, 0.25) 0%, rgba(157, 125, 197, 0.2) 100%);
-        color: #b4c0ff;
-        box-shadow: 0 3px 12px rgba(141, 154, 255, 0.2);
-      }
-      
-      &.active {
-        background: linear-gradient(135deg, #8d9aff 0%, #9d7dc5 100%);
-        color: white;
-        box-shadow: 0 4px 16px rgba(141, 109, 178, 0.5),
-                    0 0 20px rgba(141, 154, 255, 0.3),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-    }
-    
-    .user-area {
-      border-top-color: #3a3a3a;
-      
-      .login-button {
-        background: linear-gradient(135deg, #8d9aff 0%, #9d7dc5 100%);
-        box-shadow: 0 4px 16px rgba(141, 109, 178, 0.5),
-                    0 0 24px rgba(141, 154, 255, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        
-        &:hover {
-          box-shadow: 0 6px 20px rgba(141, 109, 178, 0.6),
-                      0 0 32px rgba(141, 154, 255, 0.4);
-        }
-      }
-      
-      .user-info {
-        &:hover {
-          background: linear-gradient(135deg, rgba(141, 154, 255, 0.12) 0%, rgba(157, 125, 197, 0.1) 100%);
-          box-shadow: 0 2px 8px rgba(141, 154, 255, 0.15);
-        }
-        
-        .user-details {
-          .user-name {
-            color: #f0f0f0;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-          }
-          
-          .user-role {
-            color: #c0c0c0;
-          }
-        }
-        
-        .user-menu {
-          background: linear-gradient(180deg, rgba(35, 35, 45, 0.98) 0%, rgba(30, 30, 40, 0.98) 100%);
-          border: 1px solid rgba(141, 154, 255, 0.25);
-          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6),
-                      0 0 0 1px rgba(141, 154, 255, 0.15) inset;
-          backdrop-filter: blur(16px);
-          
-          .menu-header .menu-user-info {
-            .menu-user-name {
-              color: #f0f0f0;
-              text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-            }
-            
-            .menu-user-role {
-              color: #c0c0c0;
-            }
-          }
-          
-          .menu-divider {
-            background: linear-gradient(90deg, transparent, rgba(141, 154, 255, 0.3), transparent);
-            height: 2px;
-          }
-          
-          .menu-items .menu-item {
-            color: #f0f0f0;
-            
-            :deep(svg) {
-              color: #c0c0c0;
-            }
-            
-            &:hover {
-              background: linear-gradient(135deg, rgba(141, 154, 255, 0.15) 0%, rgba(157, 125, 197, 0.12) 100%);
-              color: #a5b4ff;
-              box-shadow: 0 2px 8px rgba(141, 154, 255, 0.12);
-              
-              :deep(svg) {
-                color: #a5b4ff;
-              }
-            }
-            
-            &.logout {
-              color: #ff6b6b;
-              
-              :deep(svg) {
-                color: #ff6b6b;
-              }
-              
-              &:hover {
-                background-color: rgba(255, 107, 107, 0.1);
-              }
-            }
-          }
-        }
-      }
-    }
-  }
 }
 </style>

@@ -1101,9 +1101,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+/* ================================================================
+   FitnessData.vue 样式 - 使用CSS变量实现主题切换
+================================================================ */
+
 .fitness-data {
   min-height: 100vh;
-  background: #ffffff;
+  background: var(--theme-bg-container);
   padding: 20px;
   padding-bottom: 80px;
 }
@@ -1115,7 +1119,7 @@ export default {
 
 .page-header {
   margin-bottom: 32px;
-  color: #333;
+  color: var(--theme-text-primary);
 
   .header-content {
     display: flex;
@@ -1158,17 +1162,16 @@ export default {
 }
 
 .overview-card {
-  background: white;
+  background: var(--theme-bg-card);
   border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: var(--theme-shadow-md);
+  border: 1px solid var(--theme-border-secondary);
   transition: transform 0.3s ease;
 
   &:hover {
     transform: translateY(-4px);
+    background: var(--theme-bg-card-hover);
   }
 
   .card-icon {
@@ -1211,19 +1214,19 @@ export default {
     h3 {
       margin: 0 0 8px 0;
       font-size: 14px;
-      color: #666;
+      color: var(--theme-text-secondary);
       font-weight: 500;
     }
 
     .value {
       font-size: 28px;
       font-weight: 700;
-      color: #333;
+      color: var(--theme-text-primary);
       margin-bottom: 4px;
 
       span {
         font-size: 16px;
-        color: #666;
+        color: var(--theme-color-primary);
         font-weight: 400;
       }
     }
@@ -1233,11 +1236,11 @@ export default {
       font-weight: 500;
 
       &.increase {
-        color: #00b42a;
+        color: var(--theme-color-success);
       }
 
       &.decrease {
-        color: #f53f3f;
+        color: var(--theme-color-error);
       }
     }
 
@@ -1246,15 +1249,15 @@ export default {
       font-weight: 500;
 
       &.normal {
-        color: #00b42a;
+        color: var(--theme-color-success);
       }
 
       &.underweight {
-        color: #ff7d00;
+        color: var(--theme-color-warning);
       }
 
       &.overweight {
-        color: #f53f3f;
+        color: var(--theme-color-error);
       }
 
       &.obese {
@@ -1272,10 +1275,11 @@ export default {
 }
 
 .chart-card {
-  background: white;
+  background: var(--theme-bg-card);
   border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--theme-shadow-md);
+  border: 1px solid var(--theme-border-secondary);
 
   .chart-header {
     display: flex;
@@ -1287,7 +1291,7 @@ export default {
       margin: 0;
       font-size: 18px;
       font-weight: 600;
-      color: #333;
+      color: var(--theme-text-primary);
     }
   }
 
@@ -1298,10 +1302,11 @@ export default {
 }
 
 .workout-section {
-  background: white;
+  background: var(--theme-bg-card);
   border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--theme-shadow-md);
+  border: 1px solid var(--theme-border-secondary);
 
   .section-header {
     display: flex;
@@ -1313,13 +1318,13 @@ export default {
       margin: 0;
       font-size: 20px;
       font-weight: 600;
-      color: #333;
+      color: var(--theme-text-primary);
       display: flex;
       align-items: center;
       gap: 8px;
 
       :deep(svg) {
-        color: #ff7d00;
+        color: var(--theme-color-warning);
       }
     }
   }
@@ -1333,19 +1338,20 @@ export default {
     .stat-card {
       text-align: center;
       padding: 16px;
-      background: #f8f9fa;
+      background: var(--theme-bg-card-hover);
       border-radius: 8px;
+      border: 1px solid var(--theme-border-secondary);
 
       .stat-number {
         font-size: 24px;
         font-weight: 700;
-        color: #4080ff;
+        color: var(--theme-color-primary);
         margin-bottom: 4px;
       }
 
       .stat-label {
         font-size: 12px;
-        color: #666;
+        color: var(--theme-text-secondary);
       }
     }
   }
@@ -1355,14 +1361,15 @@ export default {
       display: flex;
       align-items: center;
       padding: 16px;
-      border: 1px solid #f0f0f0;
+      border: 1px solid var(--theme-border-primary);
       border-radius: 8px;
       margin-bottom: 12px;
       transition: all 0.3s ease;
 
       &:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--theme-shadow-md);
         transform: translateY(-2px);
+        background: var(--theme-bg-card-hover);
       }
 
       .workout-icon {
@@ -1389,18 +1396,18 @@ export default {
           margin: 0 0 4px 0;
           font-size: 16px;
           font-weight: 600;
-          color: #333;
+          color: var(--theme-text-primary);
         }
 
         p {
           margin: 0 0 4px 0;
-          color: #666;
+          color: var(--theme-text-secondary);
           font-size: 14px;
         }
 
         .workout-date {
           font-size: 12px;
-          color: #999;
+          color: var(--theme-text-muted);
         }
       }
 
@@ -1416,16 +1423,16 @@ export default {
 .helper-text {
   margin-top: 4px;
   font-size: 12px;
-  color: #86909c;
+  color: var(--theme-text-muted);
   line-height: 1.5;
 }
 
 // BMI结果显示样式
 .bmi-result-card {
-  background: #f8f9fa;
+  background: var(--theme-bg-card-hover);
   border-radius: 8px;
   padding: 16px;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--theme-border-primary);
 
   .bmi-info {
     .bmi-value {
@@ -1436,7 +1443,7 @@ export default {
 
       .label {
         font-weight: 600;
-        color: #333;
+        color: var(--theme-text-primary);
       }
 
       .value {
@@ -1444,25 +1451,25 @@ export default {
         font-weight: 700;
 
         &.underweight {
-          color: #1890ff;
+          color: var(--theme-color-primary);
         }
 
         &.normal {
-          color: #52c41a;
+          color: var(--theme-color-success);
         }
 
         &.overweight {
-          color: #faad14;
+          color: var(--theme-color-warning);
         }
 
         &.obese {
-          color: #f5222d;
+          color: var(--theme-color-error);
         }
       }
 
       .category {
-        background: #e6f7ff;
-        color: #1890ff;
+        background: var(--theme-color-primary-light);
+        color: var(--theme-color-primary);
         padding: 2px 8px;
         border-radius: 12px;
         font-size: 12px;
@@ -1476,16 +1483,16 @@ export default {
 
       .label {
         font-weight: 600;
-        color: #333;
+        color: var(--theme-text-primary);
         margin-right: 8px;
       }
 
       .value {
-        color: #666;
+        color: var(--theme-text-secondary);
       }
 
       .advice {
-        color: #666;
+        color: var(--theme-text-secondary);
         line-height: 1.4;
       }
     }

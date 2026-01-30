@@ -21,6 +21,7 @@ export default {
 
 <style lang="scss">
 @import '@arco-design/web-vue/dist/arco.css';
+@import './assets/styles/theme.css';
 @import './styles/main.scss';
 @import './styles/compatibility.scss';
 
@@ -30,29 +31,33 @@ export default {
   box-sizing: border-box;
 }
 
-// 主题颜色 RGB 变量
-:root {
-  --primary-rgb: 102, 126, 234;
-  --success-rgb: 78, 205, 196;
-  --warning-rgb: 255, 195, 113;
-  --danger-rgb: 255, 107, 107;
-}
-
-body[arco-theme='dark'] {
-  --primary-rgb: 141, 154, 255;
-  --success-rgb: 94, 220, 210;
-  --warning-rgb: 255, 210, 133;
-  --danger-rgb: 255, 130, 130;
-}
-
 html, body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #333;
-  background-color: #f0f2f5;
   height: 100%;
   min-height: 100%;
+  // 使用主题变量
+  background-color: var(--theme-bg-page);
+  color: var(--theme-text-primary);
+}
+
+// 暗黑模式滚动条
+html.dark-theme {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    &:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+  }
 }
 
 #app {
@@ -60,6 +65,7 @@ html, body {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: var(--theme-bg-page);
 }
 
 .app-content {
@@ -70,24 +76,23 @@ html, body {
   overflow: auto;
 }
 
-// 全局页脚样式
+// 全局页脚 - 使用主题变量
 .global-footer {
   text-align: center;
   padding: 12px;
-  background-color: #fff;
-  border-top: 1px solid #eee;
+  background-color: var(--theme-bg-container);
+  border-top: 1px solid var(--theme-border-secondary);
   font-size: 14px;
-  color: #666;
+  color: var(--theme-text-tertiary);
   width: 100%;
   flex-shrink: 0;
   
   a {
-    color: #666;
+    color: var(--theme-text-tertiary);
     text-decoration: none;
-    transition: color 0.2s ease;
     
     &:hover {
-      color: #4080ff;
+      color: var(--theme-color-primary);
     }
   }
 }

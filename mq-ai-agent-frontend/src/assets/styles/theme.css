@@ -1,74 +1,132 @@
-/* 全局主题CSS变量 */
+/* =================================================================
+   全局主题CSS变量系统
+   
+   设计原则:
+   1. 所有颜色通过CSS变量定义
+   2. 组件只引用变量，不写硬编码颜色
+   3. 亮色/暗色模式通过覆盖变量实现
+   4. 互不干扰，易于维护
+================================================================= */
 
-/* 白色模式（默认） */
+/* -----------------------------------------------------------------
+   亮色模式（默认）
+----------------------------------------------------------------- */
 :root {
-  /* 背景颜色 */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8f9fa;
-  --bg-card: #ffffff;
-  --bg-sidebar: rgba(255, 255, 255, 0.95);
+  /* === 背景 === */
+  --theme-bg-page: #f0f2f5;           /* 页面背景 */
+  --theme-bg-container: #ffffff;      /* 容器背景 */
+  --theme-bg-card: #ffffff;           /* 卡片背景 */
+  --theme-bg-card-hover: #fafafa;     /* 卡片悬停 */
+  --theme-bg-sidebar: #ffffff;        /* 侧边栏 */
+  --theme-bg-input: #ffffff;          /* 输入框 */
+  --theme-bg-hover: rgba(0,0,0,0.04); /* 悬停状态 */
+  --theme-bg-active: rgba(102,126,234,0.1); /* 激活状态 */
   
-  /* 文字颜色 */
-  --text-primary: #1a202c;
-  --text-secondary: #5a6c7d;
-  --text-tertiary: #999999;
-  --text-heading: #1a202c;
+  /* === 文字 === */
+  --theme-text-primary: #1a202c;      /* 主要文字 */
+  --theme-text-secondary: #5a6c7d;    /* 次要文字 */
+  --theme-text-tertiary: #999999;     /* 辅助文字 */
+  --theme-text-muted: #8e8e93;        /* 淡色文字 */
+  --theme-text-disabled: #c0c0c0;     /* 禁用文字 */
+  --theme-text-inverse: #ffffff;      /* 反色文字 */
   
-  /* 边框颜色 */
-  --border-color: rgba(0, 0, 0, 0.08);
-  --border-hover: rgba(102, 126, 234, 0.3);
+  /* === 边框 === */
+  --theme-border-primary: #e8e8e8;    /* 主边框 */
+  --theme-border-secondary: #f0f0f0;  /* 次边框 */
+  --theme-border-hover: #d0d0d0;      /* 悬停边框 */
   
-  /* 阴影 */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
+  /* === 阴影 === */
+  --theme-shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --theme-shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --theme-shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
   
-  /* 主题色 */
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --primary-color: #667eea;
-  --primary-light: rgba(102, 126, 234, 0.1);
+  /* === 主色 === */
+  --theme-color-primary: #667eea;     /* 主色 */
+  --theme-color-primary-hover: #5a6fd6;
+  --theme-color-primary-light: rgba(102,126,234,0.1);
+  --theme-color-success: #52c41a;
+  --theme-color-warning: #faad14;
+  --theme-color-error: #f5222d;
   
-  /* 卡片背景渐变 */
-  --card-bg-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 100%);
+  /* === 消息气泡 === */
+  --theme-message-user-bg: linear-gradient(135deg, #007AFF 0%, #5AC8FA 100%);
+  --theme-message-ai-bg: #F2F2F7;
+  
+  /* === 渐变 === */
+  --theme-gradient-fade: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.95));
+  
+  /* === 组件特定 === */
+  --theme-icon-color: #666666;
+  --theme-icon-active: #667eea;
+  --theme-btn-primary-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --theme-menu-active-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-/* 暗黑模式 */
-.dark-theme {
-  /* 背景颜色 */
-  --bg-primary: #1a1a1a;
-  --bg-secondary: #2a2a2a;
-  --bg-card: linear-gradient(135deg, rgba(45, 45, 48, 0.98) 0%, rgba(38, 38, 42, 0.98) 100%);
-  --bg-sidebar: rgba(30, 30, 30, 0.95);
+/* -----------------------------------------------------------------
+   暗色模式 - 参考 WONG公益站 设计风格
+----------------------------------------------------------------- */
+html.dark-theme {
+  /* === 背景 === */
+  --theme-bg-page: #0d0e12;           /* 页面背景 - 纯深黑 */
+  --theme-bg-container: #131419;      /* 容器背景 */
+  --theme-bg-card: #1a1b20;           /* 卡片背景 */
+  --theme-bg-card-hover: #1f2026;     /* 卡片悬停 */
+  --theme-bg-sidebar: #131419;        /* 侧边栏 */
+  --theme-bg-input: #1a1b20;          /* 输入框 */
+  --theme-bg-hover: rgba(255,255,255,0.06); /* 悬停状态 */
+  --theme-bg-active: rgba(59,130,246,0.15); /* 激活状态 */
   
-  /* 文字颜色 */
-  --text-primary: #ffffff;
-  --text-secondary: #d0d0d0;
-  --text-tertiary: #b0b0b0;
-  --text-heading: #ffffff;
+  /* === 文字 === */
+  --theme-text-primary: #ffffff;      /* 主要文字 - 纯白 */
+  --theme-text-secondary: #9ca3af;    /* 次要文字 */
+  --theme-text-tertiary: #6b7280;     /* 辅助文字 */
+  --theme-text-muted: #6b7280;        /* 淡色文字 */
+  --theme-text-disabled: #4b5563;     /* 禁用文字 */
+  --theme-text-inverse: #0d0e12;      /* 反色文字 */
   
-  /* 边框颜色 */
-  --border-color: rgba(141, 154, 255, 0.35);
-  --border-hover: rgba(141, 154, 255, 0.6);
+  /* === 边框 === */
+  --theme-border-primary: rgba(255,255,255,0.1);
+  --theme-border-secondary: rgba(255,255,255,0.06);
+  --theme-border-hover: rgba(255,255,255,0.15);
   
-  /* 阴影 */
-  --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 24px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(141, 154, 255, 0.1) inset;
-  --shadow-lg: 0 12px 36px rgba(141, 154, 255, 0.3), 0 0 40px rgba(141, 154, 255, 0.2);
+  /* === 阴影 === */
+  --theme-shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --theme-shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+  --theme-shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
   
-  /* 主题色 */
-  --primary-gradient: linear-gradient(135deg, #8b9aff 0%, #9d7dc5 100%);
-  --primary-color: #8b9aff;
-  --primary-light: rgba(141, 154, 255, 0.15);
+  /* === 主色 === */
+  --theme-color-primary: #3b82f6;     /* 主色 - 蓝色 */
+  --theme-color-primary-hover: #60a5fa;
+  --theme-color-primary-light: rgba(59,130,246,0.15);
+  --theme-color-success: #22c55e;
+  --theme-color-warning: #f59e0b;
+  --theme-color-error: #ef4444;
   
-  /* 卡片背景渐变 */
-  --card-bg-gradient: linear-gradient(135deg, rgba(141, 154, 255, 0.12) 0%, rgba(157, 125, 197, 0.08) 100%);
+  /* === 消息气泡 === */
+  --theme-message-user-bg: #3b82f6;
+  --theme-message-ai-bg: #1a1b20;
   
-  /* 文字发光效果 */
-  --text-glow-primary: 0 4px 16px rgba(141, 154, 255, 0.6), 0 0 30px rgba(141, 154, 255, 0.4);
-  --text-glow-secondary: 0 2px 10px rgba(141, 154, 255, 0.5), 0 0 20px rgba(141, 154, 255, 0.3);
+  /* === 渐变 === */
+  --theme-gradient-fade: linear-gradient(180deg, transparent, rgba(13, 14, 18, 0.98));
+  
+  /* === 组件特定 === */
+  --theme-icon-color: #9ca3af;
+  --theme-icon-active: #3b82f6;
+  --theme-btn-primary-bg: #3b82f6;
+  --theme-menu-active-bg: #3b82f6;
 }
 
-/* 平滑过渡 */
-* {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+/* -----------------------------------------------------------------
+   全局基础样式
+----------------------------------------------------------------- */
+html, body {
+  background-color: var(--theme-bg-page);
+  color: var(--theme-text-primary);
+}
+
+/* 平滑过渡 - 只对特定属性 */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color, box-shadow;
+  transition-duration: 0.2s;
+  transition-timing-function: ease;
 }
