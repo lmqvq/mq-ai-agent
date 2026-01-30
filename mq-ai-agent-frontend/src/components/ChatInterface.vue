@@ -79,23 +79,25 @@
           @keydown.enter="handleInputEnter"
         />
         <div class="input-actions">
-          <a-select
-            v-model="selectedModel"
-            :options="modelOptions"
-            size="small"
-            class="model-select"
-            :disabled="isLoading"
-            :bordered="false"
-          />
-          <a-button
-            type="primary" 
-            shape="circle"
-            :loading="isLoading"
-            :disabled="!userInput.trim() || isLoading"
-            @click="sendMessage"
-          >
-            <icon-send />
-          </a-button>
+          <div class="input-actions-right">
+            <a-select
+              v-model="selectedModel"
+              :options="modelOptions"
+              size="small"
+              class="model-select"
+              :disabled="isLoading"
+              :bordered="false"
+            />
+            <a-button
+              type="primary" 
+              shape="circle"
+              :loading="isLoading"
+              :disabled="!userInput.trim() || isLoading"
+              @click="sendMessage"
+            >
+              <icon-send />
+            </a-button>
+          </div>
         </div>
       </div>
     </div>
@@ -148,7 +150,7 @@ export default {
     const chatId = ref('');
     const selectedModel = ref('qwen-plus');
     const modelOptions = ref([
-      { label: '通义千问', value: 'qwen-plus' }
+      { label: 'qwen-plus', value: 'qwen-plus' }
     ]);
     let eventSource = null;
     
@@ -158,7 +160,7 @@ export default {
         if (response.code === 0 && response.data) {
           const { models, defaultModel } = response.data;
           modelOptions.value = models.map(m => ({
-            label: m.name,
+            label: m.id,  // 显示模型 ID（如 qwen-plus）
             value: m.id
           }));
           // 设置默认模型
@@ -623,7 +625,13 @@ export default {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 12px;
+    gap: 8px;
+  }
+
+  .input-actions-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   .model-select {
@@ -633,23 +641,34 @@ export default {
     
     :deep(.arco-select-view) {
       height: 32px;
-      border-radius: 8px;
-      padding: 0 10px;
-      border: 1px solid #e5e6eb;
-      background-color: #fff;
+      border-radius: 16px;
+      padding: 0 12px;
+      border: 1px solid var(--theme-border-primary);
+      background-color: var(--theme-bg-card-hover);
       font-size: 13px;
       
       &:hover {
-        border-color: #c9cdd4;
+        border-color: var(--theme-border-hover);
+        background-color: var(--theme-bg-hover);
       }
     }
     
+    :deep(.arco-select-view-value) {
+      color: var(--theme-text-primary) !important;
+    }
+    
     :deep(.arco-select-view-single) {
-      padding-right: 26px;
+      padding-right: 24px;
+      color: var(--theme-text-primary);
     }
     
     :deep(.arco-select-view-suffix) {
-      padding-right: 6px;
+      padding-right: 4px;
+      color: var(--theme-text-secondary);
+    }
+    
+    :deep(.arco-select-view-icon) {
+      color: var(--theme-text-secondary);
     }
   }
 }

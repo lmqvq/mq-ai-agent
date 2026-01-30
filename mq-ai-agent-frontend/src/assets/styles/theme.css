@@ -130,3 +130,102 @@ html, body {
   transition-duration: 0.2s;
   transition-timing-function: ease;
 }
+
+/* -----------------------------------------------------------------
+   Arco Design 组件暗黑模式覆盖
+   注意：Arco 的下拉弹窗是挂载到 body 上的，需要多种选择器
+----------------------------------------------------------------- */
+
+/* ========== 暗黑模式 ========== */
+
+/* Select 下拉菜单 - 暗黑模式（多种选择器确保覆盖） */
+html.dark-theme .arco-select-dropdown,
+.dark-theme .arco-select-dropdown,
+body.dark-theme .arco-select-dropdown {
+  background-color: #1a1b20 !important;
+  border: 1px solid rgba(255,255,255,0.15) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6) !important;
+}
+
+html.dark-theme .arco-select-option,
+.dark-theme .arco-select-option,
+body.dark-theme .arco-select-option {
+  color: #ffffff !important;
+  background-color: transparent !important;
+}
+
+html.dark-theme .arco-select-option:hover,
+html.dark-theme .arco-select-option.arco-select-option-hover,
+.dark-theme .arco-select-option:hover,
+.dark-theme .arco-select-option.arco-select-option-hover {
+  background-color: rgba(255,255,255,0.1) !important;
+}
+
+html.dark-theme .arco-select-option.arco-select-option-selected,
+.dark-theme .arco-select-option.arco-select-option-selected {
+  color: #3b82f6 !important;
+  background-color: rgba(59,130,246,0.2) !important;
+}
+
+html.dark-theme .arco-select-option-content,
+.dark-theme .arco-select-option-content {
+  color: inherit !important;
+}
+
+/* Select 选择器视图 - 暗黑模式 */
+html.dark-theme .arco-select-view,
+.dark-theme .arco-select-view {
+  background-color: #1a1b20 !important;
+  border-color: rgba(255,255,255,0.15) !important;
+  color: #ffffff !important;
+}
+
+html.dark-theme .arco-select-view-value,
+html.dark-theme .arco-select-view-single .arco-select-view-value,
+.dark-theme .arco-select-view-value,
+.dark-theme .arco-select-view-single .arco-select-view-value {
+  color: #ffffff !important;
+}
+
+html.dark-theme .arco-select-view-suffix .arco-select-view-icon,
+.dark-theme .arco-select-view-suffix .arco-select-view-icon {
+  color: #9ca3af !important;
+}
+
+/* ========== 亮色模式（默认） ========== */
+
+/* Select 下拉菜单 - 亮色模式 */
+.arco-select-dropdown {
+  background-color: #ffffff;
+  border: 1px solid #e8e8e8;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.arco-select-option {
+  color: #1a202c;
+}
+
+.arco-select-option:hover,
+.arco-select-option.arco-select-option-hover {
+  background-color: rgba(0,0,0,0.04);
+}
+
+.arco-select-option.arco-select-option-selected {
+  color: #667eea;
+  background-color: rgba(102,126,234,0.1);
+}
+
+/* Select 选择器视图 - 亮色模式 */
+.arco-select-view {
+  background-color: #ffffff;
+  border-color: #e8e8e8;
+  color: #1a202c;
+}
+
+.arco-select-view-value {
+  color: #1a202c;
+}
+
+.arco-select-view-suffix .arco-select-view-icon {
+  color: #5a6c7d;
+}

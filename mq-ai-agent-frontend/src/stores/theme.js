@@ -22,9 +22,14 @@ export const useThemeStore = defineStore('theme', () => {
     if (themeValue === 'dark') {
       document.documentElement.classList.add('dark-theme');
       document.documentElement.classList.remove('light-theme');
+      // 同时给 body 添加类，以支持 Arco Design 的 teleport 弹窗
+      document.body.classList.add('dark-theme');
+      document.body.classList.remove('light-theme');
     } else {
       document.documentElement.classList.add('light-theme');
       document.documentElement.classList.remove('dark-theme');
+      document.body.classList.add('light-theme');
+      document.body.classList.remove('dark-theme');
     }
   };
 
