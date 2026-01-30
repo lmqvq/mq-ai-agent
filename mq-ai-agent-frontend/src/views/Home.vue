@@ -86,12 +86,24 @@
 
     <!-- 主内容区 -->
     <div class="main-content" :class="{ 'dark-mode': themeStore.theme === 'dark' }">
-      <!-- 主题切换按钮 -->
-      <div class="theme-toggle" @click="themeStore.toggleTheme()">
-        <transition name="icon-fade" mode="out-in">
-          <icon-moon v-if="themeStore.theme === 'light'" key="moon" />
-          <icon-sun v-else key="sun" />
-        </transition>
+    <!-- 右上角操作区 -->
+      <div class="header-actions">
+        <!-- 主题切换按钮 -->
+        <div class="theme-toggle" @click="themeStore.toggleTheme()">
+          <transition name="icon-fade" mode="out-in">
+            <icon-moon v-if="themeStore.theme === 'light'" key="moon" />
+            <icon-sun v-else key="sun" />
+          </transition>
+        </div>
+        <!-- GitHub 链接 -->
+        <a 
+          class="github-link" 
+          href="https://github.com/lmqvq/mq-ai-agent" 
+          target="_blank" 
+          rel="noopener noreferrer"
+        >
+          <icon-github />
+        </a>
       </div>
       
       <div class="welcome-section">
@@ -167,7 +179,7 @@ import AppCard from '@/components/AppCard.vue';
 import {
   IconHome, IconUser, IconBarChart, IconTrophy,
   IconFire, IconClockCircle, IconHeart, IconBook, IconEdit, IconPoweroff, IconRobot,
-  IconMoon, IconSun
+  IconMoon, IconSun, IconGithub
 } from '@arco-design/web-vue/es/icon';
 import { Message } from '@arco-design/web-vue';
 import { useUserStore } from '@/stores/user';
@@ -190,7 +202,8 @@ export default {
     IconPoweroff,
     IconRobot,
     IconMoon,
-    IconSun
+    IconSun,
+    IconGithub
   },
   setup() {
     const router = useRouter();
@@ -960,11 +973,19 @@ export default {
   }
 }
 
-// 主题切换按钮 - 使用CSS变量
-.theme-toggle {
+// 右上角操作区
+.header-actions {
   position: absolute;
   top: 20px;
   right: 30px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 100;
+}
+
+// 主题切换按钮 - 使用CSS变量
+.theme-toggle {
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -974,13 +995,40 @@ export default {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 100;
   border: 1px solid var(--theme-border-primary);
   
   :deep(svg) {
     width: 24px;
     height: 24px;
     color: var(--theme-color-primary);
+  }
+  
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: var(--theme-shadow-lg);
+    background: var(--theme-bg-card-hover);
+  }
+}
+
+// GitHub 链接按钮
+.github-link {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--theme-bg-card);
+  box-shadow: var(--theme-shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid var(--theme-border-primary);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  
+  :deep(svg) {
+    width: 24px;
+    height: 24px;
+    color: var(--theme-text-primary);
   }
   
   &:hover {
