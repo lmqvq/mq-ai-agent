@@ -44,6 +44,7 @@
   --theme-color-primary: #667eea;     /* 主色 */
   --theme-color-primary-hover: #5a6fd6;
   --theme-color-primary-light: rgba(102,126,234,0.1);
+  --primary-rgb: 102, 126, 234;       /* RGB 值用于 rgba() */
   --theme-color-success: #52c41a;
   --theme-color-warning: #faad14;
   --theme-color-error: #f5222d;
@@ -151,6 +152,7 @@ html.dark-theme {
   --theme-color-primary: #3b82f6;     /* 主色 - 蓝色 */
   --theme-color-primary-hover: #60a5fa;
   --theme-color-primary-light: rgba(59,130,246,0.15);
+  --primary-rgb: 59, 130, 246;        /* RGB 值用于 rgba() */
   --theme-color-success: #22c55e;
   --theme-color-warning: #f59e0b;
   --theme-color-error: #ef4444;

@@ -106,12 +106,35 @@
         </a>
       </div>
       
-      <div class="welcome-section">
-        <div class="welcome-icon">
-          <icon-robot />
+      <!-- Hero 区域 - 紧凑横向布局 -->
+      <div class="hero-section">
+        <div class="hero-content">
+          <div class="hero-icon">
+            <icon-robot />
+          </div>
+          <div class="hero-text">
+            <h1 class="hero-title">
+              您的专属 <span class="gradient-text">AI 健身教练</span>
+            </h1>
+            <p class="hero-subtitle">
+              融合人工智能与运动科学，为您提供个性化的健身方案与实时指导
+            </p>
+          </div>
         </div>
-        <h1>欢迎使用LMQ-AI健身教练</h1>
-        <p>智能助手，让健身更轻松</p>
+        <div class="hero-tags">
+          <div class="tag-item">
+            <icon-thunderbolt />
+            <span>智能训练</span>
+          </div>
+          <div class="tag-item">
+            <icon-heart-fill />
+            <span>数据追踪</span>
+          </div>
+          <div class="tag-item">
+            <icon-fire />
+            <span>个性化建议</span>
+          </div>
+        </div>
       </div>
 
       <div class="apps-grid">
@@ -156,7 +179,8 @@ import WeeklyFitnessOverview from '@/components/WeeklyFitnessOverview.vue';
 import {
   IconHome, IconUser, IconBarChart, IconTrophy,
   IconBook, IconEdit, IconPoweroff, IconRobot,
-  IconMoon, IconSun, IconGithub
+  IconMoon, IconSun, IconGithub,
+  IconThunderbolt, IconHeartFill, IconFire
 } from '@arco-design/web-vue/es/icon';
 import { Message } from '@arco-design/web-vue';
 import { useUserStore } from '@/stores/user';
@@ -177,7 +201,10 @@ export default {
     IconRobot,
     IconMoon,
     IconSun,
-    IconGithub
+    IconGithub,
+    IconThunderbolt,
+    IconHeartFill,
+    IconFire
   },
   setup() {
     const router = useRouter();
@@ -598,44 +625,126 @@ export default {
   color: var(--theme-text-primary);
 }
 
-.welcome-section {
-  text-align: center;
-  margin-bottom: 64px;
-  animation: fadeIn 0.8s ease-in;
-  
-  .welcome-icon {
-    display: inline-flex;
-    justify-content: center;
+// ============================================
+// Hero 区域 - 紧凑横向布局
+// ============================================
+.hero-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1000px;
+  margin: 0 auto 32px;
+  padding: 28px 36px;
+  border-radius: 20px;
+  background: var(--theme-bg-card);
+  box-shadow: var(--theme-shadow-md);
+  border: 1px solid var(--theme-border-secondary);
+  gap: 24px;
+
+  .hero-content {
+    display: flex;
     align-items: center;
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    background: var(--theme-btn-primary-bg);
-    color: white;
-    margin-bottom: 28px;
-    animation: float 3s ease-in-out infinite;
+    gap: 20px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .hero-icon {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--theme-color-primary) 0%, #8b5cf6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(var(--primary-rgb), 0.3);
     
     :deep(svg) {
-      width: 50px;
-      height: 50px;
+      width: 28px;
+      height: 28px;
+      color: white;
+    }
+  }
+
+  .hero-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .hero-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--theme-text-primary);
+    margin: 0 0 4px;
+    letter-spacing: -0.3px;
+    
+    .gradient-text {
+      background: linear-gradient(
+        135deg,
+        var(--theme-color-primary) 0%,
+        #8b5cf6 100%
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  }
+
+  .hero-subtitle {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--theme-text-secondary);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    
+    @media (max-width: 900px) {
+      white-space: normal;
+    }
+  }
+
+  .hero-tags {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+    
+    .tag-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 12px;
+      background: rgba(var(--primary-rgb), 0.08);
+      border: 1px solid rgba(var(--primary-rgb), 0.12);
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--theme-text-secondary);
+      transition: all 0.2s ease;
+      
+      :deep(svg) {
+        width: 14px;
+        height: 14px;
+        color: var(--theme-color-primary);
+      }
+      
+      &:hover {
+        background: rgba(var(--primary-rgb), 0.12);
+        color: var(--theme-color-primary);
+        transform: translateY(-1px);
+      }
     }
   }
   
-  h1 {
-    font-size: 38px;
-    font-weight: 800;
-    margin-bottom: 16px;
-    color: var(--theme-color-primary);
-    letter-spacing: -0.5px;
-  }
-  
-  p {
-    font-size: 18px;
-    color: var(--theme-text-secondary);
-    max-width: 600px;
-    margin: 0 auto;
-    line-height: 1.6;
-    font-weight: 500;
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    
+    .hero-tags {
+      width: 100%;
+      justify-content: flex-start;
+    }
   }
 }
 
