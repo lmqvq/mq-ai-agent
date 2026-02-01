@@ -40,11 +40,10 @@
           <div class="knowledge-grid">
             <div v-for="item in basicsKnowledge" :key="item.id" class="knowledge-card">
               <div class="card-image">
-                <img 
+                <LazyImage 
                   :src="item.image" 
                   :alt="item.title"
-                  decoding="async"
-                  @error="handleImageError"
+                  placeholder="#667eea"
                 />
                 <div class="card-overlay">
                   <div class="difficulty-badge" :class="item.difficulty.toLowerCase()">
@@ -78,11 +77,10 @@
               <div class="exercise-grid">
                 <div v-for="exercise in exerciseType.exercises" :key="exercise.id" class="exercise-card">
                   <div class="exercise-image">
-                    <img 
+                    <LazyImage 
                       :src="exercise.image" 
                       :alt="exercise.name"
-                      decoding="async"
-                      @error="handleImageError"
+                      placeholder="#52c41a"
                     />
                     <div class="play-button" @click="playExerciseVideo(exercise)">
                       <icon-play-arrow />
@@ -146,11 +144,10 @@
                   </div>
                   <div class="meal-content">
                     <div class="meal-image">
-                      <img 
+                      <LazyImage 
                         :src="meal.image" 
                         :alt="meal.name"
-                        decoding="async"
-                        @error="handleImageError"
+                        placeholder="#ff7875"
                       />
                     </div>
                     <div class="meal-details">
@@ -691,13 +688,15 @@ import {
   IconLeft, IconImage, IconDelete, IconPlus
 } from '@arco-design/web-vue/es/icon';
 import ApiService from '@/services/api';
+import LazyImage from '@/components/LazyImage.vue';
 
 export default {
   name: 'FitnessKnowledge',
   components: {
     IconBook, IconTrophy, IconFire, IconHeart, IconUser, IconClockCircle, 
     IconEye, IconPlayArrow, IconShareAlt, IconPrinter, IconStar, IconSettings, IconEdit,
-    IconLeft, IconImage, IconDelete, IconPlus
+    IconLeft, IconImage, IconDelete, IconPlus,
+    LazyImage
   },
   setup() {
     const router = useRouter();
@@ -1423,12 +1422,6 @@ img {
     overflow: hidden;
     background: #667eea;
 
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
     .card-overlay {
       position: absolute;
       top: 16px;
@@ -1609,17 +1602,7 @@ img {
   .exercise-image {
     position: relative;
     height: 180px;
-    background: #667eea;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    background: #52c41a;
 
     .play-button {
       position: absolute;
@@ -2117,13 +2100,7 @@ img {
         border-radius: 12px;
         overflow: hidden;
         margin-bottom: 16px;
-        background: linear-gradient(135deg, var(--theme-color-primary) 0%, #764ba2 100%);
-
-        img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
+        background: #ff7875;
       }
 
       .meal-details {
