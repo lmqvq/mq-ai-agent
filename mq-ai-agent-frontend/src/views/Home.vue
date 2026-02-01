@@ -106,33 +106,48 @@
         </a>
       </div>
       
-      <!-- Hero 区域 - 紧凑横向布局 -->
+      <!-- Hero 区域 - 高级深色渐变风格 -->
       <div class="hero-section">
+        <div class="hero-bg-pattern"></div>
+        <div class="hero-glow"></div>
         <div class="hero-content">
-          <div class="hero-icon">
-            <icon-robot />
+          <div class="hero-badge">
+            <span class="badge-dot"></span>
+            <span>AI Powered</span>
           </div>
-          <div class="hero-text">
-            <h1 class="hero-title">
-              您的专属 <span class="gradient-text">AI 健身教练</span>
-            </h1>
-            <p class="hero-subtitle">
-              融合人工智能与运动科学，为您提供个性化的健身方案与实时指导
-            </p>
-          </div>
+          <h1 class="hero-title">
+            您的专属 <span class="gradient-text">AI 健身教练</span>
+          </h1>
+          <p class="hero-subtitle">
+            融合人工智能与运动科学，为您提供个性化的健身方案与实时指导
+          </p>
         </div>
-        <div class="hero-tags">
-          <div class="tag-item">
-            <icon-thunderbolt />
-            <span>智能训练</span>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <div class="stat-icon">
+              <icon-thunderbolt />
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">智能训练</span>
+            </div>
           </div>
-          <div class="tag-item">
-            <icon-heart-fill />
-            <span>数据追踪</span>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-icon">
+              <icon-heart-fill />
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">数据追踪</span>
+            </div>
           </div>
-          <div class="tag-item">
-            <icon-fire />
-            <span>个性化建议</span>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-icon">
+              <icon-fire />
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">个性化建议</span>
+            </div>
           </div>
         </div>
       </div>
@@ -626,63 +641,140 @@ export default {
 }
 
 // ============================================
-// Hero 区域 - 紧凑横向布局
+// Hero 区域 - 亮色/深色模式自适应
 // ============================================
+
+// Hero 区域 CSS 变量 - 亮色模式
 .hero-section {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  // 亮色模式变量
+  --hero-bg: linear-gradient(135deg, rgba(249, 250, 251, 0.95) 0%, rgba(243, 244, 246, 0.98) 100%);
+  --hero-border: rgba(229, 231, 235, 0.8);
+  --hero-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+  --hero-glow-1: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.08) 100%);
+  --hero-glow-2: linear-gradient(135deg, rgba(244, 114, 182, 0.08) 0%, rgba(167, 139, 250, 0.06) 100%);
+  --hero-title-color: #111827;
+  --hero-subtitle-color: #6b7280;
+  --hero-badge-bg: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+  --hero-badge-border: rgba(16, 185, 129, 0.2);
+  --hero-badge-text: #059669;
+  --hero-stat-bg: #ffffff;
+  --hero-stat-border: rgba(229, 231, 235, 0.6);
+  --hero-stat-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  --hero-stat-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --hero-stat-border-hover: rgba(209, 213, 219, 0.8);
+  --hero-stat-label: #374151;
+  --hero-icon-bg-1: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(59, 130, 246, 0.06) 100%);
+  --hero-icon-bg-2: linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(244, 114, 182, 0.06) 100%);
+  --hero-icon-bg-3: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(251, 191, 36, 0.06) 100%);
+}
+
+// Hero 区域 CSS 变量 - 深色模式
+.dark-mode .hero-section {
+  --hero-bg: linear-gradient(135deg, rgba(26, 27, 32, 0.95) 0%, rgba(19, 20, 25, 0.98) 100%);
+  --hero-border: rgba(255, 255, 255, 0.08);
+  --hero-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 8px 24px rgba(0, 0, 0, 0.15);
+  --hero-glow-1: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.12) 100%);
+  --hero-glow-2: linear-gradient(135deg, rgba(244, 114, 182, 0.12) 0%, rgba(167, 139, 250, 0.1) 100%);
+  --hero-title-color: #ffffff;
+  --hero-subtitle-color: rgba(255, 255, 255, 0.6);
+  --hero-badge-bg: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.08) 100%);
+  --hero-badge-border: rgba(16, 185, 129, 0.25);
+  --hero-badge-text: #34d399;
+  --hero-stat-bg: rgba(255, 255, 255, 0.03);
+  --hero-stat-border: rgba(255, 255, 255, 0.06);
+  --hero-stat-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --hero-stat-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.2);
+  --hero-stat-border-hover: rgba(255, 255, 255, 0.12);
+  --hero-stat-label: rgba(255, 255, 255, 0.9);
+  --hero-icon-bg-1: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.1) 100%);
+  --hero-icon-bg-2: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(244, 114, 182, 0.1) 100%);
+  --hero-icon-bg-3: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(251, 191, 36, 0.1) 100%);
+}
+
+.hero-section {
+  position: relative;
   max-width: 1000px;
   margin: 0 auto 32px;
-  padding: 28px 36px;
-  border-radius: 20px;
-  background: var(--theme-bg-card);
-  box-shadow: var(--theme-shadow-md);
-  border: 1px solid var(--theme-border-secondary);
-  gap: 24px;
+  padding: 36px 44px;
+  border-radius: 28px;
+  background: var(--hero-bg);
+  overflow: hidden;
+  border: 1px solid var(--hero-border);
+  box-shadow: var(--hero-shadow);
 
-  .hero-content {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex: 1;
-    min-width: 0;
+  // 背景装饰圆 - 右上
+  .hero-bg-pattern {
+    position: absolute;
+    top: -60px;
+    right: -40px;
+    width: 280px;
+    height: 280px;
+    background: var(--hero-glow-1);
+    border-radius: 50%;
+    filter: blur(40px);
+    pointer-events: none;
   }
 
-  .hero-icon {
-    flex-shrink: 0;
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
-    background: linear-gradient(135deg, var(--theme-color-primary) 0%, #8b5cf6 100%);
-    display: flex;
+  // 背景装饰圆 - 左下
+  .hero-glow {
+    position: absolute;
+    bottom: -80px;
+    left: -60px;
+    width: 200px;
+    height: 200px;
+    background: var(--hero-glow-2);
+    border-radius: 50%;
+    filter: blur(40px);
+    pointer-events: none;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 28px;
+  }
+
+  .hero-badge {
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 16px rgba(var(--primary-rgb), 0.3);
+    gap: 8px;
+    padding: 6px 14px;
+    background: var(--hero-badge-bg);
+    border: 1px solid var(--hero-badge-border);
+    border-radius: 20px;
+    margin-bottom: 18px;
     
-    :deep(svg) {
-      width: 28px;
-      height: 28px;
-      color: white;
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+      animation: dotPulse 2s ease-in-out infinite;
+    }
+    
+    span {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--hero-badge-text);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
     }
   }
 
-  .hero-text {
-    flex: 1;
-    min-width: 0;
-  }
-
   .hero-title {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--theme-text-primary);
-    margin: 0 0 4px;
-    letter-spacing: -0.3px;
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--hero-title-color);
+    margin: 0 0 12px;
+    letter-spacing: -0.5px;
+    line-height: 1.25;
     
     .gradient-text {
       background: linear-gradient(
         135deg,
-        var(--theme-color-primary) 0%,
+        #10b981 0%,
+        #3b82f6 50%,
         #8b5cf6 100%
       );
       -webkit-background-clip: text;
@@ -692,59 +784,141 @@ export default {
   }
 
   .hero-subtitle {
-    font-size: 13px;
-    line-height: 1.5;
-    color: var(--theme-text-secondary);
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--hero-subtitle-color);
     margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    
-    @media (max-width: 900px) {
-      white-space: normal;
-    }
+    max-width: 480px;
+    font-weight: 400;
   }
 
-  .hero-tags {
+  .hero-stats {
+    position: relative;
+    z-index: 1;
     display: flex;
-    gap: 8px;
-    flex-shrink: 0;
+    align-items: center;
+    gap: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
     
-    .tag-item {
+    .stat-item {
       display: flex;
       align-items: center;
-      gap: 5px;
-      padding: 6px 12px;
-      background: rgba(var(--primary-rgb), 0.08);
-      border: 1px solid rgba(var(--primary-rgb), 0.12);
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--theme-text-secondary);
-      transition: all 0.2s ease;
+      gap: 14px;
+      flex: 1;
+      padding: 16px 24px;
+      background: var(--hero-stat-bg);
+      border-radius: 16px;
+      border: 1px solid var(--hero-stat-border);
+      box-shadow: var(--hero-stat-shadow);
+      transition: all 0.25s ease;
+      margin: 0 6px;
       
-      :deep(svg) {
-        width: 14px;
-        height: 14px;
-        color: var(--theme-color-primary);
+      &:first-child {
+        margin-left: 0;
+      }
+      
+      &:last-child {
+        margin-right: 0;
+      }
+      
+      .stat-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.25s ease;
+        
+        :deep(svg) {
+          width: 22px;
+          height: 22px;
+        }
+      }
+      
+      // 第一个 - 蓝色
+      &:nth-child(1) {
+        .stat-icon {
+          background: var(--hero-icon-bg-1);
+          
+          :deep(svg) {
+            color: #3b82f6;
+          }
+        }
+      }
+      
+      // 第二个 - 红/粉色
+      &:nth-child(3) {
+        .stat-icon {
+          background: var(--hero-icon-bg-2);
+          
+          :deep(svg) {
+            color: #ef4444;
+          }
+        }
+      }
+      
+      // 第三个 - 橙/黄色
+      &:nth-child(5) {
+        .stat-icon {
+          background: var(--hero-icon-bg-3);
+          
+          :deep(svg) {
+            color: #f59e0b;
+          }
+        }
+      }
+      
+      .stat-info {
+        .stat-label {
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--hero-stat-label);
+        }
       }
       
       &:hover {
-        background: rgba(var(--primary-rgb), 0.12);
-        color: var(--theme-color-primary);
-        transform: translateY(-1px);
+        transform: translateY(-2px);
+        box-shadow: var(--hero-stat-shadow-hover);
+        border-color: var(--hero-stat-border-hover);
       }
+    }
+    
+    .stat-divider {
+      display: none;
     }
   }
   
   @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: flex-start;
+    padding: 28px 24px;
     
-    .hero-tags {
-      width: 100%;
-      justify-content: flex-start;
+    .hero-title {
+      font-size: 24px;
     }
+    
+    .hero-stats {
+      flex-direction: column;
+      gap: 12px;
+      
+      .stat-item {
+        width: 100%;
+        margin: 0;
+        padding: 14px 20px;
+      }
+    }
+  }
+}
+
+@keyframes dotPulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+  }
+  50% {
+    opacity: 0.7;
+    box-shadow: 0 0 14px rgba(16, 185, 129, 0.7);
   }
 }
 
