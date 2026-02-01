@@ -1263,20 +1263,9 @@ export default {
    FitnessKnowledge.vue 样式 - 使用CSS变量实现主题切换
 ================================================================ */
 
-// 图片加载优化 - 移除不必要的过渡动画
+// 图片加载优化
 img {
-  // 使用 GPU 加速渲染
-  will-change: auto;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  
-  &[alt="图片加载失败"] {
-    min-height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 14px;
-  }
+  background: #667eea;
 }
 
 .fitness-knowledge {
@@ -1399,14 +1388,18 @@ img {
   background: var(--theme-bg-card);
   border-radius: 16px;
   padding: 32px;
-  box-shadow: var(--theme-shadow-md);
   border: 1px solid var(--theme-border-secondary);
+  // 使用 content-visibility 优化渲染
+  contain: layout style;
 }
 
 .knowledge-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 24px;
+  // 滿足条件时跳过屏幕外内容渲染
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
 }
 
 .knowledge-card {
@@ -1416,50 +1409,24 @@ img {
   background: var(--theme-bg-card);
   cursor: pointer;
   position: relative;
-  // GPU 加速
-  transform: translateZ(0);
-  will-change: transform;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  // 静态阴影
-  box-shadow: var(--theme-shadow-md);
+  // 简化阴影
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--theme-color-primary) 0%, #764ba2 100%);
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-    z-index: 1;
-  }
-
+  // 移除 hover 动画，提升滚动性能
   &:hover {
-    transform: translateY(-6px) translateZ(0);
-
-    &::before {
-      transform: scaleX(1);
-    }
-
-    .card-image img {
-      transform: scale(1.03);
-    }
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   }
 
   .card-image {
     position: relative;
     height: 220px;
     overflow: hidden;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #667eea;
 
     img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transform: translateZ(0);
-      transition: transform 0.3s ease;
     }
 
     .card-overlay {
@@ -1473,20 +1440,18 @@ img {
         font-size: 13px;
         font-weight: 600;
         color: white;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        // 移除 backdrop-filter - 严重影响性能
 
         &.初级 {
-          background: linear-gradient(135deg, rgba(0, 180, 42, 0.95) 0%, rgba(0, 214, 143, 0.95) 100%);
+          background: #00b42a;
         }
 
         &.中级 {
-          background: linear-gradient(135deg, rgba(255, 125, 0, 0.95) 0%, rgba(255, 169, 64, 0.95) 100%);
+          background: #ff7d00;
         }
 
         &.高级 {
-          background: linear-gradient(135deg, rgba(245, 63, 63, 0.95) 0%, rgba(255, 120, 117, 0.95) 100%);
+          background: #f53f3f;
         }
       }
     }
@@ -1605,27 +1570,6 @@ img {
       border-radius: 8px;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       border: none;
-      position: relative;
-
-      &::after {
-        content: '→';
-        position: absolute;
-        right: 20px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 18px;
-        transition: transform 0.3s ease;
-      }
-
-      &:hover {
-        opacity: 0.9;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-
-        &::after {
-          transform: translateY(-50%) translateX(4px);
-        }
-      }
     }
   }
 }
@@ -1655,18 +1599,17 @@ img {
   border: 1px solid var(--theme-border-secondary);
   border-radius: 12px;
   overflow: hidden;
-  transition: transform 0.3s ease;
   background: var(--theme-bg-card);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--theme-shadow-md);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 
   .exercise-image {
     position: relative;
     height: 180px;
-    background: linear-gradient(45deg, var(--theme-color-primary), #764ba2);
+    background: #667eea;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1691,17 +1634,11 @@ img {
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.3s ease;
 
       :deep(svg) {
         width: 24px;
         height: 24px;
         color: white;
-      }
-
-      &:hover {
-        background: rgba(64, 128, 255, 1);
-        transform: translate(-50%, -50%) scale(1.1);
       }
     }
   }
@@ -1921,16 +1858,9 @@ img {
           padding: 16px;
           background: var(--theme-bg-card);
           border-radius: 8px;
-          box-shadow: var(--theme-shadow-sm);
-          transition: all 0.3s ease;
 
           &:last-child {
             margin-bottom: 0;
-          }
-
-          &:hover {
-            transform: translateX(4px);
-            box-shadow: var(--theme-shadow-md);
           }
 
           .tip-number {
@@ -2022,7 +1952,6 @@ img {
           font-size: 15px;
           font-weight: 500;
           border-radius: 8px;
-          transition: all 0.3s ease;
 
           :deep(svg) {
             margin-right: 6px;
@@ -2031,24 +1960,11 @@ img {
           &[type="outline"] {
             border: 2px solid #667eea;
             color: #667eea;
-
-            &:hover {
-              background: #667eea;
-              color: white;
-              transform: translateY(-2px);
-              box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
-            }
           }
 
           &[type="primary"] {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
-
-            &:hover {
-              opacity: 0.9;
-              transform: translateY(-2px);
-              box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-            }
           }
         }
       }
@@ -2085,12 +2001,10 @@ img {
     background: var(--theme-bg-card);
     border-radius: 16px;
     border: 1px solid var(--theme-border-primary);
-    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 
     &:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--theme-shadow-lg);
-      border-color: var(--theme-color-primary);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
 
     .nutrient-icon {
@@ -2166,12 +2080,10 @@ img {
     border-radius: 16px;
     border: 1px solid var(--theme-border-primary);
     overflow: hidden;
-    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 
     &:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--theme-shadow-lg);
-      border-color: var(--theme-color-primary);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
 
     .meal-header {
@@ -2265,12 +2177,10 @@ img {
   border-radius: 16px;
   border: 1px solid var(--theme-border-primary);
   overflow: hidden;
-  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--theme-shadow-lg);
-    border-color: var(--theme-color-primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 
   .program-header {
@@ -2381,12 +2291,6 @@ img {
           background: var(--theme-bg-card-hover);
           border-radius: 12px;
           border: 1px solid var(--theme-border-secondary);
-          transition: all 0.3s ease;
-
-          &:hover {
-            transform: translateX(4px);
-            border-color: var(--theme-color-primary);
-          }
 
           .day-label {
             flex-shrink: 0;
@@ -2416,30 +2320,16 @@ img {
         font-size: 14px;
         font-weight: 500;
         border-radius: 10px;
-        transition: all 0.3s ease;
 
         &[type="primary"] {
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           border: none;
-
-          &:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-          }
         }
 
         &[type="outline"] {
           border: 2px solid #667eea;
           color: #667eea;
           background: transparent;
-
-          &:hover {
-            background: #667eea;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
-          }
         }
       }
     }
@@ -2639,12 +2529,7 @@ img {
       border-radius: 8px;
       overflow: hidden;
       cursor: pointer;
-      transition: all 0.3s ease;
       background: var(--color-fill-2);
-
-      &:hover {
-        border-color: rgb(var(--primary-6));
-      }
 
       .preview-image {
         width: 100%;
