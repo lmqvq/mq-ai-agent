@@ -5,6 +5,7 @@ import router from './router'
 import ArcoVue from '@arco-design/web-vue'
 import '@arco-design/web-vue/dist/arco.css'
 import './assets/styles/theme.css'
+import './assets/styles/buttons.scss'
 import {
     IconRobot,
     IconTrophy,

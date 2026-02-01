@@ -1,0 +1,239 @@
+/* =================================================================
+   全局按钮样式系统 - Aceternity UI 风格
+   
+   使用方法:
+   1. 在组件中引入: @import '@/assets/styles/buttons.scss';
+   2. 或者在 main.ts 中全局引入
+   
+   类名说明:
+   - .ace-btn: 基础按钮类
+   - .ace-btn--primary: 主要按钮（渐变填充）
+   - .ace-btn--secondary: 次要按钮（玻璃态边框发光）
+   - .ace-btn--outline: 边框按钮
+   - .ace-btn--ghost: 幽灵按钮
+   - .ace-btn--sm / .ace-btn--lg: 尺寸变体
+================================================================= */
+
+// 基础按钮
+.ace-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 28px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  user-select: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  // 禁用状态
+  &:disabled,
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  // 图标
+  :deep(svg),
+  svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+}
+
+// ============ Primary 按钮 - 渐变填充 ============
+.ace-btn--primary {
+  background: var(--btn-primary-bg);
+  color: #ffffff;
+  box-shadow: var(--btn-primary-shadow);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.2) 0%,
+      transparent 50%,
+      transparent 100%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--btn-primary-shadow-hover);
+
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: var(--btn-primary-shadow-active);
+  }
+}
+
+// ============ Secondary 按钮 - 玻璃态边框发光 ============
+.ace-btn--secondary {
+  position: relative;
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  border: 1px solid var(--btn-secondary-border);
+  box-shadow: var(--btn-secondary-shadow);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  // 边框发光效果层
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      var(--btn-secondary-border-glow-start),
+      transparent 40%,
+      transparent 60%,
+      var(--btn-secondary-border-glow-end)
+    );
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover {
+    background: var(--btn-secondary-bg-hover);
+    color: var(--btn-secondary-text-hover);
+    border-color: var(--btn-secondary-border-hover);
+    box-shadow: var(--btn-secondary-shadow-hover);
+    transform: translateY(-2px);
+
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  &:active {
+    background: var(--btn-secondary-bg-active);
+    transform: translateY(0);
+  }
+}
+
+// ============ Outline 按钮 ============
+.ace-btn--outline {
+  background: transparent;
+  color: var(--btn-outline-text);
+  border: 1.5px solid var(--btn-outline-border);
+
+  &:hover {
+    color: var(--btn-outline-text-hover);
+    border-color: var(--btn-outline-border-hover);
+    background: var(--btn-outline-fill-hover);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// ============ Ghost 按钮 - 无边框文字 ============
+.ace-btn--ghost {
+  background: transparent;
+  color: var(--btn-text-color);
+  border: none;
+  padding: 10px 20px;
+
+  &:hover {
+    color: var(--btn-text-color-hover);
+    background: var(--btn-text-bg-hover);
+  }
+}
+
+// ============ 尺寸变体 ============
+.ace-btn--sm {
+  padding: 8px 16px;
+  font-size: 13px;
+  border-radius: 8px;
+
+  :deep(svg),
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.ace-btn--lg {
+  padding: 14px 32px;
+  font-size: 15px;
+  border-radius: 14px;
+
+  :deep(svg),
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// ============ 全宽按钮 ============
+.ace-btn--block {
+  width: 100%;
+}
+
+// ============ 圆形按钮 ============
+.ace-btn--round {
+  border-radius: 50px;
+}
+
+// ============ 颜色变体 ============
+.ace-btn--danger {
+  background: var(--btn-danger-bg);
+  color: #ffffff;
+  box-shadow: var(--btn-danger-shadow);
+
+  &:hover {
+    background: var(--btn-danger-bg-hover);
+    box-shadow: var(--btn-danger-shadow-hover);
+    transform: translateY(-2px);
+  }
+}
+
+.ace-btn--success {
+  background: var(--btn-success-bg);
+  color: #ffffff;
+  box-shadow: var(--btn-success-shadow);
+
+  &:hover {
+    background: var(--btn-success-bg-hover);
+    box-shadow: var(--btn-success-shadow-hover);
+    transform: translateY(-2px);
+  }
+}
+
+.ace-btn--warning {
+  background: var(--btn-warning-bg);
+  color: #ffffff;
+  box-shadow: var(--btn-warning-shadow);
+
+  &:hover {
+    background: var(--btn-warning-bg-hover);
+    box-shadow: var(--btn-warning-shadow-hover);
+    transform: translateY(-2px);
+  }
+}

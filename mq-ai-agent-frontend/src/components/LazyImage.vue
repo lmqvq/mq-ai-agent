@@ -1,7 +1,14 @@
 <template>
   <div class="lazy-image-wrapper" ref="wrapperRef">
-    <div v-if="!isLoaded && !hasError" class="lazy-placeholder" :style="placeholderStyle">
-      <div class="loading-shimmer"></div>
+    <div v-if="!isLoaded && !hasError" class="lazy-placeholder">
+      <div class="placeholder-bg"></div>
+      <div class="placeholder-grain"></div>
+      <div class="placeholder-gradient"></div>
+      <div class="loading-pulse">
+        <div class="pulse-ring"></div>
+        <div class="pulse-ring delay-1"></div>
+        <div class="pulse-ring delay-2"></div>
+      </div>
     </div>
     <img
       v-show="isLoaded"
@@ -14,9 +21,13 @@
       @load="onLoad"
       @error="onError"
     />
-    <div v-if="hasError" class="lazy-error" :style="placeholderStyle">
-      <icon-image />
-      <span>加载失败</span>
+    <div v-if="hasError" class="lazy-error">
+      <div class="error-bg"></div>
+      <div class="error-grain"></div>
+      <div class="error-content">
+        <icon-image />
+        <span>图片加载失败</span>
+      </div>
     </div>
   </div>
 </template>
@@ -61,9 +72,6 @@ export default {
       return isInView.value ? props.src : '';
     });
 
-    const placeholderStyle = computed(() => ({
-      backgroundColor: props.placeholder
-    }));
 
     const onLoad = () => {
       isLoaded.value = true;
@@ -120,7 +128,6 @@ export default {
       isLoaded,
       hasError,
       currentSrc,
-      placeholderStyle,
       onLoad,
       onError
     };
@@ -136,54 +143,126 @@ export default {
   overflow: hidden;
 }
 
-.lazy-placeholder,
+// 占位符样式
+.lazy-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  .placeholder-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      #1a1a2e 0%,
+      #16213e 25%,
+      #0f3460 50%,
+      #1a1a2e 75%,
+      #16213e 100%
+    );
+    background-size: 400% 400%;
+    animation: gradientFlow 8s ease infinite;
+  }
+
+  // 颗粒感噪点层
+  .placeholder-grain {
+    position: absolute;
+    inset: 0;
+    opacity: 0.15;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
+
+  // 光晕渐变层
+  .placeholder-gradient {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse at 30% 20%,
+      rgba(102, 126, 234, 0.3) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 70% 80%,
+      rgba(118, 75, 162, 0.25) 0%,
+      transparent 50%
+    );
+  }
+
+  // 加载脉冲动画
+  .loading-pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+
+    .pulse-ring {
+      position: absolute;
+      inset: 0;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      animation: pulseRing 2s ease-out infinite;
+
+      &.delay-1 {
+        animation-delay: 0.4s;
+      }
+
+      &.delay-2 {
+        animation-delay: 0.8s;
+      }
+    }
+  }
+}
+
+// 错误状态样式
 .lazy-error {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #999;
-  font-size: 12px;
-  gap: 8px;
 
-  :deep(svg) {
-    width: 32px;
-    height: 32px;
-    opacity: 0.5;
-  }
-}
-
-.lazy-placeholder {
-  .loading-shimmer {
+  .error-bg {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.3) 50%,
-      transparent 100%
+      135deg,
+      #2d2d3a 0%,
+      #1f1f2e 50%,
+      #2d2d3a 100%
     );
-    animation: shimmer 1.5s infinite;
+  }
+
+  .error-grain {
+    position: absolute;
+    inset: 0;
+    opacity: 0.1;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
+
+  .error-content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+
+    :deep(svg) {
+      width: 32px;
+      height: 32px;
+      opacity: 0.4;
+    }
   }
 }
 
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
+// 图片样式
 .lazy-image {
   width: 100%;
   height: 100%;
@@ -196,7 +275,24 @@ export default {
   }
 }
 
-.lazy-error {
-  background: #f5f5f5;
+// 动画定义
+@keyframes gradientFlow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes pulseRing {
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
 }
 </style>

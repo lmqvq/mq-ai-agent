@@ -61,9 +61,9 @@
                   <span><icon-clock-circle />{{ item.readTime }}分钟阅读</span>
                   <span><icon-eye />{{ item.views }}次浏览</span>
                 </div>
-                <a-button type="primary" @click="viewKnowledge(item)">
-                  阅读详情
-                </a-button>
+                <button class="ace-btn ace-btn--secondary ace-btn--block ace-btn--round" @click="viewKnowledge(item)">
+                  了解更多
+                </button>
               </div>
             </div>
           </div>
@@ -74,30 +74,33 @@
           <div class="exercise-categories">
             <div v-for="exerciseType in exerciseTypes" :key="exerciseType.id" class="exercise-type">
               <h3>{{ exerciseType.name }}</h3>
-              <div class="exercise-grid">
-                <div v-for="exercise in exerciseType.exercises" :key="exercise.id" class="exercise-card">
-                  <div class="exercise-image">
+              <div class="knowledge-grid">
+                <div v-for="exercise in exerciseType.exercises" :key="exercise.id" class="knowledge-card">
+                  <div class="card-image">
                     <LazyImage 
                       :src="exercise.image" 
                       :alt="exercise.name"
-                      placeholder="#52c41a"
+                      placeholder="#667eea"
                     />
-                    <div class="play-button" @click="playExerciseVideo(exercise)">
-                      <icon-play-arrow />
-                    </div>
-                    <div v-if="isAdmin" class="admin-edit-btn" @click.stop="editItem('exercises', exercise)">
-                      <icon-edit />
+                    <div class="card-overlay">
+                      <div class="difficulty-badge" :class="exercise.difficulty">
+                        {{ exercise.difficulty }}
+                      </div>
+                      <div v-if="isAdmin" class="admin-edit-btn" @click.stop="editItem('exercises', exercise)">
+                        <icon-edit />
+                      </div>
                     </div>
                   </div>
-                  <div class="exercise-info">
-                    <h4>{{ exercise.name }}</h4>
+                  <div class="card-content">
+                    <h3>{{ exercise.name }}</h3>
                     <p>{{ exercise.description }}</p>
-                    <div class="exercise-details">
-                      <span class="muscle-group">{{ exercise.muscleGroup }}</span>
-                      <span class="difficulty" :class="exercise.difficulty.toLowerCase()">
-                        {{ exercise.difficulty }}
-                      </span>
+                    <div class="card-meta">
+                      <span><icon-trophy />{{ exercise.muscleGroup }}</span>
+                      <span><icon-fire />{{ exercise.difficulty }}</span>
                     </div>
+                    <button class="ace-btn ace-btn--secondary ace-btn--block ace-btn--round" @click="viewExerciseDetail(exercise)">
+                      了解更多
+                    </button>
                   </div>
                 </div>
               </div>
@@ -317,25 +320,110 @@
       </div>
     </a-modal>
 
-    <!-- 运动视频弹窗 -->
-    <a-modal v-model:visible="showVideoModal" :title="selectedExercise?.name" width="800px">
-      <div v-if="selectedExercise" class="video-content">
-        <div class="video-placeholder">
-          <icon-play-arrow />
-          <p>{{ selectedExercise.name }}动作演示视频</p>
+    <!-- 动作指导详情弹窗 -->
+    <a-modal 
+      v-model:visible="showVideoModal" 
+      :footer="false" 
+      width="900px"
+      :body-style="{ padding: 0 }"
+      modal-class="knowledge-modal"
+    >
+      <template #title>
+        <div class="modal-title-simple">
+          {{ selectedExercise?.name }}
         </div>
-        <div class="exercise-instructions">
-          <h4>动作要领</h4>
-          <ol>
-            <li v-for="instruction in selectedExercise.instructions" :key="instruction">
-              {{ instruction }}
-            </li>
-          </ol>
-          <div class="exercise-tips">
-            <h4>注意事项</h4>
-            <ul>
-              <li v-for="tip in selectedExercise.tips" :key="tip">{{ tip }}</li>
+      </template>
+      <div v-if="selectedExercise" class="knowledge-detail">
+        <div class="detail-image-wrapper">
+          <img 
+            :src="selectedExercise.image" 
+            :alt="selectedExercise.name" 
+            class="detail-image"
+            decoding="async"
+          />
+        </div>
+        <div class="detail-content">
+          <!-- 动作元数据 -->
+          <div class="article-meta">
+            <span class="difficulty-tag" :class="selectedExercise.difficulty">
+              {{ selectedExercise.difficulty }}
+            </span>
+            <span class="meta-item">
+              <icon-trophy /> {{ selectedExercise.muscleGroup }}
+            </span>
+            <span class="meta-item">
+              <icon-fire /> {{ selectedExercise.category }}
+            </span>
+          </div>
+
+          <!-- 动作说明 -->
+          <div class="content-section">
+            <h4 class="section-title">
+              <icon-book /> 动作说明
+            </h4>
+            <div class="content-text">
+              <p>{{ selectedExercise.description }}</p>
+            </div>
+          </div>
+          
+          <!-- 动作要领 -->
+          <div class="content-section tips-section">
+            <h4 class="section-title">
+              <icon-trophy /> 动作要领
+            </h4>
+            <ul class="tips-list">
+              <li v-for="(instruction, index) in selectedExercise.instructions" :key="instruction" class="tip-item">
+                <span class="tip-number">{{ index + 1 }}</span>
+                <span class="tip-text">{{ instruction }}</span>
+              </li>
             </ul>
+          </div>
+
+          <!-- 注意事项 -->
+          <div class="content-section tips-section" style="margin-top: 20px;">
+            <h4 class="section-title">
+              <icon-fire /> 注意事项
+            </h4>
+            <ul class="tips-list">
+              <li v-for="(tip, index) in selectedExercise.tips" :key="tip" class="tip-item">
+                <span class="tip-number">{{ index + 1 }}</span>
+                <span class="tip-text">{{ tip }}</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="detail-footer">
+            <div class="footer-stats">
+              <div class="stat-item">
+                <icon-trophy class="stat-icon" />
+                <div class="stat-info">
+                  <div class="stat-value">{{ selectedExercise.muscleGroup }}</div>
+                  <div class="stat-label">目标肌群</div>
+                </div>
+              </div>
+              <div class="stat-item">
+                <icon-fire class="stat-icon" />
+                <div class="stat-info">
+                  <div class="stat-value">{{ selectedExercise.difficulty }}</div>
+                  <div class="stat-label">难度等级</div>
+                </div>
+              </div>
+              <div class="stat-item">
+                <icon-heart class="stat-icon" />
+                <div class="stat-info">
+                  <div class="stat-value">{{ selectedExercise.category }}</div>
+                  <div class="stat-label">训练分类</div>
+                </div>
+              </div>
+            </div>
+            <div class="action-buttons">
+              <a-button type="outline" size="large" @click="shareKnowledge">
+                <icon-share-alt /> 分享动作
+              </a-button>
+              <a-button type="primary" size="large" @click="printKnowledge">
+                <icon-printer /> 打印保存
+              </a-button>
+            </div>
           </div>
         </div>
       </div>
@@ -893,6 +981,12 @@ export default {
       showVideoModal.value = true;
     };
 
+    // 查看动作详情（与基础知识保持一致的弹窗样式）
+    const viewExerciseDetail = (exercise) => {
+      selectedExercise.value = exercise;
+      showVideoModal.value = true;
+    };
+
     const startProgram = (program) => {
       console.log('开始训练计划:', program.name);
     };
@@ -1240,6 +1334,7 @@ export default {
       trainingPrograms,
       viewKnowledge,
       playExerciseVideo,
+      viewExerciseDetail,
       startProgram,
       viewProgramDetails,
       handleImageError,
@@ -1251,7 +1346,8 @@ export default {
       editItem,
       cancelEdit,
       saveEdit,
-      customUpload
+      customUpload,
+      refreshData
     };
   }
 };
@@ -1555,123 +1651,25 @@ img {
       }
     }
 
-    .arco-btn {
-      width: 100%;
-      height: 42px;
-      font-size: 15px;
-      font-weight: 500;
-      border-radius: 8px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border: none;
-    }
   }
 }
 
 .exercise-categories {
   .exercise-type {
-    margin-bottom: 32px;
+    margin-bottom: 40px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
 
     h3 {
-      margin: 0 0 16px 0;
+      margin: 0 0 20px 0;
       font-size: 20px;
       font-weight: 600;
       color: var(--theme-text-primary);
-      padding-bottom: 8px;
+      padding-bottom: 10px;
       border-bottom: 2px solid var(--theme-color-primary);
-    }
-  }
-}
-
-.exercise-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-}
-
-.exercise-card {
-  border: 1px solid var(--theme-border-secondary);
-  border-radius: 12px;
-  overflow: hidden;
-  background: var(--theme-bg-card);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-
-  &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  }
-
-  .exercise-image {
-    position: relative;
-    height: 180px;
-    background: #52c41a;
-
-    .play-button {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: rgba(64, 128, 255, 0.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-
-      :deep(svg) {
-        width: 24px;
-        height: 24px;
-        color: white;
-      }
-    }
-  }
-
-  .exercise-info {
-    padding: 16px;
-
-    h4 {
-      margin: 0 0 8px 0;
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--theme-text-primary);
-    }
-
-    p {
-      margin: 0 0 12px 0;
-      color: var(--theme-text-secondary);
-      font-size: 14px;
-    }
-
-    .exercise-details {
-      display: flex;
-      gap: 8px;
-
-      .muscle-group {
-        padding: 2px 8px;
-        background: var(--theme-bg-card-hover);
-        border-radius: 12px;
-        font-size: 12px;
-        color: var(--theme-text-secondary);
-      }
-
-      .difficulty {
-        padding: 2px 8px;
-        border-radius: 12px;
-        font-size: 12px;
-        color: white;
-
-        &.初级 {
-          background: var(--theme-color-success);
-        }
-
-        &.中级 {
-          background: var(--theme-color-warning);
-        }
-
-        &.高级 {
-          background: var(--theme-color-error);
-        }
-      }
+      display: inline-block;
     }
   }
 }
@@ -1681,54 +1679,39 @@ img {
   .knowledge-grid {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   }
-
-  .exercise-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  }
 }
 
-// 知识详情弹窗样式
+// 知识详情弹窗样式 - 跟随系统主题
 :deep(.knowledge-modal) {
   .arco-modal-header {
-    padding: 24px 32px !important;
+    padding: 20px 28px !important;
     border-bottom: 1px solid var(--theme-border-secondary);
   }
 }
 
 .modal-title-simple {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 600;
   color: var(--theme-text-primary);
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 .knowledge-detail {
   .detail-image-wrapper {
     width: 100%;
-    height: 400px;
     overflow: hidden;
-    background: linear-gradient(135deg, var(--theme-color-primary) 0%, #764ba2 100%);
     position: relative;
-
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 100px;
-      background: linear-gradient(to top, var(--theme-bg-card), transparent);
-    }
+    background: transparent;
   }
 
   .detail-image {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
+    display: block;
   }
 
   .detail-content {
-    padding: 32px;
+    padding: 28px;
     background: var(--theme-bg-card);
 
     // 文章元数据
@@ -1737,29 +1720,34 @@ img {
       align-items: center;
       flex-wrap: wrap;
       gap: 16px;
-      padding: 20px 24px;
+      padding: 16px 20px;
       background: var(--theme-bg-card-hover);
       border-radius: 12px;
       border: 1px solid var(--theme-border-secondary);
-      margin-bottom: 32px;
+      margin-bottom: 28px;
 
       .difficulty-tag {
-        padding: 6px 16px;
-        border-radius: 20px;
-        font-size: 13px;
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-size: 12px;
         font-weight: 600;
-        color: white;
 
         &.初级 {
-          background: linear-gradient(135deg, #00b42a 0%, #00d68f 100%);
+          background: rgba(34, 197, 94, 0.12);
+          color: #16a34a;
+          border: 1px solid rgba(34, 197, 94, 0.25);
         }
 
         &.中级 {
-          background: linear-gradient(135deg, #ff7d00 0%, #ffa940 100%);
+          background: rgba(245, 158, 11, 0.12);
+          color: #d97706;
+          border: 1px solid rgba(245, 158, 11, 0.25);
         }
 
         &.高级 {
-          background: linear-gradient(135deg, #f53f3f 0%, #ff7875 100%);
+          background: rgba(239, 68, 68, 0.12);
+          color: #dc2626;
+          border: 1px solid rgba(239, 68, 68, 0.25);
         }
       }
 
@@ -1768,19 +1756,19 @@ img {
         align-items: center;
         gap: 6px;
         color: var(--theme-text-secondary);
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 500;
 
         :deep(svg) {
-          width: 16px;
-          height: 16px;
-          color: var(--theme-color-primary);
+          width: 14px;
+          height: 14px;
+          color: var(--theme-text-muted);
         }
       }
     }
 
     .content-section {
-      margin-bottom: 32px;
+      margin-bottom: 28px;
 
       &:last-of-type {
         margin-bottom: 0;
@@ -1789,17 +1777,15 @@ img {
       .section-title {
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin: 0 0 20px 0;
-        font-size: 18px;
+        gap: 10px;
+        margin: 0 0 16px 0;
+        font-size: 16px;
         font-weight: 600;
         color: var(--theme-text-primary);
-        padding-bottom: 12px;
-        border-bottom: 2px solid var(--theme-border-secondary);
 
         :deep(svg) {
-          width: 20px;
-          height: 20px;
+          width: 18px;
+          height: 18px;
           color: var(--theme-color-primary);
         }
       }
@@ -1807,24 +1793,21 @@ img {
       .content-text {
         p {
           margin: 0;
-          font-size: 16px;
+          font-size: 15px;
           line-height: 1.8;
-          color: var(--theme-text-primary);
+          color: var(--theme-text-secondary);
           text-align: justify;
-          text-indent: 2em;
         }
       }
     }
 
     .tips-section {
       background: var(--theme-bg-card-hover);
-      padding: 24px;
+      padding: 20px;
       border-radius: 12px;
       border: 1px solid var(--theme-border-secondary);
 
       .section-title {
-        border-bottom: none;
-        padding-bottom: 0;
         margin-bottom: 16px;
       }
 
@@ -1836,11 +1819,12 @@ img {
         .tip-item {
           display: flex;
           align-items: flex-start;
-          gap: 12px;
-          margin-bottom: 16px;
-          padding: 16px;
+          gap: 14px;
+          margin-bottom: 12px;
+          padding: 14px 16px;
           background: var(--theme-bg-card);
-          border-radius: 8px;
+          border-radius: 10px;
+          border: 1px solid var(--theme-border-secondary);
 
           &:last-child {
             margin-bottom: 0;
@@ -1848,21 +1832,21 @@ img {
 
           .tip-number {
             flex-shrink: 0;
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, var(--theme-color-primary) 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
-            border-radius: 50%;
-            font-size: 14px;
-            font-weight: 600;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
           }
 
           .tip-text {
             flex: 1;
-            font-size: 15px;
+            font-size: 14px;
             line-height: 1.6;
             color: var(--theme-text-primary);
           }
@@ -1871,39 +1855,56 @@ img {
     }
 
     .detail-footer {
-      margin-top: 32px;
+      margin-top: 28px;
       padding-top: 24px;
-      border-top: 1px solid var(--theme-border-primary);
+      border-top: 1px solid var(--theme-border-secondary);
 
       .footer-stats {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 16px;
-        margin-bottom: 24px;
+        gap: 12px;
+        margin-bottom: 20px;
 
         .stat-item {
           display: flex;
           align-items: center;
           gap: 12px;
-          padding: 16px;
+          padding: 14px 16px;
           background: var(--theme-bg-card-hover);
           border-radius: 12px;
           border: 1px solid var(--theme-border-secondary);
 
+          // 优化图标配色 - 使用渐变边框而非纯紫色填充
           .stat-icon {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, var(--theme-color-primary) 0%, #764ba2 100%);
-            border-radius: 10px;
-            color: white;
+            background: var(--theme-bg-card);
+            border-radius: 12px;
+            border: 1.5px solid var(--theme-color-primary);
             flex-shrink: 0;
+            position: relative;
+
+            // 微妙的内阴影
+            &::before {
+              content: '';
+              position: absolute;
+              inset: 0;
+              border-radius: 11px;
+              background: linear-gradient(135deg, 
+                rgba(var(--primary-rgb), 0.08) 0%, 
+                transparent 50%
+              );
+            }
 
             :deep(svg) {
               width: 20px;
               height: 20px;
+              color: var(--theme-color-primary);
+              position: relative;
+              z-index: 1;
             }
           }
 
@@ -1911,15 +1912,15 @@ img {
             flex: 1;
 
             .stat-value {
-              font-size: 18px;
+              font-size: 16px;
               font-weight: 600;
               color: var(--theme-text-primary);
               margin-bottom: 2px;
             }
 
             .stat-label {
-              font-size: 12px;
-              color: var(--theme-text-secondary);
+              font-size: 11px;
+              color: var(--theme-text-muted);
             }
           }
         }
@@ -1931,25 +1932,62 @@ img {
         gap: 12px;
 
         .arco-btn {
-          height: 48px;
-          font-size: 15px;
+          height: 46px;
+          font-size: 14px;
           font-weight: 500;
-          border-radius: 8px;
+          border-radius: 10px;
 
           :deep(svg) {
             margin-right: 6px;
           }
 
           &[type="outline"] {
-            border: 2px solid #667eea;
-            color: #667eea;
+            background: var(--theme-bg-card);
+            border: 1.5px solid var(--theme-border-primary);
+            color: var(--theme-text-primary);
+
+            &:hover {
+              border-color: var(--theme-color-primary);
+              color: var(--theme-color-primary);
+            }
           }
 
           &[type="primary"] {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             border: none;
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+
+            &:hover {
+              box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+            }
           }
         }
+      }
+    }
+  }
+}
+
+// 深色模式下的难度标签色彩调整
+html.dark-theme {
+  .knowledge-detail .detail-content .article-meta {
+    .difficulty-tag {
+      &.初级 {
+        background: rgba(34, 197, 94, 0.15);
+        color: #4ade80;
+        border-color: rgba(34, 197, 94, 0.3);
+      }
+
+      &.中级 {
+        background: rgba(251, 191, 36, 0.15);
+        color: #fbbf24;
+        border-color: rgba(251, 191, 36, 0.3);
+      }
+
+      &.高级 {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border-color: rgba(239, 68, 68, 0.3);
       }
     }
   }
