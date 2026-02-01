@@ -343,17 +343,352 @@
         </div>
       </div>
     </a-modal>
+
+    <!-- 基础知识编辑弹窗 -->
+    <a-modal
+      v-model:visible="showEditModal"
+      :title="editModalTitle"
+      width="700px"
+      modal-class="knowledge-edit-modal"
+      @cancel="cancelEdit"
+      @ok="saveEdit"
+      :ok-loading="editLoading"
+      ok-text="确定"
+      cancel-text="取消"
+    >
+      <div v-if="editForm" class="edit-form-content">
+        <!-- 基础知识编辑 -->
+        <template v-if="editType === 'basics'">
+          <a-form :model="editForm" layout="vertical">
+            <a-form-item field="title" label="标题" :rules="[{ required: true, message: '请输入标题' }]">
+              <a-input v-model="editForm.title" placeholder="请输入标题" />
+            </a-form-item>
+            <a-form-item field="description" label="简短描述">
+              <a-textarea v-model="editForm.description" placeholder="请输入简短描述" :max-length="200" show-word-limit />
+            </a-form-item>
+            <a-row :gutter="16">
+              <a-col :span="8">
+                <a-form-item field="difficulty" label="难度">
+                  <a-select v-model="editForm.difficulty" placeholder="选择难度">
+                    <a-option value="初级">初级</a-option>
+                    <a-option value="中级">中级</a-option>
+                    <a-option value="高级">高级</a-option>
+                  </a-select>
+                </a-form-item>
+              </a-col>
+              <a-col :span="8">
+                <a-form-item field="readTime" label="阅读时长(分钟)">
+                  <a-input-number v-model="editForm.readTime" :min="1" :max="60" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="8">
+                <a-form-item field="sortOrder" label="排序">
+                  <a-input-number v-model="editForm.sortOrder" :min="0" />
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-form-item field="image" label="封面图片">
+              <div class="image-upload-wrapper">
+                <a-upload
+                  :custom-request="(option) => customUpload(option, 'basics')"
+                  :show-file-list="false"
+                  accept="image/*"
+                >
+                  <template #upload-button>
+                    <div class="upload-trigger">
+                      <img v-if="editForm.image" :src="editForm.image" class="preview-image" />
+                      <div v-else class="upload-placeholder">
+                        <icon-plus />
+                        <div>上传图片</div>
+                      </div>
+                    </div>
+                  </template>
+                </a-upload>
+                <a-input v-model="editForm.image" placeholder="或直接输入图片URL" style="margin-top: 8px" />
+              </div>
+            </a-form-item>
+            <a-form-item field="content" label="详细内容">
+              <a-textarea v-model="editForm.content" placeholder="请输入详细内容" :auto-size="{ minRows: 4, maxRows: 8 }" />
+            </a-form-item>
+            <a-form-item field="tipsText" label="提示列表(每行一条)">
+              <a-textarea v-model="editForm.tipsText" placeholder="每行输入一条提示" :auto-size="{ minRows: 3, maxRows: 6 }" />
+            </a-form-item>
+          </a-form>
+        </template>
+
+        <!-- 动作指导编辑 -->
+        <template v-else-if="editType === 'exercises'">
+          <a-form :model="editForm" layout="vertical">
+            <a-row :gutter="16">
+              <a-col :span="12">
+                <a-form-item field="name" label="动作名称" :rules="[{ required: true, message: '请输入名称' }]">
+                  <a-input v-model="editForm.name" placeholder="请输入名称" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="12">
+                <a-form-item field="category" label="分类" :rules="[{ required: true, message: '请选择分类' }]">
+                  <a-select v-model="editForm.category" placeholder="选择分类" allow-create>
+                    <a-option value="胸部训练">胸部训练</a-option>
+                    <a-option value="背部训练">背部训练</a-option>
+                    <a-option value="腿部训练">腿部训练</a-option>
+                    <a-option value="肩部训练">肩部训练</a-option>
+                    <a-option value="手臂训练">手臂训练</a-option>
+                    <a-option value="核心训练">核心训练</a-option>
+                  </a-select>
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-form-item field="description" label="简短描述">
+              <a-textarea v-model="editForm.description" placeholder="请输入简短描述" :max-length="200" show-word-limit />
+            </a-form-item>
+            <a-row :gutter="16">
+              <a-col :span="8">
+                <a-form-item field="muscleGroup" label="目标肌群">
+                  <a-input v-model="editForm.muscleGroup" placeholder="如: 胸肌" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="8">
+                <a-form-item field="difficulty" label="难度">
+                  <a-select v-model="editForm.difficulty" placeholder="选择难度">
+                    <a-option value="初级">初级</a-option>
+                    <a-option value="中级">中级</a-option>
+                    <a-option value="高级">高级</a-option>
+                  </a-select>
+                </a-form-item>
+              </a-col>
+              <a-col :span="8">
+                <a-form-item field="sortOrder" label="排序">
+                  <a-input-number v-model="editForm.sortOrder" :min="0" />
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-form-item field="image" label="动作图片">
+              <div class="image-upload-wrapper">
+                <a-upload
+                  :custom-request="(option) => customUpload(option, 'exercise')"
+                  :show-file-list="false"
+                  accept="image/*"
+                >
+                  <template #upload-button>
+                    <div class="upload-trigger">
+                      <img v-if="editForm.image" :src="editForm.image" class="preview-image" />
+                      <div v-else class="upload-placeholder">
+                        <icon-plus />
+                        <div>上传图片</div>
+                      </div>
+                    </div>
+                  </template>
+                </a-upload>
+                <a-input v-model="editForm.image" placeholder="或直接输入图片URL" style="margin-top: 8px" />
+              </div>
+            </a-form-item>
+            <a-form-item field="instructionsText" label="动作步骤(每行一步)">
+              <a-textarea v-model="editForm.instructionsText" placeholder="每行输入一个步骤" :auto-size="{ minRows: 3, maxRows: 6 }" />
+            </a-form-item>
+            <a-form-item field="tipsText" label="注意事项(每行一条)">
+              <a-textarea v-model="editForm.tipsText" placeholder="每行输入一条注意事项" :auto-size="{ minRows: 3, maxRows: 6 }" />
+            </a-form-item>
+          </a-form>
+        </template>
+
+        <!-- 营养元素编辑 -->
+        <template v-else-if="editType === 'nutrients'">
+          <a-form :model="editForm" layout="vertical">
+            <a-row :gutter="16">
+              <a-col :span="12">
+                <a-form-item field="name" label="名称" :rules="[{ required: true, message: '请输入名称' }]">
+                  <a-input v-model="editForm.name" placeholder="请输入名称" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="12">
+                <a-form-item field="color" label="显示颜色">
+                  <a-input v-model="editForm.color" placeholder="如: #ff7875">
+                    <template #prepend>
+                      <div class="color-input-preview" :style="{ backgroundColor: editForm.color }"></div>
+                    </template>
+                  </a-input>
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-form-item field="description" label="描述">
+              <a-textarea v-model="editForm.description" placeholder="请输入描述" :max-length="200" show-word-limit />
+            </a-form-item>
+            <a-row :gutter="16">
+              <a-col :span="12">
+                <a-form-item field="icon" label="图标标识">
+                  <a-select v-model="editForm.icon" placeholder="选择图标">
+                    <a-option value="icon-fire">icon-fire</a-option>
+                    <a-option value="icon-heart">icon-heart</a-option>
+                    <a-option value="icon-star">icon-star</a-option>
+                  </a-select>
+                </a-form-item>
+              </a-col>
+              <a-col :span="12">
+                <a-form-item field="sortOrder" label="排序">
+                  <a-input-number v-model="editForm.sortOrder" :min="0" />
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-form-item field="benefitsText" label="益处列表(每行一条)">
+              <a-textarea v-model="editForm.benefitsText" placeholder="每行输入一个益处" :auto-size="{ minRows: 3, maxRows: 6 }" />
+            </a-form-item>
+          </a-form>
+        </template>
+
+        <!-- 饮食计划编辑 -->
+        <template v-else-if="editType === 'meals'">
+          <a-form :model="editForm" layout="vertical">
+            <a-row :gutter="16">
+              <a-col :span="12">
+                <a-form-item field="name" label="名称" :rules="[{ required: true, message: '请输入名称' }]">
+                  <a-input v-model="editForm.name" placeholder="请输入名称" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="12">
+                <a-form-item field="mealType" label="餐食类型" :rules="[{ required: true, message: '请选择类型' }]">
+                  <a-select v-model="editForm.mealType" placeholder="选择类型">
+                    <a-option value="早餐">早餐</a-option>
+                    <a-option value="午餐">午餐</a-option>
+                    <a-option value="晚餐">晚餐</a-option>
+                    <a-option value="加餐">加餐</a-option>
+                    <a-option value="训练前">训练前</a-option>
+                    <a-option value="训练后">训练后</a-option>
+                  </a-select>
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-form-item field="description" label="描述">
+              <a-textarea v-model="editForm.description" placeholder="请输入描述" :max-length="200" show-word-limit />
+            </a-form-item>
+            <a-form-item field="image" label="餐食图片">
+              <div class="image-upload-wrapper">
+                <a-upload
+                  :custom-request="(option) => customUpload(option, 'meal')"
+                  :show-file-list="false"
+                  accept="image/*"
+                >
+                  <template #upload-button>
+                    <div class="upload-trigger">
+                      <img v-if="editForm.image" :src="editForm.image" class="preview-image" />
+                      <div v-else class="upload-placeholder">
+                        <icon-plus />
+                        <div>上传图片</div>
+                      </div>
+                    </div>
+                  </template>
+                </a-upload>
+                <a-input v-model="editForm.image" placeholder="或直接输入图片URL" style="margin-top: 8px" />
+              </div>
+            </a-form-item>
+            <a-row :gutter="16">
+              <a-col :span="6">
+                <a-form-item field="calories" label="卡路里(kcal)">
+                  <a-input-number v-model="editForm.calories" :min="0" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="6">
+                <a-form-item field="protein" label="蛋白质(g)">
+                  <a-input-number v-model="editForm.protein" :min="0" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="6">
+                <a-form-item field="carbs" label="碳水(g)">
+                  <a-input-number v-model="editForm.carbs" :min="0" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="6">
+                <a-form-item field="fat" label="脂肪(g)">
+                  <a-input-number v-model="editForm.fat" :min="0" />
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-form-item field="sortOrder" label="排序">
+              <a-input-number v-model="editForm.sortOrder" :min="0" style="width: 120px" />
+            </a-form-item>
+          </a-form>
+        </template>
+
+        <!-- 训练计划编辑 -->
+        <template v-else-if="editType === 'programs'">
+          <a-form :model="editForm" layout="vertical">
+            <a-form-item field="name" label="计划名称" :rules="[{ required: true, message: '请输入名称' }]">
+              <a-input v-model="editForm.name" placeholder="请输入名称" />
+            </a-form-item>
+            <a-form-item field="description" label="描述">
+              <a-textarea v-model="editForm.description" placeholder="请输入描述" :max-length="200" show-word-limit />
+            </a-form-item>
+            <a-row :gutter="16">
+              <a-col :span="8">
+                <a-form-item field="type" label="类型">
+                  <a-select v-model="editForm.type" placeholder="选择类型" allow-create>
+                    <a-option value="beginner">beginner</a-option>
+                    <a-option value="intermediate">intermediate</a-option>
+                    <a-option value="advanced">advanced</a-option>
+                    <a-option value="fat-loss">fat-loss</a-option>
+                    <a-option value="strength">strength</a-option>
+                    <a-option value="bodyweight">bodyweight</a-option>
+                    <a-option value="female">female</a-option>
+                    <a-option value="busy">busy</a-option>
+                  </a-select>
+                </a-form-item>
+              </a-col>
+              <a-col :span="8">
+                <a-form-item field="icon" label="图标">
+                  <a-select v-model="editForm.icon" placeholder="选择图标">
+                    <a-option value="icon-user">icon-user</a-option>
+                    <a-option value="icon-fire">icon-fire</a-option>
+                    <a-option value="icon-trophy">icon-trophy</a-option>
+                    <a-option value="icon-heart">icon-heart</a-option>
+                    <a-option value="icon-clock-circle">icon-clock-circle</a-option>
+                  </a-select>
+                </a-form-item>
+              </a-col>
+              <a-col :span="8">
+                <a-form-item field="sortOrder" label="排序">
+                  <a-input-number v-model="editForm.sortOrder" :min="0" />
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="16">
+              <a-col :span="8">
+                <a-form-item field="duration" label="持续时间">
+                  <a-input v-model="editForm.duration" placeholder="如: 8周" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="8">
+                <a-form-item field="intensity" label="强度">
+                  <a-input v-model="editForm.intensity" placeholder="如: 中-高等" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="8">
+                <a-form-item field="level" label="适合级别">
+                  <a-select v-model="editForm.level" placeholder="选择级别">
+                    <a-option value="初级">初级</a-option>
+                    <a-option value="中级">中级</a-option>
+                    <a-option value="中高级">中高级</a-option>
+                    <a-option value="初中级">初中级</a-option>
+                  </a-select>
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-form-item field="scheduleText" label="训练安排 (JSON格式)">
+              <a-textarea v-model="editForm.scheduleText" placeholder='[{"day":"周一","content":"训练内容"}]' :auto-size="{ minRows: 4, maxRows: 8 }" />
+            </a-form-item>
+          </a-form>
+        </template>
+      </div>
+    </a-modal>
   </div>
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { Message } from '@arco-design/web-vue';
 import { 
   IconBook, IconTrophy, IconFire, IconHeart, IconUser, IconClockCircle, 
   IconEye, IconPlayArrow, IconShareAlt, IconPrinter, IconStar, IconSettings, IconEdit,
-  IconLeft
+  IconLeft, IconImage, IconDelete, IconPlus
 } from '@arco-design/web-vue/es/icon';
 import ApiService from '@/services/api';
 
@@ -362,16 +697,34 @@ export default {
   components: {
     IconBook, IconTrophy, IconFire, IconHeart, IconUser, IconClockCircle, 
     IconEye, IconPlayArrow, IconShareAlt, IconPrinter, IconStar, IconSettings, IconEdit,
-    IconLeft
+    IconLeft, IconImage, IconDelete, IconPlus
   },
   setup() {
     const router = useRouter();
     const activeCategory = ref('basics');
     const showKnowledgeModal = ref(false);
     const showVideoModal = ref(false);
+    const showEditModal = ref(false);
     const selectedKnowledge = ref(null);
     const selectedExercise = ref(null);
+    const editType = ref('');
+    const editLoading = ref(false);
     const loading = ref(false);
+
+    // 编辑表单数据
+    const editForm = reactive({
+      id: null,
+      // basics
+      title: '', description: '', image: '', difficulty: '初级', readTime: 5, content: '', tipsText: '', sortOrder: 0, views: 0,
+      // exercises
+      name: '', category: '', muscleGroup: '', instructionsText: '',
+      // nutrients
+      color: '#ff7875', icon: 'icon-fire', benefitsText: '',
+      // meals
+      mealType: '午餐', calories: 0, protein: 0, carbs: 0, fat: 0,
+      // programs
+      type: 'beginner', duration: '', intensity: '', level: '初级', scheduleText: '[]'
+    });
 
     const categories = [
       { id: 'basics', name: '基础知识', icon: 'icon-book' },
@@ -570,21 +923,279 @@ export default {
       router.push('/admin/knowledge');
     };
 
-    // 编辑单个项目 - 跳转到管理页面并传递参数
-    const editItem = (type, item) => {
-      // 跳转到管理页面并携带编辑信息
-      router.push({
-        path: '/admin/knowledge',
-        query: { tab: type, editId: item.id }
+    // 重置编辑表单
+    const resetEditForm = () => {
+      Object.assign(editForm, {
+        id: null,
+        title: '', description: '', image: '', difficulty: '初级', readTime: 5, content: '', tipsText: '', sortOrder: 0, views: 0,
+        name: '', category: '', muscleGroup: '', instructionsText: '',
+        color: '#ff7875', icon: 'icon-fire', benefitsText: '',
+        mealType: '午餐', calories: 0, protein: 0, carbs: 0, fat: 0,
+        type: 'beginner', duration: '', intensity: '', level: '初级', scheduleText: '[]'
       });
+    };
+
+    // 编辑弹窗标题
+    const editModalTitle = computed(() => {
+      const titles = {
+        basics: '编辑基础知识',
+        exercises: '编辑动作指导',
+        nutrients: '编辑营养知识',
+        meals: '编辑饮食计划',
+        programs: '编辑训练计划'
+      };
+      return titles[editType.value] || '编辑';
+    });
+
+    // 编辑单个项目 - 打开弹窗编辑
+    const editItem = (type, item) => {
+      editType.value = type;
+      resetEditForm();
+      
+      // 根据类型填充表单数据
+      switch (type) {
+        case 'basics':
+          Object.assign(editForm, {
+            id: item.id,
+            title: item.title || '',
+            description: item.description || '',
+            image: item.image || '',
+            difficulty: item.difficulty || '初级',
+            readTime: item.readTime || 5,
+            content: item.content || '',
+            tipsText: Array.isArray(item.tips) ? item.tips.join('\n') : (item.tips || ''),
+            sortOrder: item.sortOrder || 0,
+            views: item.views || 0
+          });
+          break;
+        case 'exercises':
+          Object.assign(editForm, {
+            id: item.id,
+            name: item.name || '',
+            category: item.category || '',
+            description: item.description || '',
+            image: item.image || '',
+            muscleGroup: item.muscleGroup || '',
+            difficulty: item.difficulty || '初级',
+            instructionsText: Array.isArray(item.instructions) ? item.instructions.join('\n') : (item.instructions || ''),
+            tipsText: Array.isArray(item.tips) ? item.tips.join('\n') : (item.tips || ''),
+            sortOrder: item.sortOrder || 0
+          });
+          break;
+        case 'nutrients':
+          Object.assign(editForm, {
+            id: item.id,
+            name: item.name || '',
+            description: item.description || '',
+            color: item.color || '#ff7875',
+            icon: item.icon || 'icon-fire',
+            benefitsText: Array.isArray(item.benefits) ? item.benefits.join('\n') : (item.benefits || ''),
+            sortOrder: item.sortOrder || 0
+          });
+          break;
+        case 'meals':
+          Object.assign(editForm, {
+            id: item.id,
+            name: item.name || '',
+            mealType: item.mealType || '午餐',
+            description: item.description || '',
+            image: item.image || '',
+            calories: item.calories || 0,
+            protein: item.protein || 0,
+            carbs: item.carbs || 0,
+            fat: item.fat || 0,
+            sortOrder: item.sortOrder || 0
+          });
+          break;
+        case 'programs':
+          Object.assign(editForm, {
+            id: item.id,
+            name: item.name || '',
+            description: item.description || '',
+            type: item.type || 'beginner',
+            icon: item.icon || 'icon-user',
+            duration: item.duration || '',
+            intensity: item.intensity || '',
+            level: item.level || '初级',
+            scheduleText: Array.isArray(item.schedule) ? JSON.stringify(item.schedule, null, 2) : (item.schedule || '[]'),
+            sortOrder: item.sortOrder || 0
+          });
+          break;
+      }
+      
+      showEditModal.value = true;
+    };
+
+    // 取消编辑
+    const cancelEdit = () => {
+      showEditModal.value = false;
+      resetEditForm();
+      editType.value = '';
+    };
+
+    // 保存编辑
+    const saveEdit = async () => {
+      if (!editForm.id) return;
+      
+      editLoading.value = true;
+      try {
+        let res;
+        let data = {};
+        
+        // 根据类型构建提交数据（与 KnowledgeManage.vue 保持一致，传递数组而非 JSON 字符串）
+        switch (editType.value) {
+          case 'basics':
+            data = {
+              id: editForm.id,
+              title: editForm.title,
+              description: editForm.description,
+              image: editForm.image,
+              difficulty: editForm.difficulty,
+              readTime: editForm.readTime,
+              content: editForm.content,
+              tips: editForm.tipsText.split('\n').filter(t => t.trim()),
+              sortOrder: editForm.sortOrder
+            };
+            res = await ApiService.updateKnowledgeBasics(data);
+            if (res.code === 0) {
+              await loadBasicsKnowledge();
+              Message.success('保存成功');
+            } else {
+              Message.error(res.message || '保存失败');
+            }
+            break;
+          case 'exercises':
+            data = {
+              id: editForm.id,
+              name: editForm.name,
+              category: editForm.category,
+              description: editForm.description,
+              image: editForm.image,
+              muscleGroup: editForm.muscleGroup,
+              difficulty: editForm.difficulty,
+              instructions: editForm.instructionsText.split('\n').filter(t => t.trim()),
+              tips: editForm.tipsText.split('\n').filter(t => t.trim()),
+              sortOrder: editForm.sortOrder
+            };
+            res = await ApiService.updateKnowledgeExercise(data);
+            if (res.code === 0) {
+              await loadExercises();
+              Message.success('保存成功');
+            } else {
+              Message.error(res.message || '保存失败');
+            }
+            break;
+          case 'nutrients':
+            data = {
+              id: editForm.id,
+              name: editForm.name,
+              description: editForm.description,
+              color: editForm.color,
+              icon: editForm.icon,
+              benefits: editForm.benefitsText.split('\n').filter(t => t.trim()),
+              sortOrder: editForm.sortOrder
+            };
+            res = await ApiService.updateKnowledgeNutrient(data);
+            if (res.code === 0) {
+              await loadNutrients();
+              Message.success('保存成功');
+            } else {
+              Message.error(res.message || '保存失败');
+            }
+            break;
+          case 'meals':
+            data = {
+              id: editForm.id,
+              name: editForm.name,
+              mealType: editForm.mealType,
+              description: editForm.description,
+              image: editForm.image,
+              calories: editForm.calories,
+              protein: editForm.protein,
+              carbs: editForm.carbs,
+              fat: editForm.fat,
+              sortOrder: editForm.sortOrder
+            };
+            res = await ApiService.updateKnowledgeMeal(data);
+            if (res.code === 0) {
+              await loadMealPlans();
+              Message.success('保存成功');
+            } else {
+              Message.error(res.message || '保存失败');
+            }
+            break;
+          case 'programs': {
+            let schedule;
+            try {
+              schedule = JSON.parse(editForm.scheduleText);
+            } catch {
+              Message.error('训练安排JSON格式错误');
+              editLoading.value = false;
+              return;
+            }
+            data = {
+              id: editForm.id,
+              name: editForm.name,
+              description: editForm.description,
+              type: editForm.type,
+              icon: editForm.icon,
+              duration: editForm.duration,
+              intensity: editForm.intensity,
+              level: editForm.level,
+              schedule: schedule,
+              sortOrder: editForm.sortOrder
+            };
+            res = await ApiService.updateKnowledgeProgram(data);
+            if (res.code === 0) {
+              await loadTrainingPrograms();
+              Message.success('保存成功');
+            } else {
+              Message.error(res.message || '保存失败');
+            }
+            break;
+          }
+        }
+        
+        showEditModal.value = false;
+        resetEditForm();
+        editType.value = '';
+      } catch (error) {
+        console.error('保存失败:', error);
+        Message.error('保存失败，请重试');
+      } finally {
+        editLoading.value = false;
+      }
+    };
+
+    // 图片上传
+    const customUpload = async (option, type) => {
+      try {
+        const res = await ApiService.uploadKnowledgeImage(option.fileItem.file, type);
+        if (res.code === 0) {
+          editForm.image = res.data;
+          Message.success('上传成功');
+          option.onSuccess();
+        } else {
+          Message.error(res.message || '上传失败');
+          option.onError();
+        }
+      } catch (error) {
+        Message.error('上传失败');
+        option.onError();
+      }
     };
 
     return {
       activeCategory,
       showKnowledgeModal,
       showVideoModal,
+      showEditModal,
       selectedKnowledge,
       selectedExercise,
+      editForm,
+      editType,
+      editLoading,
+      editModalTitle,
       categories,
       basicsKnowledge,
       exerciseTypes,
@@ -601,7 +1212,10 @@ export default {
       isAdmin,
       goBack,
       goToManage,
-      editItem
+      editItem,
+      cancelEdit,
+      saveEdit,
+      customUpload
     };
   }
 };
@@ -614,14 +1228,8 @@ export default {
 
 // 图片加载优化
 img {
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.3s ease-in-out;
-  
-  &.loaded,
-  &[loading="lazy"] {
-    opacity: 1;
-  }
-  
   background: linear-gradient(135deg, var(--theme-color-primary) 0%, #764ba2 100%);
   
   &[alt="图片加载失败"] {
@@ -1903,6 +2511,148 @@ img {
 
     .program-content .program-actions {
       flex-direction: column;
+    }
+  }
+}
+
+// 编辑弹窗样式 - 兼容亮色/深色模式
+:deep(.knowledge-edit-modal) {
+  .arco-modal {
+    background: var(--color-bg-2);
+  }
+
+  .arco-modal-header {
+    background: var(--color-bg-2);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .arco-modal-title {
+    color: var(--color-text-1);
+  }
+
+  .arco-modal-body {
+    background: var(--color-bg-2);
+    padding: 20px 24px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .arco-modal-footer {
+    background: var(--color-bg-2);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .arco-form-item-label {
+    color: var(--color-text-1);
+  }
+
+  .arco-input,
+  .arco-textarea,
+  .arco-select-view-single,
+  .arco-input-number {
+    background: var(--color-fill-2);
+    border-color: var(--color-border);
+    color: var(--color-text-1);
+
+    &:hover {
+      border-color: var(--color-border-3);
+    }
+
+    &:focus, &.arco-input-focus {
+      border-color: rgb(var(--primary-6));
+    }
+  }
+
+  .arco-input-prepend {
+    background: var(--color-fill-3);
+    border-color: var(--color-border);
+  }
+
+  .arco-select-view-value {
+    color: var(--color-text-1);
+  }
+}
+
+.edit-form-content {
+  :deep(.arco-form-item) {
+    margin-bottom: 16px;
+  }
+
+  :deep(.arco-form-item-label-col) {
+    margin-bottom: 6px;
+  }
+
+  :deep(.arco-form-item-label) {
+    font-weight: 500;
+    color: var(--color-text-1);
+  }
+
+  .image-upload-wrapper {
+    .upload-trigger {
+      width: 120px;
+      height: 120px;
+      border: 1px dashed var(--color-border-2);
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: var(--color-fill-2);
+
+      &:hover {
+        border-color: rgb(var(--primary-6));
+      }
+
+      .preview-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 1;
+      }
+
+      .upload-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--color-text-3);
+        font-size: 12px;
+        gap: 8px;
+
+        :deep(svg) {
+          width: 24px;
+          height: 24px;
+        }
+      }
+    }
+  }
+
+  .color-input-preview {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    border: 1px solid var(--color-border);
+  }
+}
+
+// 响应式 - 编辑弹窗
+@media (max-width: 768px) {
+  :deep(.knowledge-edit-modal) {
+    .arco-modal {
+      width: 95% !important;
+      max-width: none;
+    }
+
+    .arco-modal-body {
+      padding: 16px;
+    }
+  }
+
+  .edit-form-content {
+    .image-upload-wrapper .upload-trigger {
+      width: 100px;
+      height: 100px;
     }
   }
 }
