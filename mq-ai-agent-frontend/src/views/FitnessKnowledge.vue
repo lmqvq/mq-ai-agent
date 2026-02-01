@@ -42,8 +42,8 @@
               <div class="card-image">
                 <img 
                   :src="item.image" 
-                  :alt="item.title" 
-                  loading="lazy"
+                  :alt="item.title"
+                  decoding="async"
                   @error="handleImageError"
                 />
                 <div class="card-overlay">
@@ -80,8 +80,8 @@
                   <div class="exercise-image">
                     <img 
                       :src="exercise.image" 
-                      :alt="exercise.name" 
-                      loading="lazy"
+                      :alt="exercise.name"
+                      decoding="async"
                       @error="handleImageError"
                     />
                     <div class="play-button" @click="playExerciseVideo(exercise)">
@@ -148,8 +148,8 @@
                     <div class="meal-image">
                       <img 
                         :src="meal.image" 
-                        :alt="meal.name" 
-                        loading="lazy"
+                        :alt="meal.name"
+                        decoding="async"
                         @error="handleImageError"
                       />
                     </div>
@@ -245,8 +245,8 @@
           <img 
             :src="selectedKnowledge.image" 
             :alt="selectedKnowledge.title" 
-            class="detail-image" 
-            loading="lazy"
+            class="detail-image"
+            decoding="async"
           />
         </div>
         <div class="detail-content">
@@ -682,7 +682,7 @@
 </template>
 
 <script>
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted, onUnmounted, onActivated } from 'vue';
 import { useRouter } from 'vue-router';
 import { Message } from '@arco-design/web-vue';
 import { 
@@ -739,6 +739,13 @@ export default {
     const nutrients = ref([]);
     const mealPlans = ref([]);
     const trainingPrograms = ref([]);
+    
+    // 数据缓存标记 - 避免重复加载
+    const dataLoaded = ref(false);
+    // 缓存时间戳
+    const cacheTimestamp = ref(0);
+    // 缓存有效期（5分钟）
+    const CACHE_DURATION = 5 * 60 * 1000;
 
     // 加载基础知识
     const loadBasicsKnowledge = async () => {
@@ -825,8 +832,15 @@ export default {
       }
     };
 
-    // 初始化加载所有数据
-    const loadAllData = async () => {
+    // 初始化加载所有数据（带缓存检查）
+    const loadAllData = async (forceRefresh = false) => {
+      // 检查缓存是否有效
+      const now = Date.now();
+      if (!forceRefresh && dataLoaded.value && (now - cacheTimestamp.value) < CACHE_DURATION) {
+        console.log('[FitnessKnowledge] 使用缓存数据');
+        return;
+      }
+      
       loading.value = true;
       try {
         await Promise.all([
@@ -836,14 +850,37 @@ export default {
           loadMealPlans(),
           loadTrainingPrograms()
         ]);
+        // 标记数据已加载并记录时间戳
+        dataLoaded.value = true;
+        cacheTimestamp.value = Date.now();
       } catch (error) {
         Message.error('加载数据失败，请刷新重试');
       } finally {
         loading.value = false;
       }
     };
+    
+    // 强制刷新数据（编辑后调用）
+    const refreshData = () => {
+      loadAllData(true);
+    };
 
     onMounted(() => {
+      loadAllData();
+    });
+    
+    // 组件卸载时清理
+    onUnmounted(() => {
+      // 关闭所有打开的弹窗
+      showKnowledgeModal.value = false;
+      showVideoModal.value = false;
+      showEditModal.value = false;
+      selectedKnowledge.value = null;
+      selectedExercise.value = null;
+    });
+    
+    // keep-alive 组件激活时检查缓存
+    onActivated(() => {
       loadAllData();
     });
 
@@ -1226,11 +1263,11 @@ export default {
    FitnessKnowledge.vue 样式 - 使用CSS变量实现主题切换
 ================================================================ */
 
-// 图片加载优化
+// 图片加载优化 - 移除不必要的过渡动画
 img {
-  opacity: 1;
-  transition: opacity 0.3s ease-in-out;
-  background: linear-gradient(135deg, var(--theme-color-primary) 0%, #764ba2 100%);
+  // 使用 GPU 加速渲染
+  will-change: auto;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   
   &[alt="图片加载失败"] {
     min-height: 200px;
@@ -1258,7 +1295,8 @@ img {
   background: var(--theme-bg-card);
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  // 只对 transform 和 color 做动画（GPU加速）
+  transition: transform 0.25s ease, color 0.25s ease;
   margin-bottom: 20px;
   box-shadow: var(--theme-shadow-sm);
   font-weight: 500;
@@ -1272,8 +1310,6 @@ img {
 
   &:hover {
     transform: translateX(-4px);
-    box-shadow: var(--theme-shadow-md);
-    border-color: var(--theme-color-primary);
     color: var(--theme-color-primary);
   }
 }
@@ -1336,7 +1372,8 @@ img {
       border-radius: 12px;
       color: var(--theme-text-secondary);
       cursor: pointer;
-      transition: all 0.3s ease;
+      // GPU 加速动画
+      transition: color 0.2s ease, background-color 0.2s ease;
       font-weight: 500;
 
       :deep(svg) {
@@ -1377,9 +1414,14 @@ img {
   border-radius: 16px;
   overflow: hidden;
   background: var(--theme-bg-card);
-  transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
+  // GPU 加速
+  transform: translateZ(0);
+  will-change: transform;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  // 静态阴影
+  box-shadow: var(--theme-shadow-md);
 
   &::before {
     content: '';
@@ -1391,19 +1433,18 @@ img {
     background: linear-gradient(90deg, var(--theme-color-primary) 0%, #764ba2 100%);
     transform: scaleX(0);
     transition: transform 0.3s ease;
+    z-index: 1;
   }
 
   &:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--theme-shadow-lg);
-    border-color: var(--theme-color-primary);
+    transform: translateY(-6px) translateZ(0);
 
     &::before {
       transform: scaleX(1);
     }
 
     .card-image img {
-      transform: scale(1.05);
+      transform: scale(1.03);
     }
   }
 
@@ -1411,12 +1452,13 @@ img {
     position: relative;
     height: 220px;
     overflow: hidden;
-    background: linear-gradient(135deg, var(--theme-color-primary) 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 
     img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      transform: translateZ(0);
       transition: transform 0.3s ease;
     }
 
@@ -1465,7 +1507,9 @@ img {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  // GPU 加速
+  transform: translateZ(0);
+  transition: transform 0.2s ease, background-color 0.2s ease;
   z-index: 10;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 
@@ -1476,7 +1520,7 @@ img {
 
   &:hover {
     background: #764ba2;
-    transform: scale(1.1);
+    transform: scale(1.1) translateZ(0);
   }
 
   &.inline {
