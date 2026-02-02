@@ -1,138 +1,157 @@
 <template>
   <div class="register-container">
-    <!-- 健身主题背景 -->
-    <div class="fitness-background">
-      <!-- 健身器材剪影背景 -->
-      <div class="fitness-silhouettes">
-        <svg class="silhouette dumbbell-1" viewBox="0 0 100 40" xmlns="http://www.w3.org/2000/svg">
-          <path d="M10 15 L15 15 L15 10 L25 10 L25 30 L15 30 L15 25 L10 25 Z M75 15 L85 15 L85 10 L90 10 L90 30 L85 30 L85 25 L75 25 Z M25 18 L75 18 L75 22 L25 22 Z" fill="rgba(255,255,255,0.03)"/>
-        </svg>
-        <svg class="silhouette barbell-1" viewBox="0 0 120 30" xmlns="http://www.w3.org/2000/svg">
-          <path d="M5 10 L15 10 L15 5 L20 5 L20 25 L15 25 L15 20 L5 20 Z M100 10 L110 10 L110 5 L115 5 L115 25 L110 25 L110 20 L100 20 Z M20 13 L100 13 L100 17 L20 17 Z" fill="rgba(255,255,255,0.04)"/>
-        </svg>
-        <svg class="silhouette kettlebell-1" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg">
-          <path d="M25 10 L35 10 L35 5 L40 5 L40 15 L35 15 L35 20 L45 25 L45 65 C45 70 40 75 35 75 L25 75 C20 75 15 70 15 65 L15 25 L25 20 Z" fill="rgba(255,255,255,0.03)"/>
-        </svg>
-        <svg class="silhouette treadmill-1" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
-          <path d="M10 40 L90 40 L90 50 L10 50 Z M20 20 L30 20 L30 40 L20 40 Z M70 15 L80 15 L80 25 L70 25 Z M15 50 C12 50 10 52 10 55 C10 58 12 60 15 60 C18 60 20 58 20 55 C20 52 18 50 15 50 Z M85 50 C82 50 80 52 80 55 C80 58 82 60 85 60 C88 60 90 58 90 55 C90 52 88 50 85 50 Z" fill="rgba(255,255,255,0.04)"/>
-        </svg>
-      </div>
-
-      <!-- 动态粒子效果 -->
-      <div class="particle-system">
-        <div class="particle" v-for="i in 20" :key="i" :style="getParticleStyle(i)"></div>
-      </div>
-
-      <!-- 增强的肌肉纹理背景 -->
-      <div class="muscle-texture"></div>
-
-      <!-- 升级的浮动图标 -->
-      <div class="floating-icons">
-        <div class="icon-item" v-for="i in 8" :key="i">
-          <icon-trophy v-if="i % 4 === 1" />
-          <icon-fire v-else-if="i % 4 === 2" />
-          <icon-heart v-else-if="i % 4 === 3" />
-          <svg v-else viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 7V9C15 11.8 12.8 14 10 14S5 11.8 5 9V7L3 7V9C3 12.9 6.1 16 10 16V22H14V16C17.9 16 21 12.9 21 9Z"/>
+    <!-- 左侧品牌展示区 -->
+    <div class="brand-section">
+      <div class="brand-content">
+        <!-- Logo -->
+        <div class="brand-logo">
+          <svg viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="14" fill="#7BE3C0"/>
+            <path d="M12 16 L16 12 L20 16 L16 20 Z" fill="white"/>
           </svg>
+          <span>AI健身</span>
         </div>
-      </div>
-    </div>
-
-    <div class="register-card">
-      <div class="register-header">
-        <div class="logo">
-          <div class="logo-icon">
-            <icon-robot />
-            <div class="pulse-ring"></div>
+        
+        <!-- 主标题 -->
+        <div class="brand-headline">
+          <h1>开启您的</h1>
+          <h1>健身新旅程</h1>
+        </div>
+        
+        <!-- 副标题 -->
+        <p class="brand-subtitle">
+          加入我们，获取专属 AI 健身教练，定制您的完美训练计划
+        </p>
+        
+        <!-- 特性亮点 -->
+        <div class="brand-features">
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+            </div>
+            <span>免费个性化评估</span>
           </div>
-          <h1>AI健身教练</h1>
-        </div>
-        <p>创建账号，开启您的健身之旅</p>
-        <div class="fitness-motto">
-          <span>🚀 开始您的蜕变之路</span>
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+            </div>
+            <span>7天24小AI指导</span>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+            </div>
+            <span>进度跟踪与分析</span>
+          </div>
         </div>
       </div>
       
-      <div class="register-form">
-        <a-form :model="registerForm" @submit="handleRegister" layout="vertical">
-          <a-form-item 
-            label="账号" 
-            field="userAccount"
-            :rules="[
-              { required: true, message: '请输入账号' },
-              { minLength: 4, message: '账号至少4个字符' }
-            ]"
-          >
-            <a-input 
-              v-model="registerForm.userAccount" 
-              placeholder="请输入您的账号（至少4个字符）"
-              size="large"
-              :disabled="loading"
+      <!-- 装饰元素 -->
+      <div class="brand-decoration">
+        <div class="deco-circle deco-1"></div>
+        <div class="deco-circle deco-2"></div>
+        <div class="deco-dot dot-1"></div>
+        <div class="deco-dot dot-2"></div>
+      </div>
+    </div>
+    
+    <!-- 右侧表单区 -->
+    <div class="form-section">
+      <div class="form-wrapper">
+        <div class="form-header">
+          <h2>创建账号</h2>
+          <p>填写信息开始您的健身之旅</p>
+        </div>
+      
+        <div class="register-form">
+          <a-form :model="registerForm" @submit="handleRegister" layout="vertical">
+            <a-form-item 
+              label="账号" 
+              field="userAccount"
+              :rules="[
+                { required: true, message: '请输入账号' },
+                { minLength: 4, message: '账号至少4个字符' }
+              ]"
             >
-              <template #prefix>
-                <icon-user />
-              </template>
-            </a-input>
-          </a-form-item>
+              <a-input 
+                v-model="registerForm.userAccount" 
+                placeholder="请输入您的账号"
+                size="large"
+                :disabled="loading"
+              >
+                <template #prefix>
+                  <icon-user />
+                </template>
+              </a-input>
+            </a-form-item>
+            
+            <a-form-item 
+              label="密码" 
+              field="userPassword"
+              :rules="[
+                { required: true, message: '请输入密码' },
+                { minLength: 6, message: '密码至少8个字符' }
+              ]"
+            >
+              <a-input-password 
+                v-model="registerForm.userPassword" 
+                placeholder="请输入您的密码"
+                size="large"
+                :disabled="loading"
+              >
+                <template #prefix>
+                  <icon-lock />
+                </template>
+              </a-input-password>
+            </a-form-item>
+            
+            <a-form-item 
+              label="确认密码" 
+              field="checkPassword"
+              :rules="[
+                { required: true, message: '请确认密码' },
+                { validator: validatePassword }
+              ]"
+            >
+              <a-input-password 
+                v-model="registerForm.checkPassword" 
+                placeholder="请再次输入密码"
+                size="large"
+                :disabled="loading"
+                @keyup.enter="handleRegister"
+              >
+                <template #prefix>
+                  <icon-lock />
+                </template>
+              </a-input-password>
+            </a-form-item>
+            
+            <a-form-item>
+              <a-button 
+                type="primary" 
+                size="large" 
+                long 
+                :loading="loading"
+                @click="handleRegister"
+              >
+                注册
+              </a-button>
+            </a-form-item>
+          </a-form>
           
-          <a-form-item 
-            label="密码" 
-            field="userPassword"
-            :rules="[
-              { required: true, message: '请输入密码' },
-              { minLength: 6, message: '密码至少8个字符' }
-            ]"
-          >
-            <a-input-password 
-              v-model="registerForm.userPassword" 
-              placeholder="请输入您的密码（至少8个字符）"
-              size="large"
-              :disabled="loading"
-            >
-              <template #prefix>
-                <icon-lock />
-              </template>
-            </a-input-password>
-          </a-form-item>
-          
-          <a-form-item 
-            label="确认密码" 
-            field="checkPassword"
-            :rules="[
-              { required: true, message: '请确认密码' },
-              { validator: validatePassword }
-            ]"
-          >
-            <a-input-password 
-              v-model="registerForm.checkPassword" 
-              placeholder="请再次输入密码"
-              size="large"
-              :disabled="loading"
-              @keyup.enter="handleRegister"
-            >
-              <template #prefix>
-                <icon-lock />
-              </template>
-            </a-input-password>
-          </a-form-item>
-          
-          <a-form-item>
-            <a-button 
-              type="primary" 
-              size="large" 
-              long 
-              :loading="loading"
-              @click="handleRegister"
-            >
-              注册
-            </a-button>
-          </a-form-item>
-        </a-form>
-        
-        <div class="register-footer">
-          <span>已有账号？</span>
-          <a-link @click="goToLogin">去登录</a-link>
+          <div class="register-footer">
+            <span>已有账号？</span>
+            <a-link @click="goToLogin">立即登录</a-link>
+          </div>
         </div>
       </div>
     </div>
@@ -142,19 +161,15 @@
 <script>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { IconRobot, IconUser, IconLock, IconTrophy, IconFire, IconHeart } from '@arco-design/web-vue/es/icon'
+import { IconUser, IconLock } from '@arco-design/web-vue/es/icon'
 import { Message } from '@arco-design/web-vue'
 import { useUserStore } from '@/stores/user'
 
 export default {
   name: 'RegisterPage',
   components: {
-    IconRobot,
     IconUser,
-    IconLock,
-    IconTrophy,
-    IconFire,
-    IconHeart
+    IconLock
   },
   setup() {
     const router = useRouter()
@@ -244,968 +259,502 @@ export default {
       router.push('/login')
     }
 
-    /**
-     * 生成粒子样式
-     */
-    const getParticleStyle = (index) => {
-      const size = Math.random() * 4 + 2
-      const left = Math.random() * 100
-      const animationDelay = (Math.random() + index * 0.1) * 10
-      const animationDuration = Math.random() * 20 + 15
-
-      return {
-        width: `${size}px`,
-        height: `${size}px`,
-        left: `${left}%`,
-        animationDelay: `${animationDelay}s`,
-        animationDuration: `${animationDuration}s`
-      }
-    }
-
     return {
       loading,
       registerForm,
       validatePassword,
       handleRegister,
-      goToLogin,
-      getParticleStyle
+      goToLogin
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+// 薄荷绿主题色变量
+$mint-primary: #7BE3C0;
+$mint-light: #DFF8EE;
+$mint-bg: #F1FCF7;
+$mint-dark: #2CBF8A;
+$warm-accent: #FFB38A;
+$text-dark: #0B0F0D;
+$text-secondary: #5A6B65;
+
 .register-container {
   min-height: 100vh;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-bg-1);
-  position: relative;
-  overflow: hidden;
-  transition: background 0.3s ease;
   
-  // 暗黑模式渐变背景
-  body[arco-theme='dark'] & {
-    background: linear-gradient(135deg, 
-      rgba(15, 15, 35, 1) 0%, 
-      rgba(26, 26, 46, 1) 25%, 
-      rgba(22, 33, 62, 1) 50%, 
-      rgba(15, 52, 96, 1) 75%, 
-      rgba(30, 60, 114, 1) 100%
-    );
+  body:not([arco-theme='dark']) & {
+    background: #FFFFFF;
   }
   
-  // 白色模式渐变背景
-  body:not([arco-theme='dark']) & {
-    background: linear-gradient(135deg, 
-      #f5f7fa 0%, 
-      #e8ecf1 25%, 
-      #dbe2ea 50%, 
-      #d2dae5 75%, 
-      #c9d3e0 100%
-    );
+  body[arco-theme='dark'] & {
+    background: #0f0f1a;
   }
 }
 
-.fitness-background {
+// 左侧品牌展示区
+.brand-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px 80px;
+  position: relative;
+  overflow: hidden;
+  
+  body:not([arco-theme='dark']) & {
+    background: linear-gradient(135deg, $mint-bg 0%, $mint-light 100%);
+  }
+  
+  body[arco-theme='dark'] & {
+    background: linear-gradient(135deg, #1a2a3a 0%, #0f1f2f 100%);
+  }
+}
+
+.brand-content {
+  position: relative;
+  z-index: 2;
+  max-width: 480px;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 48px;
+  
+  svg {
+    width: 40px;
+    height: 40px;
+  }
+  
+  span {
+    font-size: 20px;
+    font-weight: 700;
+    
+    body:not([arco-theme='dark']) & {
+      color: $text-dark;
+    }
+    
+    body[arco-theme='dark'] & {
+      color: #FFFFFF;
+    }
+  }
+}
+
+.brand-headline {
+  margin-bottom: 24px;
+  
+  h1 {
+    margin: 0;
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -1px;
+    
+    body:not([arco-theme='dark']) & {
+      color: $text-dark;
+    }
+    
+    body[arco-theme='dark'] & {
+      color: #FFFFFF;
+    }
+    
+    &:last-child {
+      body:not([arco-theme='dark']) & {
+        color: $mint-dark;
+      }
+      
+      body[arco-theme='dark'] & {
+        color: $mint-primary;
+      }
+    }
+  }
+}
+
+.brand-subtitle {
+  font-size: 18px;
+  line-height: 1.6;
+  margin: 0 0 48px 0;
+  
+  body:not([arco-theme='dark']) & {
+    color: $text-secondary;
+  }
+  
+  body[arco-theme='dark'] & {
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+.brand-features {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  
+  .feature-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    svg {
+      width: 20px;
+      height: 20px;
+      
+      body:not([arco-theme='dark']) & {
+        stroke: $mint-dark;
+      }
+      
+      body[arco-theme='dark'] & {
+        stroke: $mint-primary;
+      }
+    }
+  }
+  
+  span {
+    font-size: 16px;
+    font-weight: 500;
+    
+    body:not([arco-theme='dark']) & {
+      color: $text-dark;
+    }
+    
+    body[arco-theme='dark'] & {
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+}
+
+// 装饰元素
+.brand-decoration {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  pointer-events: none;
   z-index: 1;
-  transition: all 0.3s ease;
+}
 
-  // 现代几何背景层
-  &::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: 
-      radial-gradient(circle at 30% 40%, rgba(var(--success-rgb), 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 70% 60%, rgba(var(--warning-rgb), 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 50% 50%, rgba(var(--primary-rgb), 0.05) 0%, transparent 50%);
-    animation: gradient-shift 20s ease infinite;
-  }
-
-  // 网格图案
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: 
-      linear-gradient(rgba(var(--success-rgb), 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(var(--success-rgb), 0.03) 1px, transparent 1px);
-    background-size: 50px 50px;
-    animation: grid-move 60s linear infinite;
-    
-    body[arco-theme='dark'] & {
-      opacity: 0.3;
-    }
+.deco-circle {
+  position: absolute;
+  border-radius: 50%;
+  
+  &.deco-1 {
+    width: 400px;
+    height: 400px;
+    top: -150px;
+    right: -100px;
     
     body:not([arco-theme='dark']) & {
-      opacity: 0.15;
+      background: rgba($mint-primary, 0.3);
     }
-  }
-
-  // 几何形状装饰
-  .fitness-silhouettes {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-
-    .silhouette {
-      position: absolute;
-      opacity: 0;
-      animation: geometric-float 15s ease-in-out infinite;
-      
-      body[arco-theme='dark'] & {
-        opacity: 0.06;
-        filter: brightness(1.2);
-      }
-      
-      body:not([arco-theme='dark']) & {
-        opacity: 0.08;
-        filter: brightness(0.8) contrast(1.1);
-      }
-
-      path {
-        body[arco-theme='dark'] & {
-          fill: rgba(255, 255, 255, 0.08);
-        }
-        
-        body:not([arco-theme='dark']) & {
-          fill: rgba(0, 0, 0, 0.06);
-        }
-      }
-
-      &.dumbbell-1 {
-        top: 15%;
-        left: 8%;
-        width: 80px;
-        height: 32px;
-        animation-delay: 0s;
-      }
-
-      &.barbell-1 {
-        top: 70%;
-        right: 10%;
-        width: 100px;
-        height: 25px;
-        animation-delay: 5s;
-      }
-
-      &.kettlebell-1 {
-        bottom: 20%;
-        left: 12%;
-        width: 40px;
-        height: 60px;
-        animation-delay: 10s;
-      }
-
-      &.treadmill-1 {
-        top: 40%;
-        right: 15%;
-        width: 80px;
-        height: 48px;
-        animation-delay: 15s;
-      }
-    }
-  }
-
-  // 优雅的粒子系统
-  .particle-system {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-
-    .particle {
-      position: absolute;
-      border-radius: 50%;
-      animation: elegant-particle-float linear infinite;
-      top: 110%;
-      
-      body[arco-theme='dark'] & {
-        background: radial-gradient(circle, 
-          rgba(var(--success-rgb), 0.3) 0%, 
-          rgba(var(--warning-rgb), 0.2) 50%, 
-          transparent 100%
-        );
-      }
-      
-      body:not([arco-theme='dark']) & {
-        background: radial-gradient(circle, 
-          rgba(var(--success-rgb), 0.15) 0%, 
-          rgba(var(--warning-rgb), 0.1) 50%, 
-          transparent 100%
-        );
-      }
-    }
-  }
-
-  // 光影纹理层
-  .muscle-texture {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 1;
-    transition: opacity 0.3s ease;
     
     body[arco-theme='dark'] & {
-      background-image:
-        radial-gradient(ellipse at 30% 25%, rgba(var(--success-rgb), 0.12) 0%, transparent 50%),
-        radial-gradient(ellipse at 70% 75%, rgba(var(--warning-rgb), 0.1) 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 50%, rgba(var(--primary-rgb), 0.08) 0%, transparent 50%);
+      background: rgba($mint-dark, 0.15);
     }
+  }
+  
+  &.deco-2 {
+    width: 250px;
+    height: 250px;
+    bottom: -80px;
+    left: -60px;
     
     body:not([arco-theme='dark']) & {
-      background-image:
-        radial-gradient(ellipse at 30% 25%, rgba(var(--success-rgb), 0.06) 0%, transparent 50%),
-        radial-gradient(ellipse at 70% 75%, rgba(var(--warning-rgb), 0.05) 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 50%, rgba(var(--primary-rgb), 0.04) 0%, transparent 50%);
+      background: rgba($mint-primary, 0.2);
     }
     
-    animation: texture-pulse 12s ease-in-out infinite;
-  }
-
-  // 精致的浮动图标
-  .floating-icons {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-
-    .icon-item {
-      position: absolute;
-      font-size: 32px;
-      animation: elegant-icon-float 12s ease-in-out infinite;
-      transition: all 0.3s ease;
-      
-      body[arco-theme='dark'] & {
-        color: rgba(255, 255, 255, 0.08);
-        filter: drop-shadow(0 0 10px rgba(var(--success-rgb), 0.15));
-      }
-      
-      body:not([arco-theme='dark']) & {
-        color: rgba(0, 0, 0, 0.05);
-        filter: drop-shadow(0 0 10px rgba(var(--success-rgb), 0.1));
-      }
-
-      :deep(svg) {
-        width: 40px;
-        height: 40px;
-        transition: all 0.4s ease;
-      }
-
-      &:nth-child(1) {
-        top: 10%;
-        left: 8%;
-        animation-delay: 0s;
-      }
-
-      &:nth-child(2) {
-        top: 20%;
-        right: 10%;
-        animation-delay: 1.5s;
-      }
-
-      &:nth-child(3) {
-        top: 50%;
-        left: 15%;
-        animation-delay: 3s;
-      }
-
-      &:nth-child(4) {
-        bottom: 20%;
-        right: 12%;
-        animation-delay: 4.5s;
-      }
-
-      &:nth-child(5) {
-        bottom: 10%;
-        left: 20%;
-        animation-delay: 6s;
-      }
-
-      &:nth-child(6) {
-        top: 35%;
-        right: 20%;
-        animation-delay: 7.5s;
-      }
-
-      &:nth-child(7) {
-        top: 70%;
-        right: 8%;
-        animation-delay: 9s;
-      }
-
-      &:nth-child(8) {
-        bottom: 35%;
-        left: 5%;
-        animation-delay: 10.5s;
-      }
+    body[arco-theme='dark'] & {
+      background: rgba($mint-dark, 0.1);
     }
   }
 }
 
-.register-card {
-  width: 480px;
-  background: var(--color-bg-2);
-  -webkit-backdrop-filter: blur(30px);
-  backdrop-filter: blur(30px);
-  border-radius: 24px;
-  padding: 48px;
-  position: relative;
-  z-index: 2;
-  border: 1px solid var(--color-border-2);
-  transform: translateY(0);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+.deco-dot {
+  position: absolute;
+  border-radius: 50%;
+  background: $warm-accent;
   
-  body[arco-theme='dark'] & {
-    background: rgba(30, 30, 40, 0.85);
-    box-shadow:
-      0 20px 60px rgba(0, 0, 0, 0.4),
-      0 0 0 1px rgba(255, 255, 255, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  &.dot-1 {
+    width: 12px;
+    height: 12px;
+    top: 20%;
+    right: 15%;
+    opacity: 0.8;
   }
+  
+  &.dot-2 {
+    width: 8px;
+    height: 8px;
+    bottom: 30%;
+    right: 25%;
+    opacity: 0.6;
+  }
+}
+
+// 右侧表单区
+.form-section {
+  width: 520px;
+  min-width: 520px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
   
   body:not([arco-theme='dark']) & {
-    background: rgba(255, 255, 255, 0.95);
-    box-shadow:
-      0 20px 60px rgba(0, 0, 0, 0.08),
-      0 0 0 1px rgba(0, 0, 0, 0.05),
-      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    background: #FFFFFF;
   }
-
-  &:hover {
-    transform: translateY(-6px);
-    
-    body[arco-theme='dark'] & {
-      box-shadow:
-        0 30px 80px rgba(0, 0, 0, 0.5),
-        0 0 0 1px rgba(255, 255, 255, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    }
-    
-    body:not([arco-theme='dark']) & {
-      box-shadow:
-        0 30px 80px rgba(0, 0, 0, 0.12),
-        0 0 0 1px rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 1);
-    }
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 24px;
-    z-index: -1;
-    opacity: 0.5;
-    
-    body[arco-theme='dark'] & {
-      background: linear-gradient(135deg,
-        rgba(var(--success-rgb), 0.08) 0%,
-        transparent 50%,
-        rgba(var(--warning-rgb), 0.08) 100%);
-    }
-    
-    body:not([arco-theme='dark']) & {
-      background: linear-gradient(135deg,
-        rgba(var(--success-rgb), 0.03) 0%,
-        transparent 50%,
-        rgba(var(--warning-rgb), 0.03) 100%);
-    }
+  
+  body[arco-theme='dark'] & {
+    background: #0f0f1a;
   }
 }
 
-.register-header {
-  text-align: center;
-  margin-bottom: 44px;
-  position: relative;
+.form-wrapper {
+  width: 100%;
+  max-width: 360px;
+}
 
-  // 添加装饰性背景元素
-  &::before {
-    content: '';
-    position: absolute;
-    top: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 120px;
-    height: 4px;
-    background: linear-gradient(90deg,
-      transparent 0%,
-      rgba(78, 205, 196, 0.3) 25%,
-      rgba(255, 195, 113, 0.3) 75%,
-      transparent 100%);
-    border-radius: 2px;
-  }
-
-  .logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    margin-bottom: 24px;
-
-    .logo-icon {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 72px;
-      height: 72px;
-      background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 50%, #ffc371 100%);
-      border-radius: 50%;
-      box-shadow:
-        0 12px 40px rgba(78, 205, 196, 0.4),
-        inset 0 2px 0 rgba(255, 255, 255, 0.3),
-        inset 0 -2px 0 rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-
-      &:hover {
-        transform: scale(1.05);
-        box-shadow:
-          0 16px 50px rgba(78, 205, 196, 0.5),
-          inset 0 2px 0 rgba(255, 255, 255, 0.4);
-      }
-
-      :deep(svg) {
-        width: 38px;
-        height: 38px;
-        color: white;
-        z-index: 2;
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-      }
-
-      .pulse-ring {
-        position: absolute;
-        top: -6px;
-        left: -6px;
-        right: -6px;
-        bottom: -6px;
-        border: 3px solid rgba(78, 205, 196, 0.4);
-        border-radius: 50%;
-        animation: enhanced-pulse-ring 3s ease-out infinite;
-      }
-
-      // 添加内部光晕效果
-      &::after {
-        content: '';
-        position: absolute;
-        top: 8px;
-        left: 8px;
-        right: 8px;
-        bottom: 8px;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
-        border-radius: 50%;
-        z-index: 1;
-      }
+.form-header {
+  margin-bottom: 32px;
+  
+  h2 {
+    margin: 0 0 8px 0;
+    font-size: 28px;
+    font-weight: 700;
+    
+    body:not([arco-theme='dark']) & {
+      color: $text-dark;
     }
-
-    h1 {
-      margin: 0;
-      font-size: 36px;
-      font-weight: 900;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-      letter-spacing: -0.5px;
-      position: relative;
-
-      &::after {
-        content: '';
-        position: absolute;
-        bottom: -4px;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, transparent 0%, rgba(102, 126, 234, 0.3) 50%, transparent 100%);
-        border-radius: 1px;
-      }
+    
+    body[arco-theme='dark'] & {
+      color: #FFFFFF;
     }
   }
-
+  
   p {
-    margin: 0 0 20px 0;
-    color: #555;
-    font-size: 17px;
-    font-weight: 500;
-    line-height: 1.4;
-    opacity: 0.9;
-  }
-
-  .fitness-motto {
-    display: inline-block;
-    padding: 12px 24px;
-    background: linear-gradient(135deg,
-      rgba(78, 205, 196, 0.15) 0%,
-      rgba(255, 195, 113, 0.12) 50%,
-      rgba(255, 107, 107, 0.1) 100%);
-    border-radius: 25px;
-    border: 1px solid rgba(78, 205, 196, 0.25);
-    box-shadow:
-      0 4px 16px rgba(78, 205, 196, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s ease;
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow:
-        0 8px 24px rgba(78, 205, 196, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    margin: 0;
+    font-size: 15px;
+    
+    body:not([arco-theme='dark']) & {
+      color: $text-secondary;
     }
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.2) 50%,
-        transparent 100%);
-      animation: shimmer 3s ease-in-out infinite;
-    }
-
-    span {
-      font-size: 15px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #4ecdc4 0%, #ffc371 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      position: relative;
-      z-index: 1;
+    
+    body[arco-theme='dark'] & {
+      color: rgba(255, 255, 255, 0.6);
     }
   }
 }
 
 .register-form {
   :deep(.arco-form-item-label) {
-    font-weight: 700;
-    color: #2c3e50;
-    font-size: 10px;
-    margin-bottom: 10px;
-    position: relative;
-
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      width: 20px;
-      height: 2px;
-      background: linear-gradient(90deg, #4ecdc4 0%, #ffc371 100%);
-      border-radius: 1px;
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 8px;
+    
+    body:not([arco-theme='dark']) & {
+      color: $text-dark;
+    }
+    
+    body[arco-theme='dark'] & {
+      color: rgba(255, 255, 255, 0.85);
     }
   }
 
   :deep(.arco-input-wrapper) {
-    border-radius: 16px;
-    border: 2px solid #e1e8ed;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    background: rgba(255, 255, 255, 0.9);
-    -webkit-backdrop-filter: blur(15px);
-    backdrop-filter: blur(15px);
-    box-shadow:
-      0 2px 8px rgba(0, 0, 0, 0.04),
-      inset 0 1px 0 rgba(255, 255, 255, 0.6);
-    position: relative;
-    overflow: hidden;
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg,
-        transparent 0%,
-        rgba(78, 205, 196, 0.1) 50%,
-        transparent 100%);
-      transition: left 0.6s ease;
-    }
-
-    &:hover {
-      border-color: #4ecdc4;
-      box-shadow:
-        0 0 0 4px rgba(78, 205, 196, 0.12),
-        0 4px 16px rgba(78, 205, 196, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.7);
-      transform: translateY(-1px);
-
-      &::before {
-        left: 100%;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    
+    body:not([arco-theme='dark']) & {
+      border: 1px solid #E5E7EB;
+      background: #F9FAFB;
+      
+      &:hover {
+        border-color: $mint-primary;
+        background: #FFFFFF;
+      }
+      
+      &.arco-input-focus {
+        border-color: $mint-dark;
+        background: #FFFFFF;
+        box-shadow: 0 0 0 3px rgba(44, 191, 138, 0.12);
       }
     }
-
-    &.arco-input-focus {
-      border-color: #4ecdc4;
-      box-shadow:
-        0 0 0 4px rgba(78, 205, 196, 0.2),
-        0 8px 24px rgba(78, 205, 196, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8);
-      transform: translateY(-2px);
+    
+    body[arco-theme='dark'] & {
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.05);
+      
+      &:hover {
+        border-color: rgba(123, 227, 192, 0.5);
+      }
+      
+      &.arco-input-focus {
+        border-color: $mint-primary;
+        box-shadow: 0 0 0 3px rgba(123, 227, 192, 0.1);
+      }
     }
   }
 
   :deep(.arco-input) {
-    font-size: 16px;
-    padding: 14px 18px;
-    background: transparent;
-    font-weight: 500;
-    color: #2c3e50;
-
-    &::placeholder {
-      color: #a0aec0;
-      font-weight: 400;
-    }
-  }
-
-  :deep(.arco-btn-primary) {
-    border-radius: 16px;
-    font-weight: 700;
-    font-size: 17px;
-    height: 54px;
-    background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 50%, #ffc371 100%);
-    border: none;
-    box-shadow:
-      0 6px 20px rgba(78, 205, 196, 0.35),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.1);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-    letter-spacing: 0.5px;
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.3) 50%,
-        transparent 100%);
-      transition: left 0.6s ease;
-    }
-
-    &:hover {
-      transform: translateY(-3px);
-      box-shadow:
-        0 12px 32px rgba(78, 205, 196, 0.45),
-        inset 0 1px 0 rgba(255, 255, 255, 0.4);
-
-      &::before {
-        left: 100%;
+    font-size: 15px;
+    padding: 12px 16px;
+    
+    body:not([arco-theme='dark']) & {
+      color: $text-dark;
+      
+      &::placeholder {
+        color: #9CA3AF;
       }
     }
-
-    &:active {
-      transform: translateY(-1px);
-      box-shadow:
-        0 4px 16px rgba(78, 205, 196, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    }
-
-    &.arco-btn-loading {
-      &::before {
-        animation: button-loading 1.5s linear infinite;
+    
+    body[arco-theme='dark'] & {
+      color: #FFFFFF;
+      
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.4);
       }
     }
   }
 
   :deep(.arco-input-prefix) {
-    color: #4ecdc4;
-    font-size: 18px;
-    margin-right: 4px;
-    transition: all 0.3s ease;
-
-    svg {
-      filter: drop-shadow(0 1px 2px rgba(78, 205, 196, 0.3));
+    margin-right: 10px;
+    
+    body:not([arco-theme='dark']) & {
+      color: #9CA3AF;
+    }
+    
+    body[arco-theme='dark'] & {
+      color: rgba(255, 255, 255, 0.4);
+    }
+  }
+  
+  :deep(.arco-input-wrapper:focus-within .arco-input-prefix) {
+    body:not([arco-theme='dark']) & {
+      color: $mint-dark;
+    }
+    
+    body[arco-theme='dark'] & {
+      color: $mint-primary;
     }
   }
 
-  :deep(.arco-input-wrapper:focus-within .arco-input-prefix) {
-    color: #ffc371;
-    transform: scale(1.1);
-
-    svg {
-      filter: drop-shadow(0 2px 4px rgba(255, 195, 113, 0.4));
+  :deep(.arco-btn-primary) {
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 15px;
+    height: 50px;
+    border: none;
+    transition: all 0.2s ease;
+    margin-top: 8px;
+    
+    body:not([arco-theme='dark']) & {
+      background: $text-dark;
+      color: #FFFFFF;
+      
+      &:hover {
+        background: #1a1f1d;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+      
+      &:active {
+        transform: translateY(0);
+      }
+    }
+    
+    body[arco-theme='dark'] & {
+      background: $mint-primary;
+      color: $text-dark;
+      
+      &:hover {
+        background: $mint-dark;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(123, 227, 192, 0.3);
+      }
+      
+      &:active {
+        transform: translateY(0);
+      }
     }
   }
 }
 
 .register-footer {
   text-align: center;
-  margin-top: 36px;
-  color: #718096;
-  font-size: 16px;
-  font-weight: 500;
+  margin-top: 24px;
+  font-size: 14px;
+  
+  body:not([arco-theme='dark']) & {
+    color: $text-secondary;
+  }
+  
+  body[arco-theme='dark'] & {
+    color: rgba(255, 255, 255, 0.6);
+  }
 
   :deep(.arco-link) {
-    color: #4ecdc4;
-    font-weight: 700;
-    margin-left: 6px;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    position: relative;
-    padding: 2px 8px;
-    border-radius: 8px;
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, rgba(78, 205, 196, 0.1) 0%, rgba(255, 195, 113, 0.1) 100%);
-      border-radius: 8px;
-      opacity: 0;
-      transition: opacity 0.3s ease;
+    font-weight: 600;
+    margin-left: 4px;
+    transition: color 0.2s ease;
+    
+    body:not([arco-theme='dark']) & {
+      color: $mint-dark;
+      
+      &:hover {
+        color: darken($mint-dark, 10%);
+      }
     }
-
-    &:hover {
-      color: #ff6b6b;
-      text-shadow: 0 0 12px rgba(255, 107, 107, 0.4);
-      transform: translateY(-1px);
-
-      &::before {
-        opacity: 1;
+    
+    body[arco-theme='dark'] & {
+      color: $mint-primary;
+      
+      &:hover {
+        color: lighten($mint-primary, 10%);
       }
     }
   }
 }
 
-// 优化的动画效果系统
-@keyframes gradient-shift {
-  0%, 100% {
-    transform: translate(0, 0) rotate(0deg);
+// 响应式设计
+@media (max-width: 1024px) {
+  .brand-section {
+    display: none;
   }
-  25% {
-    transform: translate(2%, -2%) rotate(1deg);
-  }
-  50% {
-    transform: translate(-1%, 3%) rotate(-0.5deg);
-  }
-  75% {
-    transform: translate(-2%, -1%) rotate(0.5deg);
-  }
-}
-
-@keyframes grid-move {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate(50px, 50px);
-  }
-}
-
-@keyframes geometric-float {
-  0%, 100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-15px) rotate(5deg);
-  }
-}
-
-@keyframes elegant-particle-float {
-  0% {
-    transform: translateY(0) translateX(0) scale(0);
-    opacity: 0;
-  }
-  5% {
-    opacity: 0.6;
-    transform: scale(1);
-  }
-  95% {
-    opacity: 0.6;
-  }
-  100% {
-    transform: translateY(-120vh) translateX(30px) scale(0);
-    opacity: 0;
-  }
-}
-
-@keyframes texture-pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.85;
-    transform: scale(1.05);
-  }
-}
-
-@keyframes elegant-icon-float {
-  0%, 100% {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-  }
-  25% {
-    transform: translateY(-10px) scale(1.05);
-  }
-  50% {
-    transform: translateY(-5px) scale(1);
-    opacity: 0.8;
-  }
-  75% {
-    transform: translateY(8px) scale(1.02);
-  }
-}
-
-@keyframes enhanced-pulse-ring {
-  0% {
-    transform: scale(1);
-    opacity: 0.8;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 0.4;
-  }
-  100% {
-    transform: scale(1.5);
-    opacity: 0;
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
-@keyframes button-loading {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
-// 增强的响应式设计
-@media (max-width: 768px) {
-  .register-container {
-    padding: 20px;
-  }
-
-  .register-card {
+  
+  .form-section {
     width: 100%;
-    max-width: 420px;
-    padding: 40px 28px;
-    border-radius: 24px;
-  }
-
-  .register-header {
-    margin-bottom: 36px;
-
-    .logo {
-      gap: 16px;
-
-      .logo-icon {
-        width: 64px;
-        height: 64px;
-
-        :deep(svg) {
-          width: 32px;
-          height: 32px;
-        }
-      }
-
-      h1 {
-        font-size: 30px;
-      }
-    }
-  }
-
-  .fitness-background {
-    .fitness-silhouettes .silhouette {
-      &.dumbbell-1 {
-        width: 60px;
-        height: 24px;
-      }
-
-      &.barbell-1 {
-        width: 80px;
-        height: 20px;
-      }
-
-      &.kettlebell-1 {
-        width: 32px;
-        height: 48px;
-      }
-
-      &.treadmill-1 {
-        width: 64px;
-        height: 38px;
-      }
-    }
-
-    .floating-icons .icon-item {
-      :deep(svg) {
-        width: 28px;
-        height: 28px;
-      }
+    min-width: auto;
+    min-height: 100vh;
+    
+    body:not([arco-theme='dark']) & {
+      background: linear-gradient(180deg, #FFFFFF 0%, $mint-bg 100%);
     }
   }
 }
 
 @media (max-width: 480px) {
-  .register-card {
-    padding: 32px 20px;
-    margin: 0 16px;
+  .form-section {
+    padding: 40px 24px;
   }
-
-  .register-header .logo {
-    flex-direction: column;
-    gap: 12px;
-
-    h1 {
-      font-size: 26px;
+  
+  .form-header {
+    h2 {
+      font-size: 24px;
     }
   }
-
+  
   :deep(.arco-btn-primary) {
-    height: 48px;
-    font-size: 16px;
+    height: 46px;
   }
 }
 </style>
