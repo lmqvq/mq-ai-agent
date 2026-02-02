@@ -9,7 +9,7 @@
             <path d="M12 16 L16 12 L20 16 L16 20 Z" fill="var(--landing-bg)"/>
           </svg>
         </div>
-        <span class="logo-text">AI健身</span>
+        <span class="logo-text">AI健身教练</span>
       </div>
 
       <!-- 导航链接 -->

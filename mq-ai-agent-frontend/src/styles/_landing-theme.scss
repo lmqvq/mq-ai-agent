@@ -1,0 +1,204 @@
+// =================================================================
+// 薄荷绿主题变量系统
+// 基于着陆页设计规范，统一全局配色
+// 
+// 设计规范：
+// - 白底占比 ≥80%，Mint 只做空气感
+// - 主标题"引导词 + 超大粗体主词"
+// - 双 CTA：黑主按钮 + Mint 次按钮（同尺寸）
+// - 阴影极轻、圆角统一、间距大
+// =================================================================
+
+// -----------------------------------------------------------------
+// SCSS 变量（用于 SCSS 文件内计算和引用）
+// -----------------------------------------------------------------
+
+// Neutral（中性色）
+$mint-neutral-00: #FFFFFF;        // N00 背景
+$mint-neutral-05: #F7FAF9;        // N05 次背景
+$mint-neutral-10: #E8EFEC;        // N10 边框/分割线
+$mint-neutral-60: #7C8A84;        // N60 次级文字
+$mint-neutral-90: #0B0F0D;        // N90 主文字
+
+// Mint（薄荷绿主色系）
+$mint-50: #7BE3C0;                // M50 主色
+$mint-30: #DFF8EE;                // M30 浅主色底（按钮/标签浅底）
+$mint-15: #F1FCF7;                // M15 氛围底（区块背景淡铺）
+$mint-70: #2CBF8A;                // M70 主色深（用于 hover/强调线）
+
+// Accent（暖色点缀）
+$accent-40: #FFB38A;              // A40 暖点缀（小圆点/装饰）
+$accent-10: #FFE7DC;              // A10 暖雾化（极少量背景晕染）
+
+// 文字色
+$text-dark: #0B0F0D;
+$text-secondary: #5A6B65;
+
+// -----------------------------------------------------------------
+// 按钮尺寸规范（参考设计规范第5节）
+// -----------------------------------------------------------------
+$btn-height-standard: 44px;
+$btn-height-large: 48px;
+$btn-padding-x: 20px;
+$btn-padding-x-large: 24px;
+$btn-radius: 12px;
+$btn-font-size: 14px;
+$btn-font-size-large: 16px;
+$btn-font-weight: 600;
+
+// -----------------------------------------------------------------
+// 圆角规范（参考设计规范第6节）
+// -----------------------------------------------------------------
+$radius-decoration: 48px;         // 页面装饰大块
+$radius-card: 16px;               // 卡片
+$radius-button: 12px;             // 按钮
+$radius-tag: 10px;                // 标签/小组件
+
+// -----------------------------------------------------------------
+// 间距规范（8pt 系统，参考设计规范第4节）
+// -----------------------------------------------------------------
+$spacing-xs: 8px;
+$spacing-sm: 16px;
+$spacing-md: 24px;
+$spacing-lg: 32px;
+$spacing-xl: 48px;
+$spacing-2xl: 64px;
+$spacing-3xl: 96px;
+$spacing-4xl: 128px;
+
+// -----------------------------------------------------------------
+// 阴影规范（参考设计规范第6节）
+// -----------------------------------------------------------------
+$shadow-card: 0 12px 30px rgba(0, 0, 0, 0.06);
+$shadow-card-hover: 0 12px 30px rgba(0, 0, 0, 0.1);
+$shadow-mockup: 0 20px 50px rgba(0, 0, 0, 0.1);
+$shadow-btn-primary: 0 4px 14px rgba(11, 15, 13, 0.15);
+$shadow-btn-primary-hover: 0 6px 20px rgba(11, 15, 13, 0.2);
+
+// -----------------------------------------------------------------
+// 暗色模式变量
+// -----------------------------------------------------------------
+$dark-bg: #0d0e12;
+$dark-bg-secondary: #131419;
+$dark-border: rgba(255, 255, 255, 0.1);
+$dark-text-primary: #FFFFFF;
+$dark-text-secondary: #9ca3af;
+
+// -----------------------------------------------------------------
+// Mixin: 薄荷绿主题按钮
+// -----------------------------------------------------------------
+
+// 主按钮样式（黑底白字）
+@mixin mint-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 28px;
+  height: $btn-height-standard;
+  border-radius: $btn-radius;
+  font-size: $btn-font-size-large;
+  font-weight: $btn-font-weight;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: $mint-neutral-90;
+  color: $mint-neutral-00;
+  box-shadow: $shadow-btn-primary;
+  
+  &:hover {
+    background: #111815;
+    transform: translateY(-2px);
+    box-shadow: $shadow-btn-primary-hover;
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// 次按钮样式（薄荷浅底深字）
+@mixin mint-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 28px;
+  height: $btn-height-standard;
+  border-radius: $btn-radius;
+  font-size: $btn-font-size-large;
+  font-weight: $btn-font-weight;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: $mint-30;
+  color: $mint-neutral-90;
+  border: 1px solid transparent;
+  
+  &:hover {
+    background: $mint-15;
+    border-color: $mint-50;
+  }
+}
+
+// -----------------------------------------------------------------
+// Mixin: 背景装饰元素
+// -----------------------------------------------------------------
+
+// 大雾化圆（薄荷色）
+@mixin mint-decoration-circle($size: 500px) {
+  position: absolute;
+  width: $size;
+  height: $size;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $mint-15 0%, transparent 70%);
+  pointer-events: none;
+}
+
+// 暖色点缀小圆点
+@mixin mint-decoration-dot($size: 20px) {
+  position: absolute;
+  width: $size;
+  height: $size;
+  border-radius: 50%;
+  background: $accent-40;
+  animation: mintDotPulse 4s ease-in-out infinite;
+}
+
+// 点缀动画
+@keyframes mintDotPulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+}
+
+// -----------------------------------------------------------------
+// Mixin: 卡片样式
+// -----------------------------------------------------------------
+
+@mixin mint-card {
+  background: $mint-neutral-00;
+  border-radius: $radius-card;
+  border: 1px solid $mint-neutral-10;
+  box-shadow: $shadow-card;
+  transition: all 0.25s ease;
+  
+  &:hover {
+    box-shadow: $shadow-card-hover;
+  }
+}
+
+// -----------------------------------------------------------------
+// Mixin: 暗色模式适配
+// -----------------------------------------------------------------
+
+@mixin dark-mode {
+  body[arco-theme='dark'] &,
+  html.dark-theme & {
+    @content;
+  }
+}

@@ -6,13 +6,61 @@
    2. 组件只引用变量，不写硬编码颜色
    3. 亮色/暗色模式通过覆盖变量实现
    4. 互不干扰，易于维护
+   
+   薄荷绿主题规范（基于着陆页设计）：
+   - 白底占比 ≥80%，Mint 只做空气感
+   - 双 CTA：黑主按钮 + Mint 次按钮（同尺寸）
+   - 阴影极轻、圆角统一、间距大
 ================================================================= */
 
 /* -----------------------------------------------------------------
    亮色模式（默认）
 ----------------------------------------------------------------- */
 :root {
-  /* === Landing Page 薄荷绿色系 === */
+  /* === 全局薄荷绿主题色系（统一复用） === */
+  /* Neutral（中性色） */
+  --mint-neutral-00: #FFFFFF;        /* N00 背景 */
+  --mint-neutral-05: #F7FAF9;        /* N05 次背景 */
+  --mint-neutral-10: #E8EFEC;        /* N10 边框/分割线 */
+  --mint-neutral-60: #7C8A84;        /* N60 次级文字 */
+  --mint-neutral-90: #0B0F0D;        /* N90 主文字 */
+  
+  /* Mint（薄荷绿主色系） */
+  --mint-50: #7BE3C0;                /* M50 主色 */
+  --mint-30: #DFF8EE;                /* M30 浅主色底（按钮/标签浅底） */
+  --mint-15: #F1FCF7;                /* M15 氛围底（区块背景淡铺） */
+  --mint-70: #2CBF8A;                /* M70 主色深（用于 hover/强调线） */
+  
+  /* Accent（暖色点缀） */
+  --accent-40: #FFB38A;              /* A40 暖点缀（小圆点/装饰） */
+  --accent-10: #FFE7DC;              /* A10 暖雾化（极少量背景晕染） */
+  
+  /* === 统一按钮样式（着陆页风格） === */
+  /* 主按钮（黑底白字） */
+  --mint-btn-primary-bg: #0B0F0D;
+  --mint-btn-primary-text: #FFFFFF;
+  --mint-btn-primary-hover: #111815;
+  --mint-btn-primary-shadow: 0 4px 14px rgba(11, 15, 13, 0.15);
+  --mint-btn-primary-shadow-hover: 0 6px 20px rgba(11, 15, 13, 0.2);
+  
+  /* 次按钮（薄荷浅底深字） */
+  --mint-btn-secondary-bg: #DFF8EE;
+  --mint-btn-secondary-text: #0B0F0D;
+  --mint-btn-secondary-hover: #F1FCF7;
+  --mint-btn-secondary-border-hover: #7BE3C0;
+  
+  /* === 统一卡片与阴影 === */
+  --mint-shadow-card: 0 12px 30px rgba(0, 0, 0, 0.06);
+  --mint-shadow-card-hover: 0 12px 30px rgba(0, 0, 0, 0.1);
+  --mint-shadow-mockup: 0 20px 50px rgba(0, 0, 0, 0.1);
+  
+  /* === 统一圆角规范 === */
+  --mint-radius-decoration: 48px;    /* 页面装饰大块 */
+  --mint-radius-card: 16px;          /* 卡片 */
+  --mint-radius-button: 12px;        /* 按钮 */
+  --mint-radius-tag: 10px;           /* 标签/小组件 */
+  
+  /* === Landing Page 变量（保持向后兼容） === */
   /* Neutral */
   --landing-bg: #FFFFFF;
   --landing-bg-secondary: #F7FAF9;
@@ -49,7 +97,7 @@
   --theme-bg-sidebar: #ffffff;        /* 侧边栏 */
   --theme-bg-input: #ffffff;          /* 输入框 */
   --theme-bg-hover: rgba(0,0,0,0.04); /* 悬停状态 */
-  --theme-bg-active: rgba(102,126,234,0.1); /* 激活状态 */
+  --theme-bg-active: rgba(123, 227, 192, 0.15); /* 激活状态 - 薄荷绿 */
   
   /* === 文字 === */
   --theme-text-primary: #1a202c;      /* 主要文字 */
@@ -69,11 +117,11 @@
   --theme-shadow-md: 0 4px 12px rgba(0,0,0,0.08);
   --theme-shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
   
-  /* === 主色 === */
-  --theme-color-primary: #667eea;     /* 主色 */
-  --theme-color-primary-hover: #5a6fd6;
-  --theme-color-primary-light: rgba(102,126,234,0.1);
-  --primary-rgb: 102, 126, 234;       /* RGB 值用于 rgba() */
+  /* === 主色 - 薄荷绿 === */
+  --theme-color-primary: #7BE3C0;     /* 主色 - 薄荷绿 */
+  --theme-color-primary-hover: #5ED4A8;
+  --theme-color-primary-light: rgba(123, 227, 192, 0.15);
+  --primary-rgb: 123, 227, 192;       /* RGB 值用于 rgba() */
   --theme-color-success: #52c41a;
   --theme-color-warning: #faad14;
   --theme-color-error: #f5222d;
@@ -87,42 +135,42 @@
   
   /* === 组件特定 === */
   --theme-icon-color: #666666;
-  --theme-icon-active: #667eea;
-  --theme-btn-primary-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --theme-menu-active-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --theme-icon-active: #7BE3C0;
+  --theme-btn-primary-bg: #0B0F0D;    /* 主按钮 - 黑色 */
+  --theme-menu-active-bg: rgba(123, 227, 192, 0.15);  /* 菜单激活 - 薄荷绿 */
   
-  /* === 按钮系统 - Aceternity 风格 === */
-  /* Primary 按钮 */
-  --btn-primary-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --btn-primary-bg-hover: linear-gradient(135deg, #5a6fd6 0%, #6a4190 100%);
-  --btn-primary-shadow: 0 4px 14px 0 rgba(102, 126, 234, 0.39);
-  --btn-primary-shadow-hover: 0 6px 20px rgba(102, 126, 234, 0.5), 0 0 40px rgba(102, 126, 234, 0.2);
-  --btn-primary-shadow-active: 0 2px 8px rgba(102, 126, 234, 0.4);
+  /* === 按钮系统 - 薄荷绿主题 === */
+  /* Primary 按钮 - 黑底白字 */
+  --btn-primary-bg: #0B0F0D;
+  --btn-primary-bg-hover: #111815;
+  --btn-primary-shadow: 0 4px 14px rgba(11, 15, 13, 0.2);
+  --btn-primary-shadow-hover: 0 6px 20px rgba(11, 15, 13, 0.3);
+  --btn-primary-shadow-active: 0 2px 8px rgba(11, 15, 13, 0.25);
   
-  /* Secondary 按钮 */
-  --btn-secondary-bg: rgba(255, 255, 255, 0.8);
-  --btn-secondary-bg-hover: rgba(255, 255, 255, 0.95);
-  --btn-secondary-bg-active: rgba(255, 255, 255, 0.7);
-  --btn-secondary-border: rgba(0, 0, 0, 0.08);
-  --btn-secondary-border-hover: rgba(102, 126, 234, 0.3);
-  --btn-secondary-border-glow-start: rgba(102, 126, 234, 0.5);
-  --btn-secondary-border-glow-end: rgba(118, 75, 162, 0.5);
-  --btn-secondary-text: #374151;
-  --btn-secondary-text-hover: #667eea;
+  /* Secondary 按钮 - 薄荷绿底黑字 */
+  --btn-secondary-bg: #DFF8EE;
+  --btn-secondary-bg-hover: #F1FCF7;
+  --btn-secondary-bg-active: #c9f2e0;
+  --btn-secondary-border: transparent;
+  --btn-secondary-border-hover: #7BE3C0;
+  --btn-secondary-border-glow-start: rgba(123, 227, 192, 0.5);
+  --btn-secondary-border-glow-end: rgba(44, 191, 138, 0.5);
+  --btn-secondary-text: #0B0F0D;
+  --btn-secondary-text-hover: #0B0F0D;
   --btn-secondary-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --btn-secondary-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --btn-secondary-shadow-hover: 0 4px 12px rgba(123, 227, 192, 0.2);
   
   /* Outline 按钮 */
-  --btn-outline-border: #e5e7eb;
-  --btn-outline-border-hover: #667eea;
-  --btn-outline-text: #374151;
-  --btn-outline-text-hover: #667eea;
-  --btn-outline-fill-hover: rgba(102, 126, 234, 0.06);
+  --btn-outline-border: #E8EFEC;
+  --btn-outline-border-hover: #7BE3C0;
+  --btn-outline-text: #0B0F0D;
+  --btn-outline-text-hover: #2CBF8A;
+  --btn-outline-fill-hover: rgba(123, 227, 192, 0.1);
   
   /* Text 按钮 */
-  --btn-text-color: #6b7280;
-  --btn-text-color-hover: #667eea;
-  --btn-text-bg-hover: rgba(102, 126, 234, 0.08);
+  --btn-text-color: #7C8A84;
+  --btn-text-color-hover: #2CBF8A;
+  --btn-text-bg-hover: rgba(123, 227, 192, 0.1);
   
   /* Danger 按钮 */
   --btn-danger-bg: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
@@ -149,7 +197,44 @@
    暗色模式 - 参考 WONG公益站 设计风格
 ----------------------------------------------------------------- */
 html.dark-theme {
-  /* === Landing Page 薄荷绿色系 - 暗色模式 === */
+  /* === 全局薄荷绿主题色系 - 暗色模式 === */
+  /* Neutral（中性色） */
+  --mint-neutral-00: #0d0e12;        /* N00 背景 */
+  --mint-neutral-05: #131419;        /* N05 次背景 */
+  --mint-neutral-10: rgba(255,255,255,0.1);  /* N10 边框 */
+  --mint-neutral-60: #9ca3af;        /* N60 次级文字 */
+  --mint-neutral-90: #ffffff;        /* N90 主文字 */
+  
+  /* Mint（薄荷绿主色系） */
+  --mint-50: #7BE3C0;                /* M50 主色 */
+  --mint-30: rgba(123, 227, 192, 0.15); /* M30 浅主色底 */
+  --mint-15: rgba(123, 227, 192, 0.08); /* M15 氛围底 */
+  --mint-70: #5ED4A8;                /* M70 主色深 */
+  
+  /* Accent（暖色点缀） */
+  --accent-40: #FFB38A;              /* A40 暖点缀 */
+  --accent-10: rgba(255, 179, 138, 0.15); /* A10 暖雾化 */
+  
+  /* === 统一按钮样式（暗色模式） === */
+  /* 主按钮（暗色模式下白底黑字） */
+  --mint-btn-primary-bg: #ffffff;
+  --mint-btn-primary-text: #0B0F0D;
+  --mint-btn-primary-hover: #f0f0f0;
+  --mint-btn-primary-shadow: 0 4px 14px rgba(255, 255, 255, 0.1);
+  --mint-btn-primary-shadow-hover: 0 6px 20px rgba(255, 255, 255, 0.15);
+  
+  /* 次按钮（暗色模式下薄荷绿透明底） */
+  --mint-btn-secondary-bg: rgba(123, 227, 192, 0.15);
+  --mint-btn-secondary-text: #ffffff;
+  --mint-btn-secondary-hover: rgba(123, 227, 192, 0.25);
+  --mint-btn-secondary-border-hover: #7BE3C0;
+  
+  /* === 统一卡片与阴影 === */
+  --mint-shadow-card: 0 12px 30px rgba(0, 0, 0, 0.3);
+  --mint-shadow-card-hover: 0 12px 30px rgba(0, 0, 0, 0.4);
+  --mint-shadow-mockup: 0 20px 50px rgba(0, 0, 0, 0.4);
+
+  /* === Landing Page 变量（保持向后兼容） === */
   --landing-bg: #0d0e12;
   --landing-bg-secondary: #131419;
   --landing-border: rgba(255,255,255,0.1);
@@ -202,17 +287,17 @@ html.dark-theme {
   --theme-shadow-md: 0 4px 12px rgba(0,0,0,0.4);
   --theme-shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
   
-  /* === 主色 === */
-  --theme-color-primary: #3b82f6;     /* 主色 - 蓝色 */
-  --theme-color-primary-hover: #60a5fa;
-  --theme-color-primary-light: rgba(59,130,246,0.15);
-  --primary-rgb: 59, 130, 246;        /* RGB 值用于 rgba() */
+  /* === 主色 - 薄荷绿（暗色模式） === */
+  --theme-color-primary: #7BE3C0;     /* 主色 - 薄荷绿 */
+  --theme-color-primary-hover: #5ED4A8;
+  --theme-color-primary-light: rgba(123, 227, 192, 0.15);
+  --primary-rgb: 123, 227, 192;       /* RGB 值用于 rgba() */
   --theme-color-success: #22c55e;
   --theme-color-warning: #f59e0b;
   --theme-color-error: #ef4444;
   
   /* === 消息气泡 === */
-  --theme-message-user-bg: #3b82f6;
+  --theme-message-user-bg: #7BE3C0;
   --theme-message-ai-bg: #1a1b20;
   
   /* === 渐变 === */
@@ -220,42 +305,42 @@ html.dark-theme {
   
   /* === 组件特定 === */
   --theme-icon-color: #9ca3af;
-  --theme-icon-active: #3b82f6;
-  --theme-btn-primary-bg: #3b82f6;
-  --theme-menu-active-bg: #3b82f6;
+  --theme-icon-active: #7BE3C0;
+  --theme-btn-primary-bg: #ffffff;    /* 暗色模式主按钮 - 白底黑字 */
+  --theme-menu-active-bg: rgba(123, 227, 192, 0.15);  /* 菜单激活 - 薄荷绿 */
   
-  /* === 按钮系统 - Aceternity 风格 (暗色模式) === */
-  /* Primary 按钮 */
-  --btn-primary-bg: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  --btn-primary-bg-hover: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
-  --btn-primary-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
-  --btn-primary-shadow-hover: 0 6px 24px rgba(59, 130, 246, 0.5), 0 0 60px rgba(59, 130, 246, 0.25);
-  --btn-primary-shadow-active: 0 2px 8px rgba(59, 130, 246, 0.4);
+  /* === 按钮系统 - 薄荷绿主题（暗色模式） === */
+  /* Primary 按钮 - 白底黑字 */
+  --btn-primary-bg: #ffffff;
+  --btn-primary-bg-hover: #f0f0f0;
+  --btn-primary-shadow: 0 4px 14px rgba(255, 255, 255, 0.1);
+  --btn-primary-shadow-hover: 0 6px 20px rgba(255, 255, 255, 0.15);
+  --btn-primary-shadow-active: 0 2px 8px rgba(255, 255, 255, 0.1);
   
-  /* Secondary 按钮 */
-  --btn-secondary-bg: rgba(255, 255, 255, 0.06);
-  --btn-secondary-bg-hover: rgba(255, 255, 255, 0.1);
-  --btn-secondary-bg-active: rgba(255, 255, 255, 0.05);
-  --btn-secondary-border: rgba(255, 255, 255, 0.1);
-  --btn-secondary-border-hover: rgba(59, 130, 246, 0.5);
-  --btn-secondary-border-glow-start: rgba(59, 130, 246, 0.6);
-  --btn-secondary-border-glow-end: rgba(139, 92, 246, 0.6);
-  --btn-secondary-text: #e5e7eb;
-  --btn-secondary-text-hover: #60a5fa;
+  /* Secondary 按钮 - 薄荷绿透明底 */
+  --btn-secondary-bg: rgba(123, 227, 192, 0.15);
+  --btn-secondary-bg-hover: rgba(123, 227, 192, 0.25);
+  --btn-secondary-bg-active: rgba(123, 227, 192, 0.1);
+  --btn-secondary-border: transparent;
+  --btn-secondary-border-hover: #7BE3C0;
+  --btn-secondary-border-glow-start: rgba(123, 227, 192, 0.5);
+  --btn-secondary-border-glow-end: rgba(44, 191, 138, 0.5);
+  --btn-secondary-text: #ffffff;
+  --btn-secondary-text-hover: #ffffff;
   --btn-secondary-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --btn-secondary-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --btn-secondary-shadow-hover: 0 4px 16px rgba(123, 227, 192, 0.2);
   
   /* Outline 按钮 */
   --btn-outline-border: rgba(255, 255, 255, 0.15);
-  --btn-outline-border-hover: #3b82f6;
+  --btn-outline-border-hover: #7BE3C0;
   --btn-outline-text: #e5e7eb;
-  --btn-outline-text-hover: #60a5fa;
-  --btn-outline-fill-hover: rgba(59, 130, 246, 0.15);
+  --btn-outline-text-hover: #7BE3C0;
+  --btn-outline-fill-hover: rgba(123, 227, 192, 0.15);
   
   /* Text 按钮 */
   --btn-text-color: #9ca3af;
-  --btn-text-color-hover: #60a5fa;
-  --btn-text-bg-hover: rgba(59, 130, 246, 0.15);
+  --btn-text-color-hover: #7BE3C0;
+  --btn-text-bg-hover: rgba(123, 227, 192, 0.15);
   
   /* Danger 按钮 */
   --btn-danger-bg: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);

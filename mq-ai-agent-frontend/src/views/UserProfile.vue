@@ -1023,12 +1023,12 @@ export default {
                 symbolSize: 6,
                 data: bodyFats,
                 itemStyle: {
-                  color: '#764ba2'
+                  color: '#2CBF8A'
                 },
                 areaStyle: {
                   color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                    { offset: 0, color: 'rgba(118, 75, 162, 0.3)' },
-                    { offset: 1, color: 'rgba(118, 75, 162, 0.05)' }
+                    { offset: 0, color: 'rgba(44, 191, 138, 0.3)' },
+                    { offset: 1, color: 'rgba(44, 191, 138, 0.05)' }
                   ])
                 }
               }
@@ -1200,18 +1200,18 @@ export default {
       width: 100px;
       height: 100px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: var(--btn-primary-bg);
       display: flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 12px;
       overflow: hidden;
-      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+      box-shadow: 0 4px 16px rgba(11, 15, 13, 0.15);
       transition: all 0.3s ease;
 
       &:hover {
         transform: scale(1.05);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 6px 20px rgba(11, 15, 13, 0.25);
       }
 
       img {
@@ -1235,7 +1235,7 @@ export default {
       margin: 0 0 12px 0;
       font-size: 32px;
       font-weight: 800;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #7BE3C0 0%, #2CBF8A 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;

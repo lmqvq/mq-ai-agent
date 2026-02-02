@@ -2,6 +2,11 @@
 // 主样式文件
 // =================================================================
 
+// 引入薄荷绿主题系统
+@import 'landing-theme';       // 薄荷绿主题变量和 mixin
+@import 'landing-buttons';     // 薄荷绿风格按钮
+@import 'landing-components';  // 薄荷绿风格组件
+
 // 引入按钮样式系统
 @import 'buttons';
 

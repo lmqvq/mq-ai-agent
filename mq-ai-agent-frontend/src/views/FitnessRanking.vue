@@ -349,7 +349,7 @@ export default {
   transition: background 0.3s ease;
 
   &.dark-mode {
-    background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
+    background: linear-gradient(135deg, #0d0e12 0%, #131419 100%);
     
     &::before {
       content: '';
@@ -359,8 +359,8 @@ export default {
       right: 0;
       bottom: 0;
       background-image: 
-        radial-gradient(circle at 20% 30%, rgba(141, 154, 255, 0.08) 0%, transparent 50%),
-        radial-gradient(circle at 80% 70%, rgba(157, 125, 197, 0.06) 0%, transparent 50%),
+        radial-gradient(circle at 20% 30%, rgba(123, 227, 192, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(44, 191, 138, 0.06) 0%, transparent 50%),
         linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
       background-size: 100% 100%, 100% 100%, 50px 50px, 50px 50px;
@@ -395,14 +395,14 @@ export default {
   }
 
   .dark-mode & {
-    background: linear-gradient(135deg, rgba(45, 48, 62, 0.98) 0%, rgba(38, 40, 52, 0.98) 100%);
+    background: linear-gradient(135deg, rgba(19, 20, 25, 0.98) 0%, rgba(13, 14, 18, 0.98) 100%);
     color: #e8e8e8;
-    border: 1px solid rgba(141, 154, 255, 0.3);
+    border: 1px solid rgba(123, 227, 192, 0.3);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 
     &:hover {
-      border-color: rgba(141, 154, 255, 0.5);
-      box-shadow: 0 6px 20px rgba(141, 154, 255, 0.3);
+      border-color: rgba(123, 227, 192, 0.5);
+      box-shadow: 0 6px 20px rgba(123, 227, 192, 0.2);
     }
   }
 }
@@ -427,14 +427,14 @@ export default {
   :deep(svg) {
     width: 24px;
     height: 24px;
-    color: #667eea;
+    color: #7BE3C0;
     transition: all 0.3s ease;
   }
   
   &:hover {
     transform: scale(1.1) rotate(15deg);
-    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 6px 16px rgba(123, 227, 192, 0.3);
+    background: var(--btn-primary-bg);
     border-color: transparent;
     
     :deep(svg) {
@@ -444,21 +444,21 @@ export default {
   }
   
   .dark-mode & {
-    background: linear-gradient(135deg, rgba(40, 42, 54, 0.95) 0%, rgba(32, 34, 45, 0.95) 100%);
-    border: 2px solid rgba(141, 154, 255, 0.3);
+    background: linear-gradient(135deg, rgba(19, 20, 25, 0.95) 0%, rgba(13, 14, 18, 0.95) 100%);
+    border: 2px solid rgba(123, 227, 192, 0.3);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5),
-                0 0 0 1px rgba(141, 154, 255, 0.15) inset;
+                0 0 0 1px rgba(123, 227, 192, 0.15) inset;
     backdrop-filter: blur(12px);
     
     :deep(svg) {
-      color: #ffd700;
-      filter: drop-shadow(0 2px 6px rgba(255, 215, 0, 0.5));
+      color: #7BE3C0;
+      filter: drop-shadow(0 2px 6px rgba(123, 227, 192, 0.5));
     }
     
     &:hover {
-      background: linear-gradient(135deg, #8d9aff 0%, #9d7dc5 100%);
-      box-shadow: 0 8px 28px rgba(141, 109, 178, 0.5),
-                  0 0 40px rgba(141, 154, 255, 0.3),
+      background: linear-gradient(135deg, #7BE3C0 0%, #2CBF8A 100%);
+      box-shadow: 0 8px 28px rgba(123, 227, 192, 0.4),
+                  0 0 40px rgba(123, 227, 192, 0.2),
                   inset 0 1px 0 rgba(255, 255, 255, 0.2);
       border-color: rgba(255, 255, 255, 0.2);
       
@@ -504,8 +504,8 @@ export default {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    background: var(--btn-primary-bg);
+    box-shadow: 0 8px 24px rgba(11, 15, 13, 0.25);
     margin-bottom: 20px;
     animation: float 3s ease-in-out infinite;
 
@@ -519,7 +519,7 @@ export default {
   h1 {
     font-size: 36px;
     font-weight: 800;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #7BE3C0 0%, #2CBF8A 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -536,22 +536,22 @@ export default {
 
   .dark-mode & {
     .header-icon {
-      background: linear-gradient(135deg, #8d9aff 0%, #a58dd0 100%);
-      box-shadow: 0 20px 60px rgba(141, 109, 178, 0.8),
-                  0 0 80px rgba(141, 154, 255, 0.5);
-      border: 3px solid rgba(141, 154, 255, 0.5);
+      background: linear-gradient(135deg, #7BE3C0 0%, #2CBF8A 100%);
+      box-shadow: 0 20px 60px rgba(123, 227, 192, 0.5),
+                  0 0 80px rgba(123, 227, 192, 0.3);
+      border: 3px solid rgba(123, 227, 192, 0.5);
     }
 
     h1 {
       color: #ffffff;
       -webkit-text-fill-color: #ffffff;
-      text-shadow: 0 3px 20px rgba(141, 154, 255, 0.9),
-                   0 0 50px rgba(141, 154, 255, 0.6);
+      text-shadow: 0 3px 20px rgba(123, 227, 192, 0.6),
+                   0 0 50px rgba(123, 227, 192, 0.4);
     }
 
     p {
       color: #e8e8e8;
-      text-shadow: 0 2px 8px rgba(141, 154, 255, 0.4);
+      text-shadow: 0 2px 8px rgba(123, 227, 192, 0.3);
     }
   }
 }
@@ -582,7 +582,7 @@ export default {
       :deep(svg) {
         width: 20px;
         height: 20px;
-        color: #667eea;
+        color: #7BE3C0;
       }
     }
 
@@ -591,9 +591,9 @@ export default {
       border-radius: 20px;
       font-size: 18px;
       font-weight: 800;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: var(--btn-primary-bg);
       color: white;
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      box-shadow: 0 4px 12px rgba(11, 15, 13, 0.2);
 
       &.top-3 {
         background: linear-gradient(135deg, #ffd700 0%, #ffb800 100%);
@@ -628,7 +628,7 @@ export default {
 
         span {
           font-size: 14px;
-          color: #667eea;
+          color: #7BE3C0;
           font-weight: 600;
           margin-left: 4px;
         }
@@ -647,7 +647,7 @@ export default {
       display: flex;
       align-items: center;
       gap: 8px;
-      color: #667eea;
+      color: #7BE3C0;
       font-weight: 600;
 
       :deep(svg) {
@@ -678,8 +678,8 @@ export default {
   }
 
   .dark-mode & {
-    background: linear-gradient(135deg, rgba(45, 48, 62, 0.98) 0%, rgba(38, 40, 52, 0.98) 100%);
-    border: 2px solid rgba(141, 154, 255, 0.5);
+    background: linear-gradient(135deg, rgba(19, 20, 25, 0.98) 0%, rgba(13, 14, 18, 0.98) 100%);
+    border: 2px solid rgba(123, 227, 192, 0.4);
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
 
     .card-header {
@@ -688,8 +688,8 @@ export default {
       }
 
       .rank-badge {
-        background: linear-gradient(135deg, #8d9aff 0%, #9d7dc5 100%);
-        color: white;
+        background: linear-gradient(135deg, #7BE3C0 0%, #2CBF8A 100%);
+        color: #0B0F0D;
       }
     }
 
@@ -700,15 +700,15 @@ export default {
 
       .stat-value {
         color: #ffffff;
-        text-shadow: 0 2px 8px rgba(141, 154, 255, 0.4);
+        text-shadow: 0 2px 8px rgba(123, 227, 192, 0.3);
       }
     }
 
     .card-footer {
-      border-top-color: rgba(141, 154, 255, 0.2);
+      border-top-color: rgba(123, 227, 192, 0.2);
 
       .encourage-message {
-        color: #a5b4ff;
+        color: #7BE3C0;
       }
     }
   }
@@ -744,8 +744,8 @@ export default {
   }
 
   .dark-mode & {
-    background: linear-gradient(135deg, rgba(45, 48, 62, 0.98) 0%, rgba(38, 40, 52, 0.98) 100%);
-    border: 2px solid rgba(141, 154, 255, 0.3);
+    background: linear-gradient(135deg, rgba(19, 20, 25, 0.98) 0%, rgba(13, 14, 18, 0.98) 100%);
+    border: 2px solid rgba(123, 227, 192, 0.3);
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
 
     :deep(svg) {
@@ -788,7 +788,7 @@ export default {
       width: 48px;
       height: 48px;
       border-radius: 12px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: var(--btn-primary-bg);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -816,24 +816,24 @@ export default {
     }
 
     .dark-mode & {
-      background: linear-gradient(135deg, rgba(45, 48, 62, 0.98) 0%, rgba(38, 40, 52, 0.98) 100%);
-      border: 1px solid rgba(141, 154, 255, 0.3);
+      background: linear-gradient(135deg, rgba(19, 20, 25, 0.98) 0%, rgba(13, 14, 18, 0.98) 100%);
+      border: 1px solid rgba(123, 227, 192, 0.3);
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 
       &:hover {
-        border-color: rgba(141, 154, 255, 0.5);
-        box-shadow: 0 8px 24px rgba(141, 154, 255, 0.3);
+        border-color: rgba(123, 227, 192, 0.5);
+        box-shadow: 0 8px 24px rgba(123, 227, 192, 0.2);
       }
 
       .stat-icon {
-        background: linear-gradient(135deg, #8d9aff 0%, #9d7dc5 100%);
-        box-shadow: 0 4px 16px rgba(141, 109, 178, 0.5);
+        background: linear-gradient(135deg, #7BE3C0 0%, #2CBF8A 100%);
+        box-shadow: 0 4px 16px rgba(123, 227, 192, 0.3);
       }
 
       .stat-info {
         .stat-number {
           color: #ffffff;
-          text-shadow: 0 2px 8px rgba(141, 154, 255, 0.4);
+          text-shadow: 0 2px 8px rgba(123, 227, 192, 0.3);
         }
 
         .stat-text {
@@ -904,8 +904,8 @@ export default {
     }
 
     &.is-me {
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-      border: 2px solid rgba(102, 126, 234, 0.3);
+      background: linear-gradient(135deg, rgba(123, 227, 192, 0.1) 0%, rgba(44, 191, 138, 0.08) 100%);
+      border: 2px solid rgba(123, 227, 192, 0.3);
     }
 
     .rank-number {
@@ -947,7 +947,7 @@ export default {
         width: 48px;
         height: 48px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--btn-primary-bg);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -980,7 +980,7 @@ export default {
             padding: 2px 8px;
             border-radius: 10px;
             font-size: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--btn-primary-bg);
             color: white;
             font-weight: 600;
           }
@@ -994,8 +994,8 @@ export default {
             padding: 2px 8px;
             border-radius: 10px;
             font-size: 12px;
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
+            background: rgba(123, 227, 192, 0.15);
+            color: #2CBF8A;
             font-weight: 500;
           }
         }
@@ -1008,7 +1008,7 @@ export default {
       .score {
         font-size: 28px;
         font-weight: 800;
-        color: #667eea;
+        color: #7BE3C0;
         line-height: 1;
       }
 
@@ -1027,8 +1027,8 @@ export default {
   }
 
   .dark-mode & {
-    background: linear-gradient(135deg, rgba(45, 48, 62, 0.98) 0%, rgba(38, 40, 52, 0.98) 100%);
-    border: 2px solid rgba(141, 154, 255, 0.5);
+    background: linear-gradient(135deg, rgba(19, 20, 25, 0.98) 0%, rgba(13, 14, 18, 0.98) 100%);
+    border: 2px solid rgba(123, 227, 192, 0.4);
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
 
     .list-header h3 {
@@ -1045,15 +1045,15 @@ export default {
     }
 
     .ranking-item {
-      background: rgba(50, 53, 68, 0.5);
+      background: rgba(19, 20, 25, 0.5);
 
       &:hover {
-        background: rgba(60, 63, 78, 0.7);
+        background: rgba(30, 32, 40, 0.7);
       }
 
       &.is-me {
-        background: linear-gradient(135deg, rgba(141, 154, 255, 0.15) 0%, rgba(157, 125, 197, 0.12) 100%);
-        border-color: rgba(141, 154, 255, 0.5);
+        background: linear-gradient(135deg, rgba(123, 227, 192, 0.12) 0%, rgba(44, 191, 138, 0.08) 100%);
+        border-color: rgba(123, 227, 192, 0.4);
       }
 
       .rank-number {
@@ -1062,7 +1062,7 @@ export default {
 
       .user-info {
         .user-avatar {
-          background: linear-gradient(135deg, #8d9aff 0%, #9d7dc5 100%);
+          background: linear-gradient(135deg, #7BE3C0 0%, #2CBF8A 100%);
         }
 
         .user-details {
@@ -1070,21 +1070,22 @@ export default {
             color: #e8e8e8;
 
             .me-badge {
-              background: linear-gradient(135deg, #8d9aff 0%, #9d7dc5 100%);
+              background: linear-gradient(135deg, #7BE3C0 0%, #2CBF8A 100%);
+              color: #0B0F0D;
             }
           }
 
           .user-stats .stat-badge {
-            background: rgba(141, 154, 255, 0.2);
-            color: #a5b4ff;
+            background: rgba(123, 227, 192, 0.15);
+            color: #7BE3C0;
           }
         }
       }
 
       .score-info {
         .score {
-          color: #a5b4ff;
-          text-shadow: 0 2px 8px rgba(141, 154, 255, 0.4);
+          color: #7BE3C0;
+          text-shadow: 0 2px 8px rgba(123, 227, 192, 0.3);
         }
 
         .score-label {

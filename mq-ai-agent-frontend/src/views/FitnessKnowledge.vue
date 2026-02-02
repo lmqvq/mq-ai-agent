@@ -1360,7 +1360,7 @@ export default {
 
 // 图片加载优化
 img {
-  background: #667eea;
+  background: #7BE3C0;
 }
 
 .fitness-knowledge {
@@ -1516,7 +1516,7 @@ img {
     position: relative;
     height: 220px;
     overflow: hidden;
-    background: #667eea;
+    background: #7BE3C0;
 
     .card-overlay {
       position: absolute;
@@ -1555,7 +1555,7 @@ img {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(102, 126, 234, 0.95);
+  background: var(--btn-primary-bg);
   color: white;
   display: flex;
   align-items: center;
@@ -1573,7 +1573,7 @@ img {
   }
 
   &:hover {
-    background: #764ba2;
+    background: var(--btn-primary-bg-hover);
     transform: scale(1.1) translateZ(0);
   }
 
@@ -1837,8 +1837,8 @@ img {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
+            background: linear-gradient(135deg, #7BE3C0 0%, #2CBF8A 100%);
+            color: #0B0F0D;
             border-radius: 6px;
             font-size: 12px;
             font-weight: 700;
@@ -1953,13 +1953,14 @@ img {
           }
 
           &[type="primary"] {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            background: var(--btn-primary-bg);
             border: none;
             color: #fff;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+            box-shadow: var(--btn-primary-shadow);
 
             &:hover {
-              box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+              background: var(--btn-primary-bg-hover);
+              box-shadow: var(--btn-primary-shadow-hover);
             }
           }
         }
@@ -2112,7 +2113,7 @@ html.dark-theme {
       justify-content: space-between;
       align-items: center;
       padding: 16px 20px;
-      background: linear-gradient(135deg, var(--theme-color-primary) 0%, #764ba2 100%);
+      background: var(--btn-primary-bg);
       color: white;
 
       h4 {
@@ -2219,7 +2220,7 @@ html.dark-theme {
       &.intermediate { background: linear-gradient(135deg, #ff7d00 0%, #ffa940 100%); }
       &.advanced { background: linear-gradient(135deg, #f53f3f 0%, #ff7875 100%); }
       &.fat-loss { background: linear-gradient(135deg, #ff7d00 0%, #ffc53d 100%); }
-      &.strength { background: linear-gradient(135deg, #722ed1 0%, #b37feb 100%); }
+      &.strength { background: linear-gradient(135deg, #2CBF8A 0%, #5ED4A8 100%); }
       &.bodyweight { background: linear-gradient(135deg, #1890ff 0%, #69c0ff 100%); }
       &.female { background: linear-gradient(135deg, #eb2f96 0%, #ff85c0 100%); }
       &.busy { background: linear-gradient(135deg, #13c2c2 0%, #5cdbd3 100%); }
@@ -2289,7 +2290,7 @@ html.dark-theme {
           content: '';
           width: 4px;
           height: 16px;
-          background: linear-gradient(135deg, var(--theme-color-primary) 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #7BE3C0 0%, #2CBF8A 100%);
           border-radius: 2px;
         }
       }
@@ -2337,13 +2338,13 @@ html.dark-theme {
         border-radius: 10px;
 
         &[type="primary"] {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: var(--btn-primary-bg);
           border: none;
         }
 
         &[type="outline"] {
-          border: 2px solid #667eea;
-          color: #667eea;
+          border: 2px solid var(--theme-color-primary);
+          color: var(--theme-color-primary);
           background: transparent;
         }
       }

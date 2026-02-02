@@ -1,0 +1,149 @@
+// =================================================================
+// 薄荷绿主题按钮样式系统
+// 
+// 基于着陆页设计规范（第5节）：
+// - 主按钮：黑底白字（N90 背景 + N00 文字）
+// - 次按钮：薄荷浅底（M30 背景 + N90 文字）
+// - 高度：44px（标准）/ 48px（大号）
+// - 圆角：12px
+// - 字号：14-16px，Weight 600
+// =================================================================
+
+@import 'landing-theme';
+
+// -----------------------------------------------------------------
+// 着陆页风格按钮类
+// -----------------------------------------------------------------
+
+// 主按钮 - 黑底白字
+.mint-btn-primary {
+  @include mint-btn-primary;
+}
+
+// 次按钮 - 薄荷浅底
+.mint-btn-secondary {
+  @include mint-btn-secondary;
+}
+
+// -----------------------------------------------------------------
+// 按钮尺寸变体
+// -----------------------------------------------------------------
+
+// 大号按钮
+.mint-btn-lg {
+  height: $btn-height-large;
+  padding: 14px $btn-padding-x-large;
+  font-size: $btn-font-size-large;
+}
+
+// 小号按钮
+.mint-btn-sm {
+  height: 36px;
+  padding: 8px 16px;
+  font-size: 13px;
+  border-radius: 10px;
+}
+
+// 全宽按钮
+.mint-btn-block {
+  width: 100%;
+}
+
+// -----------------------------------------------------------------
+// Arco Design 按钮薄荷绿主题覆盖
+// 用于表单页面（登录、注册等）
+// -----------------------------------------------------------------
+
+// 覆盖 Arco 主按钮为着陆页风格
+.mint-theme {
+  // 主按钮覆盖
+  .arco-btn-primary {
+    border-radius: var(--mint-radius-button);
+    font-weight: 600;
+    border: none;
+    transition: all 0.2s ease;
+    
+    // 亮色模式
+    body:not([arco-theme='dark']) & {
+      background: var(--mint-btn-primary-bg) !important;
+      color: var(--mint-btn-primary-text) !important;
+      box-shadow: var(--mint-btn-primary-shadow);
+      
+      &:hover:not(:disabled) {
+        background: var(--mint-btn-primary-hover) !important;
+        transform: translateY(-1px);
+        box-shadow: var(--mint-btn-primary-shadow-hover);
+      }
+      
+      &:active:not(:disabled) {
+        transform: translateY(0);
+      }
+    }
+    
+    // 暗色模式
+    body[arco-theme='dark'] &,
+    html.dark-theme & {
+      background: var(--mint-btn-primary-bg) !important;
+      color: var(--mint-btn-primary-text) !important;
+      box-shadow: var(--mint-btn-primary-shadow);
+      
+      &:hover:not(:disabled) {
+        background: var(--mint-btn-primary-hover) !important;
+        transform: translateY(-1px);
+        box-shadow: var(--mint-btn-primary-shadow-hover);
+      }
+      
+      &:active:not(:disabled) {
+        transform: translateY(0);
+      }
+    }
+  }
+  
+  // 次按钮覆盖
+  .arco-btn-secondary,
+  .arco-btn-outline {
+    border-radius: var(--mint-radius-button);
+    font-weight: 600;
+    transition: all 0.2s ease;
+    
+    // 亮色模式
+    body:not([arco-theme='dark']) & {
+      background: var(--mint-btn-secondary-bg) !important;
+      color: var(--mint-btn-secondary-text) !important;
+      border: 1px solid transparent !important;
+      
+      &:hover:not(:disabled) {
+        background: var(--mint-btn-secondary-hover) !important;
+        border-color: var(--mint-btn-secondary-border-hover) !important;
+      }
+    }
+    
+    // 暗色模式
+    body[arco-theme='dark'] &,
+    html.dark-theme & {
+      background: var(--mint-btn-secondary-bg) !important;
+      color: var(--mint-btn-secondary-text) !important;
+      border: 1px solid transparent !important;
+      
+      &:hover:not(:disabled) {
+        background: var(--mint-btn-secondary-hover) !important;
+        border-color: var(--mint-btn-secondary-border-hover) !important;
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------
+// 链接按钮样式
+// -----------------------------------------------------------------
+
+.mint-link {
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  color: var(--mint-70);
+  
+  &:hover {
+    color: var(--mint-50);
+  }
+}

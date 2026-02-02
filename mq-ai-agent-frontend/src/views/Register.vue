@@ -271,25 +271,18 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// 薄荷绿主题色变量
-$mint-primary: #7BE3C0;
-$mint-light: #DFF8EE;
-$mint-bg: #F1FCF7;
-$mint-dark: #2CBF8A;
-$warm-accent: #FFB38A;
-$text-dark: #0B0F0D;
-$text-secondary: #5A6B65;
+// =========================================================
+// 注册页样式 - 使用全局 CSS 变量实现统一薄荷绿主题
+// 参考设计规范：双 CTA（黑主按钮 + Mint 次按钮）
+// =========================================================
 
 .register-container {
   min-height: 100vh;
   display: flex;
+  background: var(--mint-neutral-00);
   
-  body:not([arco-theme='dark']) & {
-    background: #FFFFFF;
-  }
-  
-  body[arco-theme='dark'] & {
-    background: #0f0f1a;
+  html.dark-theme & {
+    background: var(--mint-neutral-00);
   }
 }
 
@@ -302,13 +295,10 @@ $text-secondary: #5A6B65;
   padding: 60px 80px;
   position: relative;
   overflow: hidden;
+  // 使用全局 CSS 变量实现薄荷绿渐变背景
+  background: linear-gradient(135deg, var(--mint-neutral-00) 0%, var(--mint-neutral-05) 50%, var(--mint-15) 100%);
   
-  body:not([arco-theme='dark']) & {
-    // 更浅更柔和的薄荷绿背景，参考着陆页风格
-    background: linear-gradient(135deg, #FFFFFF 0%, #F7FAF9 50%, $mint-bg 100%);
-  }
-  
-  body[arco-theme='dark'] & {
+  html.dark-theme & {
     background: linear-gradient(135deg, #1a1f2e 0%, #151a28 100%);
   }
 }
@@ -333,14 +323,7 @@ $text-secondary: #5A6B65;
   span {
     font-size: 20px;
     font-weight: 700;
-    
-    body:not([arco-theme='dark']) & {
-      color: $text-dark;
-    }
-    
-    body[arco-theme='dark'] & {
-      color: #FFFFFF;
-    }
+    color: var(--mint-neutral-90);
   }
 }
 
@@ -353,23 +336,10 @@ $text-secondary: #5A6B65;
     font-weight: 700;
     line-height: 1.2;
     letter-spacing: -1px;
-    
-    body:not([arco-theme='dark']) & {
-      color: $text-dark;
-    }
-    
-    body[arco-theme='dark'] & {
-      color: #FFFFFF;
-    }
+    color: var(--mint-neutral-90);
     
     &:last-child {
-      body:not([arco-theme='dark']) & {
-        color: $mint-dark;
-      }
-      
-      body[arco-theme='dark'] & {
-        color: $mint-primary;
-      }
+      color: var(--mint-70);
     }
   }
 }
@@ -378,14 +348,7 @@ $text-secondary: #5A6B65;
   font-size: 18px;
   line-height: 1.6;
   margin: 0 0 48px 0;
-  
-  body:not([arco-theme='dark']) & {
-    color: $text-secondary;
-  }
-  
-  body[arco-theme='dark'] & {
-    color: rgba(255, 255, 255, 0.7);
-  }
+  color: var(--mint-neutral-60);
 }
 
 .brand-features {
@@ -409,28 +372,14 @@ $text-secondary: #5A6B65;
     svg {
       width: 20px;
       height: 20px;
-      
-      body:not([arco-theme='dark']) & {
-        stroke: $mint-dark;
-      }
-      
-      body[arco-theme='dark'] & {
-        stroke: $mint-primary;
-      }
+      stroke: var(--mint-70);
     }
   }
   
   span {
     font-size: 16px;
     font-weight: 500;
-    
-    body:not([arco-theme='dark']) & {
-      color: $text-dark;
-    }
-    
-    body[arco-theme='dark'] & {
-      color: rgba(255, 255, 255, 0.9);
-    }
+    color: var(--mint-neutral-90);
   }
 }
 
@@ -454,15 +403,7 @@ $text-secondary: #5A6B65;
     height: 500px;
     top: -150px;
     right: -150px;
-    
-    body:not([arco-theme='dark']) & {
-      // 更淡的薄荷绿圈
-      background: linear-gradient(135deg, $mint-bg 0%, transparent 70%);
-    }
-    
-    body[arco-theme='dark'] & {
-      background: rgba($mint-dark, 0.08);
-    }
+    background: linear-gradient(135deg, var(--mint-15) 0%, transparent 70%);
   }
   
   &.deco-2 {
@@ -470,21 +411,15 @@ $text-secondary: #5A6B65;
     height: 300px;
     bottom: -100px;
     left: -80px;
-    
-    body:not([arco-theme='dark']) & {
-      background: linear-gradient(135deg, rgba($mint-primary, 0.1) 0%, transparent 70%);
-    }
-    
-    body[arco-theme='dark'] & {
-      background: rgba($mint-dark, 0.05);
-    }
+    background: linear-gradient(135deg, var(--mint-30) 0%, transparent 70%);
+    opacity: 0.6;
   }
 }
 
 .deco-dot {
   position: absolute;
   border-radius: 50%;
-  background: $warm-accent;
+  background: var(--accent-40);
   
   &.dot-1 {
     width: 12px;
@@ -511,14 +446,7 @@ $text-secondary: #5A6B65;
   align-items: center;
   justify-content: center;
   padding: 60px;
-  
-  body:not([arco-theme='dark']) & {
-    background: #FFFFFF;
-  }
-  
-  body[arco-theme='dark'] & {
-    background: #0f0f1a;
-  }
+  background: var(--mint-neutral-00);
 }
 
 .form-wrapper {
@@ -533,27 +461,13 @@ $text-secondary: #5A6B65;
     margin: 0 0 8px 0;
     font-size: 28px;
     font-weight: 700;
-    
-    body:not([arco-theme='dark']) & {
-      color: $text-dark;
-    }
-    
-    body[arco-theme='dark'] & {
-      color: #FFFFFF;
-    }
+    color: var(--mint-neutral-90);
   }
   
   p {
     margin: 0;
     font-size: 15px;
-    
-    body:not([arco-theme='dark']) & {
-      color: $text-secondary;
-    }
-    
-    body[arco-theme='dark'] & {
-      color: rgba(255, 255, 255, 0.6);
-    }
+    color: var(--mint-neutral-60);
   }
 }
 
@@ -562,37 +476,27 @@ $text-secondary: #5A6B65;
     font-weight: 500;
     font-size: 14px;
     margin-bottom: 8px;
-    
-    body:not([arco-theme='dark']) & {
-      color: $text-dark;
-    }
-    
-    body[arco-theme='dark'] & {
-      color: rgba(255, 255, 255, 0.85);
-    }
+    color: var(--mint-neutral-90);
   }
 
   :deep(.arco-input-wrapper) {
-    border-radius: 12px;
+    border-radius: var(--mint-radius-button);
     transition: all 0.2s ease;
+    border: 1px solid var(--mint-neutral-10);
+    background: var(--mint-neutral-05);
     
-    body:not([arco-theme='dark']) & {
-      border: 1px solid #E5E7EB;
-      background: #F9FAFB;
-      
-      &:hover {
-        border-color: $mint-primary;
-        background: #FFFFFF;
-      }
-      
-      &.arco-input-focus {
-        border-color: $mint-dark;
-        background: #FFFFFF;
-        box-shadow: 0 0 0 3px rgba(44, 191, 138, 0.12);
-      }
+    &:hover {
+      border-color: var(--mint-50);
+      background: var(--mint-neutral-00);
     }
     
-    body[arco-theme='dark'] & {
+    &.arco-input-focus {
+      border-color: var(--mint-70);
+      background: var(--mint-neutral-00);
+      box-shadow: 0 0 0 3px rgba(44, 191, 138, 0.12);
+    }
+    
+    html.dark-theme & {
       border: 1px solid rgba(255, 255, 255, 0.1);
       background: rgba(255, 255, 255, 0.05);
       
@@ -601,7 +505,7 @@ $text-secondary: #5A6B65;
       }
       
       &.arco-input-focus {
-        border-color: $mint-primary;
+        border-color: var(--mint-50);
         box-shadow: 0 0 0 3px rgba(123, 227, 192, 0.1);
       }
     }
@@ -610,83 +514,43 @@ $text-secondary: #5A6B65;
   :deep(.arco-input) {
     font-size: 15px;
     padding: 12px 16px;
+    color: var(--mint-neutral-90);
     
-    body:not([arco-theme='dark']) & {
-      color: $text-dark;
-      
-      &::placeholder {
-        color: #9CA3AF;
-      }
-    }
-    
-    body[arco-theme='dark'] & {
-      color: #FFFFFF;
-      
-      &::placeholder {
-        color: rgba(255, 255, 255, 0.4);
-      }
+    &::placeholder {
+      color: var(--mint-neutral-60);
     }
   }
 
   :deep(.arco-input-prefix) {
     margin-right: 10px;
-    
-    body:not([arco-theme='dark']) & {
-      color: #9CA3AF;
-    }
-    
-    body[arco-theme='dark'] & {
-      color: rgba(255, 255, 255, 0.4);
-    }
+    color: var(--mint-neutral-60);
   }
   
   :deep(.arco-input-wrapper:focus-within .arco-input-prefix) {
-    body:not([arco-theme='dark']) & {
-      color: $mint-dark;
-    }
-    
-    body[arco-theme='dark'] & {
-      color: $mint-primary;
-    }
+    color: var(--mint-70);
   }
 
+  // 主按钮 - 使用薄荷绿主题统一样式（黑底白字）
   :deep(.arco-btn-primary) {
-    border-radius: 12px;
+    border-radius: var(--mint-radius-button);
     font-weight: 600;
     font-size: 15px;
     height: 50px;
     border: none;
     transition: all 0.2s ease;
     margin-top: 8px;
+    background: var(--mint-btn-primary-bg) !important;
+    color: var(--mint-btn-primary-text) !important;
+    box-shadow: var(--mint-btn-primary-shadow);
     
-    body:not([arco-theme='dark']) & {
-      background: $text-dark;
-      color: #FFFFFF;
-      
-      &:hover {
-        background: #1a1f1d;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      }
-      
-      &:active {
-        transform: translateY(0);
-      }
+    &:hover {
+      background: var(--mint-btn-primary-hover) !important;
+      transform: translateY(-1px);
+      box-shadow: var(--mint-btn-primary-shadow-hover);
     }
     
-    body[arco-theme='dark'] & {
-      background: $mint-primary;
-      color: $text-dark;
-      
-      &:hover {
-        background: $mint-dark;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(123, 227, 192, 0.3);
-      }
-      
-      &:active {
-        transform: translateY(0);
-      }
+    &:active {
+      transform: translateY(0);
     }
   }
 }
@@ -695,34 +559,16 @@ $text-secondary: #5A6B65;
   text-align: center;
   margin-top: 24px;
   font-size: 14px;
-  
-  body:not([arco-theme='dark']) & {
-    color: $text-secondary;
-  }
-  
-  body[arco-theme='dark'] & {
-    color: rgba(255, 255, 255, 0.6);
-  }
+  color: var(--mint-neutral-60);
 
   :deep(.arco-link) {
     font-weight: 600;
     margin-left: 4px;
     transition: color 0.2s ease;
+    color: var(--mint-70);
     
-    body:not([arco-theme='dark']) & {
-      color: $mint-dark;
-      
-      &:hover {
-        color: darken($mint-dark, 10%);
-      }
-    }
-    
-    body[arco-theme='dark'] & {
-      color: $mint-primary;
-      
-      &:hover {
-        color: lighten($mint-primary, 10%);
-      }
+    &:hover {
+      color: var(--mint-50);
     }
   }
 }
@@ -737,10 +583,7 @@ $text-secondary: #5A6B65;
     width: 100%;
     min-width: auto;
     min-height: 100vh;
-    
-    body:not([arco-theme='dark']) & {
-      background: linear-gradient(180deg, #FFFFFF 0%, $mint-bg 100%);
-    }
+    background: linear-gradient(180deg, var(--mint-neutral-00) 0%, var(--mint-15) 100%);
   }
 }
 

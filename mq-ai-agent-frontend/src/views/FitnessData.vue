@@ -922,12 +922,12 @@ export default {
                 symbolSize: 8,
                 data: bodyFats,
                 itemStyle: {
-                  color: '#f53f3f'
+                  color: '#2CBF8A'
                 },
                 areaStyle: {
                   color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                    { offset: 0, color: 'rgba(245, 63, 63, 0.3)' },
-                    { offset: 1, color: 'rgba(245, 63, 63, 0.05)' }
+                    { offset: 0, color: 'rgba(44, 191, 138, 0.3)' },
+                    { offset: 1, color: 'rgba(44, 191, 138, 0.05)' }
                   ])
                 }
               }
@@ -1282,23 +1282,23 @@ export default {
     }
 
     &.weight {
-      background: linear-gradient(45deg, #4080ff, #40a9ff);
+      background: linear-gradient(45deg, #7BE3C0, #2CBF8A);
     }
 
     &.bodyfat {
-      background: linear-gradient(45deg, #f53f3f, #ff7875);
+      background: linear-gradient(45deg, #FFB38A, #FFE7DC);
     }
 
     &.bmi {
-      background: linear-gradient(45deg, #00b42a, #52c41a);
+      background: linear-gradient(45deg, #2CBF8A, #5ED4A8);
     }
 
     &.muscle {
-      background: linear-gradient(45deg, #ff7d00, #ffa940);
+      background: linear-gradient(45deg, #FFB38A, #FFE7DC);
     }
     
     &.height {
-      background: linear-gradient(45deg, #722ed1, #9254de);
+      background: linear-gradient(45deg, #0B0F0D, #2f3835);
     }
   }
 
@@ -1468,7 +1468,7 @@ export default {
         width: 40px;
         height: 40px;
         border-radius: 8px;
-        background: linear-gradient(45deg, #ff7d00, #ffa940);
+        background: linear-gradient(45deg, #7BE3C0, #2CBF8A);
         display: flex;
         align-items: center;
         justify-content: center;
