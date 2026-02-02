@@ -7,15 +7,29 @@
         </transition>
       </router-view>
     </main>
-    <footer class="global-footer">
+    <!-- 着陆页有自己的页脚，不显示全局页脚 -->
+    <footer v-if="!isLandingPage" class="global-footer">
       <a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank" rel="noopener noreferrer">桂ICP备2024028689号-4</a>
     </footer>
   </div>
 </template>
 
 <script>
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+
 export default {
-  name: 'App'
+  name: 'App',
+  setup() {
+    const route = useRoute();
+    
+    // 着陆页有自己的页脚，不需要全局页脚
+    const isLandingPage = computed(() => route.name === 'Landing');
+    
+    return {
+      isLandingPage
+    };
+  }
 }
 </script>
 

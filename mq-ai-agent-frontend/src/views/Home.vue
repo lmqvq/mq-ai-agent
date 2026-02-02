@@ -2,12 +2,12 @@
   <div class="home-container">
     <!-- 左侧导航栏 -->
     <div class="sidebar">
-      <div class="sidebar-logo">
+      <router-link to="/" class="sidebar-logo">
         <icon-robot class="logo-icon" />
         <span class="logo-text">LMQ</span>
-      </div>
+      </router-link>
       <div class="sidebar-menu">
-        <router-link to="/" class="menu-item" active-class="active" exact>
+        <router-link to="/home" class="menu-item" active-class="active" exact>
           <icon-home />
           <span>主页</span>
         </router-link>
@@ -381,6 +381,7 @@ export default {
     align-items: center;
     padding: 0 20px;
     margin-bottom: 30px;
+    text-decoration: none;
     
     .logo-icon {
       font-size: 28px;

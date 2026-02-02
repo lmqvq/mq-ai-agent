@@ -1,0 +1,72 @@
+<svg width="280" height="300" viewBox="0 0 280 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 瑜伽冥想女性 - Dribbble 风格，简约填充 -->
+  
+  <!-- 头发 - 黑色丸子头 -->
+  <ellipse cx="140" cy="45" rx="35" ry="30" fill="#2D2D2D"/>
+  <ellipse cx="140" cy="38" rx="30" ry="22" fill="#2D2D2D"/>
+  
+  <!-- 头部 - 肤色 -->
+  <ellipse cx="140" cy="55" rx="26" ry="28" fill="#F5D0C5"/>
+  
+  <!-- 耳朵 -->
+  <ellipse cx="114" cy="55" rx="5" ry="7" fill="#F5D0C5"/>
+  <ellipse cx="166" cy="55" rx="5" ry="7" fill="#F5D0C5"/>
+  
+  <!-- 面部 - 闭眼微笑 -->
+  <path d="M128 52 Q133 50 138 52" stroke="#2D2D2D" stroke-width="2" fill="none"/>
+  <path d="M142 52 Q147 50 152 52" stroke="#2D2D2D" stroke-width="2" fill="none"/>
+  <path d="M133 68 Q140 73 147 68" stroke="#2D2D2D" stroke-width="2" fill="none"/>
+  
+  <!-- 脖子 -->
+  <rect x="132" y="80" width="16" height="12" fill="#F5D0C5"/>
+  
+  <!-- 肩膀 -->
+  <ellipse cx="105" cy="100" rx="15" ry="12" fill="#F5D0C5"/>
+  <ellipse cx="175" cy="100" rx="15" ry="12" fill="#F5D0C5"/>
+  
+  <!-- 身体 - 肤色基底 -->
+  <path d="M100 95 Q140 88 180 95 L182 160 Q140 170 98 160 Z" fill="#F5D0C5"/>
+  
+  <!-- 运动背心 - 紫色 -->
+  <path d="M108 100 Q140 93 172 100 L174 155 Q140 162 106 155 Z" fill="#9B8AC4"/>
+  
+  <!-- 左手臂 -->
+  <path d="M92 105 Q65 130 55 160 Q50 180 65 195" stroke="#F5D0C5" stroke-width="18" stroke-linecap="round" fill="none"/>
+  
+  <!-- 左手 -->
+  <circle cx="70" cy="200" r="10" fill="#F5D0C5"/>
+  
+  <!-- 右手臂 -->
+  <path d="M188 105 Q215 130 225 160 Q230 180 215 195" stroke="#F5D0C5" stroke-width="18" stroke-linecap="round" fill="none"/>
+  
+  <!-- 右手 -->
+  <circle cx="210" cy="200" r="10" fill="#F5D0C5"/>
+  
+  <!-- 瑜伽裤 - 黑色 -->
+  <path d="M98 158 Q140 168 182 158 L185 175 Q140 185 95 175 Z" fill="#1a1a1a"/>
+  
+  <!-- 盘腿部分 - 黑色裤子 -->
+  <ellipse cx="140" cy="210" rx="65" ry="35" fill="#1a1a1a"/>
+  
+  <!-- 左腿肤色部分 -->
+  <path d="M85 185 Q60 210 70 240 Q85 260 110 255" fill="#F5D0C5"/>
+  
+  <!-- 右腿肤色部分 -->
+  <path d="M195 185 Q220 210 210 240 Q195 260 170 255" fill="#F5D0C5"/>
+  
+  <!-- 左脚 -->
+  <ellipse cx="115" cy="255" rx="18" ry="8" fill="#F5D0C5"/>
+  
+  <!-- 右脚 -->
+  <ellipse cx="165" cy="255" rx="18" ry="8" fill="#F5D0C5"/>
+  
+  <!-- 装饰 - 汗滴/发光效果 -->
+  <ellipse cx="85" cy="85" rx="3" ry="4" fill="#A8D8EA" opacity="0.7"/>
+  <ellipse cx="195" cy="80" rx="2" ry="3" fill="#A8D8EA" opacity="0.5"/>
+  <ellipse cx="55" cy="170" rx="2" ry="3" fill="#A8D8EA" opacity="0.4"/>
+  <ellipse cx="225" cy="165" rx="2" ry="3" fill="#A8D8EA" opacity="0.4"/>
+  
+  <!-- 冥想线条装饰 -->
+  <path d="M120 25 Q140 18 160 25" stroke="#9B8AC4" stroke-width="2" fill="none" opacity="0.5"/>
+  <path d="M125 18 Q140 12 155 18" stroke="#9B8AC4" stroke-width="1.5" fill="none" opacity="0.3"/>
+</svg>

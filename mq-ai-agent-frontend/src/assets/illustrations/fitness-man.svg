@@ -1,0 +1,78 @@
+<svg width="300" height="400" viewBox="0 0 300 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 健身男性 - Dribbble 风格，简约填充 -->
+  
+  <!-- 头发 - 浅蓝色帽子/头发 -->
+  <ellipse cx="150" cy="52" rx="32" ry="28" fill="#A8D8EA"/>
+  
+  <!-- 头部 - 肤色 -->
+  <ellipse cx="150" cy="65" rx="28" ry="32" fill="#F5D0C5"/>
+  
+  <!-- 胡子 -->
+  <path d="M135 75 Q150 95 165 75" fill="#2D2D2D"/>
+  
+  <!-- 耳朵 -->
+  <ellipse cx="122" cy="65" rx="6" ry="8" fill="#F5D0C5"/>
+  <ellipse cx="178" cy="65" rx="6" ry="8" fill="#F5D0C5"/>
+  
+  <!-- 脖子 -->
+  <rect x="140" y="95" width="20" height="15" fill="#F5D0C5"/>
+  
+  <!-- 身体/胸部 - 肤色 -->
+  <path d="M115 110 Q150 100 185 110 L190 180 Q150 190 110 180 Z" fill="#F5D0C5"/>
+  
+  <!-- 背心衣服 -->
+  <path d="M125 115 Q150 108 175 115 L178 175 Q150 182 122 175 Z" fill="#E8E8E8" stroke="#CCCCCC" stroke-width="1"/>
+  
+  <!-- 左肩膀 -->
+  <ellipse cx="108" cy="120" rx="18" ry="14" fill="#F5D0C5"/>
+  
+  <!-- 右肩膀 -->
+  <ellipse cx="192" cy="120" rx="18" ry="14" fill="#F5D0C5"/>
+  
+  <!-- 左手臂 - 弯曲举哑铃 -->
+  <path d="M95 125 Q70 140 55 110 Q50 95 60 85" stroke="#F5D0C5" stroke-width="22" stroke-linecap="round" fill="none"/>
+  
+  <!-- 左手 -->
+  <circle cx="60" cy="80" r="12" fill="#F5D0C5"/>
+  
+  <!-- 左手哑铃 -->
+  <rect x="35" y="60" width="8" height="40" rx="4" fill="#2D2D2D"/>
+  <rect x="30" y="55" width="18" height="12" rx="3" fill="#2D2D2D"/>
+  <rect x="30" y="93" width="18" height="12" rx="3" fill="#2D2D2D"/>
+  
+  <!-- 右手臂 - 弯曲 -->
+  <path d="M205 125 Q230 160 220 200" stroke="#F5D0C5" stroke-width="22" stroke-linecap="round" fill="none"/>
+  
+  <!-- 右手 -->
+  <circle cx="220" cy="210" r="12" fill="#F5D0C5"/>
+  
+  <!-- 右手哑铃 -->
+  <rect x="200" y="215" width="40" height="8" rx="4" fill="#2D2D2D"/>
+  <rect x="195" y="210" width="12" height="18" rx="3" fill="#2D2D2D"/>
+  <rect x="233" y="210" width="12" height="18" rx="3" fill="#2D2D2D"/>
+  
+  <!-- 短裤 - 黑色 -->
+  <path d="M110 180 L105 260 L145 260 L150 195 L155 260 L195 260 L190 180 Q150 190 110 180 Z" fill="#1a1a1a"/>
+  
+  <!-- 左腿 - 肤色 -->
+  <path d="M108 258 L100 340 Q105 350 120 350 L130 260" fill="#F5D0C5"/>
+  
+  <!-- 右腿 - 肤色 -->
+  <path d="M170 260 L180 350 Q195 350 200 340 L192 258" fill="#F5D0C5"/>
+  
+  <!-- 左脚/鞋子 -->
+  <ellipse cx="110" cy="355" rx="22" ry="10" fill="#2D2D2D"/>
+  
+  <!-- 右脚/鞋子 -->
+  <ellipse cx="190" cy="355" rx="22" ry="10" fill="#2D2D2D"/>
+  
+  <!-- 汗滴装饰 -->
+  <ellipse cx="85" cy="100" rx="3" ry="5" fill="#A8D8EA" opacity="0.8"/>
+  <ellipse cx="215" cy="95" rx="2" ry="4" fill="#A8D8EA" opacity="0.6"/>
+  <ellipse cx="75" cy="130" rx="2" ry="3" fill="#A8D8EA" opacity="0.5"/>
+  
+  <!-- 动态线条装饰 -->
+  <path d="M40 70 Q35 75 40 80" stroke="#2D2D2D" stroke-width="2" fill="none" opacity="0.4"/>
+  <path d="M30 85 L25 85" stroke="#2D2D2D" stroke-width="2" opacity="0.3"/>
+  <path d="M255 200 Q260 205 255 210" stroke="#2D2D2D" stroke-width="2" fill="none" opacity="0.4"/>
+</svg>

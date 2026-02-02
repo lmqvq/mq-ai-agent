@@ -4,10 +4,18 @@ import { createRouter, createWebHistory } from 'vue-router'
 const routes = [
     {
         path: '/',
+        name: 'Landing',
+        component: () => import('../views/Landing.vue'),
+        meta: {
+            title: 'AI健身教练 - 让科学健身触手可及'
+        }
+    },
+    {
+        path: '/home',
         name: 'Home',
         component: () => import('../views/Home.vue'),
         meta: {
-            title: '首页 - AI健身教练'
+            title: '主页 - AI健身教练'
         }
     },
     {
