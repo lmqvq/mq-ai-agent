@@ -12,6 +12,35 @@
    亮色模式（默认）
 ----------------------------------------------------------------- */
 :root {
+  /* === Landing Page 薄荷绿色系 === */
+  /* Neutral */
+  --landing-bg: #FFFFFF;
+  --landing-bg-secondary: #F7FAF9;
+  --landing-border: #E8EFEC;
+  --landing-text-secondary: #7C8A84;
+  --landing-text-primary: #0B0F0D;
+  
+  /* Mint（主色系） */
+  --landing-mint: #7BE3C0;
+  --landing-mint-light: #DFF8EE;
+  --landing-mint-bg: #F1FCF7;
+  --landing-mint-dark: #2CBF8A;
+  
+  /* Accent（暖色点缀） */
+  --landing-accent: #FFB38A;
+  --landing-accent-light: #FFE7DC;
+  
+  /* 按钮 */
+  --landing-btn-primary-bg: #0B0F0D;
+  --landing-btn-primary-text: #FFFFFF;
+  --landing-btn-primary-hover: #111815;
+  --landing-btn-secondary-bg: #DFF8EE;
+  --landing-btn-secondary-text: #0B0F0D;
+  --landing-btn-secondary-hover: #F1FCF7;
+  
+  /* 阴影 */
+  --landing-shadow-card: 0 12px 30px rgba(0, 0, 0, 0.06);
+  --landing-shadow-mockup: 0 20px 50px rgba(0, 0, 0, 0.1);
   /* === 背景 === */
   --theme-bg-page: #f0f2f5;           /* 页面背景 */
   --theme-bg-container: #ffffff;      /* 容器背景 */
@@ -120,6 +149,31 @@
    暗色模式 - 参考 WONG公益站 设计风格
 ----------------------------------------------------------------- */
 html.dark-theme {
+  /* === Landing Page 薄荷绿色系 - 暗色模式 === */
+  --landing-bg: #0d0e12;
+  --landing-bg-secondary: #131419;
+  --landing-border: rgba(255,255,255,0.1);
+  --landing-text-secondary: #9ca3af;
+  --landing-text-primary: #ffffff;
+  
+  --landing-mint: #7BE3C0;
+  --landing-mint-light: rgba(123, 227, 192, 0.15);
+  --landing-mint-bg: rgba(123, 227, 192, 0.08);
+  --landing-mint-dark: #5ED4A8;
+  
+  --landing-accent: #FFB38A;
+  --landing-accent-light: rgba(255, 179, 138, 0.15);
+  
+  --landing-btn-primary-bg: #ffffff;
+  --landing-btn-primary-text: #0B0F0D;
+  --landing-btn-primary-hover: #f0f0f0;
+  --landing-btn-secondary-bg: rgba(123, 227, 192, 0.15);
+  --landing-btn-secondary-text: #ffffff;
+  --landing-btn-secondary-hover: rgba(123, 227, 192, 0.25);
+  
+  --landing-shadow-card: 0 12px 30px rgba(0, 0, 0, 0.3);
+  --landing-shadow-mockup: 0 20px 50px rgba(0, 0, 0, 0.4);
+
   /* === 背景 === */
   --theme-bg-page: #0d0e12;           /* 页面背景 - 纯深黑 */
   --theme-bg-container: #131419;      /* 容器背景 */

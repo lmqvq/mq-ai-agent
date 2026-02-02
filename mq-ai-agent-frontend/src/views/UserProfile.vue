@@ -263,7 +263,7 @@ export default {
 
     // 返回主页
     const goBack = () => {
-      router.push('/');
+      router.push('/home');
     };
 
     // 用户状态管理

@@ -165,8 +165,8 @@ export default {
         
         if (result.success) {
           Message.success('登录成功')
-          // 跳转到首页
-          router.push('/')
+          // 跳转到主页
+          router.push('/home')
         } else {
           Message.error(result.message)
         }

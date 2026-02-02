@@ -1082,7 +1082,7 @@ export default {
 
     // 返回主页
     const goToHome = () => {
-      router.push('/');
+      router.push('/home');
     };
 
     return {
