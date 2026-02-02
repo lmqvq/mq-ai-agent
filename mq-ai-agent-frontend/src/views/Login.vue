@@ -9,7 +9,7 @@
             <circle cx="16" cy="16" r="14" fill="#7BE3C0"/>
             <path d="M12 16 L16 12 L20 16 L16 20 Z" fill="white"/>
           </svg>
-          <span>AI健身</span>
+          <span>AI健身教练</span>
         </div>
         
         <!-- 主标题 -->
@@ -244,11 +244,12 @@ $text-secondary: #5A6B65;
   overflow: hidden;
   
   body:not([arco-theme='dark']) & {
-    background: linear-gradient(135deg, $mint-bg 0%, $mint-light 100%);
+    // 更浅更柔和的薄荷绿背景，参考着陆页风格
+    background: linear-gradient(135deg, #FFFFFF 0%, #F7FAF9 50%, $mint-bg 100%);
   }
   
   body[arco-theme='dark'] & {
-    background: linear-gradient(135deg, #1a2a3a 0%, #0f1f2f 100%);
+    background: linear-gradient(135deg, #1a1f2e 0%, #151a28 100%);
   }
 }
 
@@ -389,32 +390,33 @@ $text-secondary: #5A6B65;
   border-radius: 50%;
   
   &.deco-1 {
-    width: 400px;
-    height: 400px;
+    width: 500px;
+    height: 500px;
     top: -150px;
-    right: -100px;
+    right: -150px;
     
     body:not([arco-theme='dark']) & {
-      background: rgba($mint-primary, 0.3);
+      // 更淡的薄荷绿圈
+      background: linear-gradient(135deg, $mint-bg 0%, transparent 70%);
     }
     
     body[arco-theme='dark'] & {
-      background: rgba($mint-dark, 0.15);
+      background: rgba($mint-dark, 0.08);
     }
   }
   
   &.deco-2 {
-    width: 250px;
-    height: 250px;
-    bottom: -80px;
-    left: -60px;
+    width: 300px;
+    height: 300px;
+    bottom: -100px;
+    left: -80px;
     
     body:not([arco-theme='dark']) & {
-      background: rgba($mint-primary, 0.2);
+      background: linear-gradient(135deg, rgba($mint-primary, 0.1) 0%, transparent 70%);
     }
     
     body[arco-theme='dark'] & {
-      background: rgba($mint-dark, 0.1);
+      background: rgba($mint-dark, 0.05);
     }
   }
 }
