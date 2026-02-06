@@ -1,304 +1,381 @@
-# 🤖 MQ AI Agent
-
 <div align="center">
 
-![Java](https://img.shields.io/badge/Java-21-orange?style=flat-square&logo=openjdk)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.6-brightgreen?style=flat-square&logo=spring)
-![Spring AI](https://img.shields.io/badge/Spring%20AI-Latest-blue?style=flat-square)
-![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
-![Build](https://img.shields.io/badge/Build-Passing-success?style=flat-square)
+<img src="https://raw.githubusercontent.com/lmqvq/Upload-image/main/img/202602062301732.png" alt="MQ AI Agent Banner" width="100%" />
 
-**🚀 Intelligent Fitness Assistant and Multi-functional AI Agent Platform based on Spring AI**
+# 🏋️ MQ AI Agent
 
-[中文](README.md) | [Demo Video](#) | [Live Demo](#) | [API Docs](#)
+### Intelligent Fitness Assistant & Multi-functional AI Agent Platform based on Spring AI + ReAct Architecture
+
+[![Java](https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.6-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Spring AI](https://img.shields.io/badge/Spring%20AI-1.0.0--M6-6DB33F?style=for-the-badge&logo=spring&logoColor=white)](https://spring.io/projects/spring-ai)
+[![Vue](https://img.shields.io/badge/Vue-3.2-4FC08D?style=for-the-badge&logo=vuedotjs&logoColor=white)](https://vuejs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
+
+[中文](README.md) &nbsp;|&nbsp; [Live Demo](https://cozi.chat/) &nbsp;|&nbsp; [Screenshots](#-screenshots) &nbsp;|&nbsp; [Quick Start](#-quick-start)
+
+**If this project helps you, please give it a ⭐ Star!**
 
 </div>
 
-## 📖 Project Overview
+---
 
-MQ AI Agent is a modern AI agent platform built on the **Spring AI** framework, focusing on intelligent fitness guidance and multi-functional AI services. The project integrates Alibaba Cloud's Qwen large language model and supports **ReAct pattern** agent architecture with core features including tool calling, RAG knowledge base Q&A, and conversation memory.
+## 📖 Overview
 
-### ✨ Key Features
+**MQ AI Agent** is a full-stack AI application platform built on **Spring AI** framework and **ReAct (Reasoning + Acting)** agent architecture. The project focuses on **Intelligent Fitness Assistant** as its core use case while providing general-purpose **Multi-functional AI Agent** capabilities.
 
-- 🏃‍♂️ **Intelligent Fitness Assistant (KeepApp)**: Professional AI fitness coach providing personalized training plans
-- 🤖 **Multi-functional Agent (MqManus)**: Universal AI assistant supporting tool calling
-- 🧠 **Conversation Memory System**: MySQL-based persistent conversation history management
-- 🔧 **Rich Tool Ecosystem**: File operations, web search, PDF generation, and more
-- 📚 **RAG Knowledge Base**: Integrated with Alibaba Cloud knowledge base service for professional fitness knowledge
-- 🔐 **User Permission Management**: Complete user authentication and access control system
-- 🌊 **Streaming Response**: SSE real-time streaming conversation experience
+> 💡 This project also serves as a **graduation design project**, with the thesis titled "Design and Implementation of an Intelligent Fitness Assistant System Based on Large Language Models and ReAct Architecture".
+
+### 🎯 In One Sentence
+
+Integrate **Large Language Models**, **RAG Knowledge Base**, **Tool Calling**, and **Conversation Memory** into an out-of-the-box fitness assistant platform, making AI your personal fitness coach.
+
+---
+
+## ✨ Key Features
+
+<table>
+<tr>
+<td width="50%">
+
+**🤖 Dual AI Agents**
+- **AI Fitness Coach (KeepApp)**: Professional fitness guidance + RAG knowledge base
+- **AI Super Agent (MqManus)**: ReAct architecture + 7 tool integrations
+
+</td>
+<td width="50%">
+
+**🔄 Real-time Streaming**
+- SSE (Server-Sent Events) based streaming response
+- ChatGPT-like typewriter effect conversation experience
+
+</td>
+</tr>
+<tr>
+<td>
+
+**📚 RAG Knowledge Base**
+- 6 categories of professional fitness knowledge documents
+- Supports local vector storage + Alibaba Cloud Knowledge Base
+- 88%+ knowledge Q&A accuracy
+
+</td>
+<td>
+
+**🔧 Rich Tool Ecosystem**
+- File operations · Web search · Web crawling
+- Resource download · PDF generation · Google search
+- Extensible custom tools
+
+</td>
+</tr>
+<tr>
+<td>
+
+**📊 Fitness Data Management**
+- Weight / Body fat / BMI tracking
+- ECharts visualization & trend analysis
+- Exercise records & calorie statistics
+
+</td>
+<td>
+
+**🧠 Conversation Memory**
+- MySQL persistent multi-turn dialogue context
+- Redis cache acceleration (optional)
+- User-level data isolation
+
+</td>
+</tr>
+<tr>
+<td>
+
+**🔐 Complete User System**
+- Registration / Login / Access control
+- Profile center + Avatar upload (COS)
+- Fitness leaderboard
+
+</td>
+<td>
+
+**🎨 Multi-model Support**
+- Qwen (built-in) + DeepSeek + GLM + Gemini
+- Supports any OpenAI-compatible models
+- Configuration-based integration, no code changes
+
+</td>
+</tr>
+</table>
+
+---
+
+## 📸 Screenshots
+
+<details open>
+<summary><b>Click to expand / collapse screenshots</b></summary>
+
+<br>
+
+| Landing Page | Login Page |
+|:---:|:---:|
+| ![Landing](https://raw.githubusercontent.com/lmqvq/Upload-image/main/img/202602062301732.png) | ![Login](https://raw.githubusercontent.com/lmqvq/Upload-image/main/mq-ai-agent/202602062303805.png) |
+
+| Home | AI Fitness Coach |
+|:---:|:---:|
+| ![Home](https://raw.githubusercontent.com/lmqvq/Upload-image/main/mq-ai-agent/202602062318600.png) | ![AI Fitness Coach](https://raw.githubusercontent.com/lmqvq/Upload-image/main/mq-ai-agent/202602062306626.png) |
+
+| AI Super Agent | Profile |
+|:---:|:---:|
+| ![AI Super Agent](https://raw.githubusercontent.com/lmqvq/Upload-image/main/mq-ai-agent/202602062311705.png) | ![Profile](https://raw.githubusercontent.com/lmqvq/Upload-image/main/mq-ai-agent/202602062316305.png) |
+
+| Fitness Leaderboard | Fitness Knowledge Base |
+|:---:|:---:|
+| ![Leaderboard](https://raw.githubusercontent.com/lmqvq/Upload-image/main/mq-ai-agent/202602062336041.png) | ![Knowledge Base](https://raw.githubusercontent.com/lmqvq/Upload-image/main/mq-ai-agent/202602062316651.png) |
+
+</details>
+
+---
 
 ## 🏗️ System Architecture
 
 ### Overall Architecture
 
-The system adopts a layered architecture design, from bottom to top:
-
-1. **Data Storage Layer**: MySQL, Redis, File Storage, Knowledge Base
-2. **AI Capability Layer**: Spring AI Framework, Qwen Model, RAG, Memory Management
-3. **Agent Architecture Layer**: BaseAgent, ReActAgent, ToolCallAgent, Tool Ecosystem
-4. **Business Service Layer**: AI Application Services, Core Business Services
-5. **Controller Layer**: AI Controller, Chat History Controller, User Controller
-6. **Gateway Layer**: Spring Boot Web, Authentication, CORS, Rate Limiting
-7. **Client Layer**: Web Frontend, Mobile, Third-party API
-
-### Agent Architecture Design
-
-```mermaid
-classDiagram
-    class BaseAgent {
-        -String name
-        -String systemPrompt
-        -AgentState state
-        -ChatClient chatClient
-        -List~Message~ messageList
-        +run(userPrompt) String
-        +runStream(userPrompt) SseEmitter
-        +step()* String
-    }
-    
-    class ReActAgent {
-        +think()* boolean
-        +act()* String
-        +step() String
-    }
-    
-    class ToolCallAgent {
-        -ToolCallback[] availableTools
-        -ToolCallingManager toolCallingManager
-        +think() boolean
-        +act() String
-    }
-    
-    class MqManus {
-        +MqManus(tools, model)
-        +MqManus(tools, model, memory)
-    }
-    
-    class KeepApp {
-        -ChatClient chatClient
-        +doChat(message, chatId) String
-        +doChatByStream(message, chatId) Flux
-        +doChatWithRag(message, chatId) String
-    }
-    
-    BaseAgent <|-- ReActAgent
-    ReActAgent <|-- ToolCallAgent
-    ToolCallAgent <|-- MqManus
-    
-    BaseAgent --> ChatClient
-    KeepApp --> ChatClient
-    KeepApp --> DatabaseChatMemory
 ```
+┌─────────────────────────────────────────────────────────────────┐
+│                        Client Layer                              │
+│            Vue 3 + Arco Design + ECharts + Pinia                 │
+├─────────────────────────────────────────────────────────────────┤
+│                     Gateway Layer                                │
+│         Spring Boot Web · Auth · CORS · Rate Limiting            │
+├─────────────────────────────────────────────────────────────────┤
+│                    Service Layer                                 │
+│      KeepApp · MqManus · UserService · FitnessService ...        │
+├─────────────────────────────────────────────────────────────────┤
+│                   Agent Architecture Layer                       │
+│     BaseAgent → ReActAgent → ToolCallAgent → MqManus             │
+│     Think → Act → Observe Loop                                   │
+├─────────────┬─────────────┬───────────────┬─────────────────────┤
+│  Spring AI  │ RAG Knowledge │  Chat Memory    │  Tools (7 types)    │
+│  ChatClient │ Vector Search │  MySQL+Redis    │  Search/File/PDF... │
+├─────────────┴─────────────┴───────────────┴─────────────────────┤
+│                     Data Layer                                   │
+│           MySQL 8.0 · Redis · Tencent COS · Vector Store         │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Architecture Diagram
+
+![System Architecture](https://mq-picture-1324656182.cos.ap-guangzhou.myqcloud.com/img/202508101625250.png)
+
+### AI Conversation Data Flow
+
+![AI Data Flow](https://mq-picture-1324656182.cos.ap-guangzhou.myqcloud.com/img/202508101552167.png)
+
+### ReAct Agent Workflow
+
+```
+User Request ──→ Think ──→ Need Tools? ──Yes──→ Act (Execute Tool) ──→ Observe ──→ Continue Loop
+                 │                                                              │
+                 └── No ──→ Generate Answer ──→ Return Result ←── Task Complete ←┘
+```
+
+---
+
+## 🛠️ Tech Stack
+
+### Backend
+
+| Technology | Version | Description |
+|------------|---------|-------------|
+| **Java** | 21 | Programming Language |
+| **Spring Boot** | 3.4.6 | Application Framework |
+| **Spring AI** | 1.0.0-M6.1 | AI Development Framework |
+| **MySQL** | 8.0+ | Relational Database |
+| **MyBatis-Plus** | 3.5.12 | ORM Framework |
+| **Redis** | 6.0+ | Cache (Optional) |
+| **Qwen DashScope** | - | Default AI Model |
+| **Spring AI OpenAI** | 1.0.0-M6 | OpenAI-compatible Model Access |
+| **Tencent COS** | - | Object Storage |
+
+### Frontend
+
+| Technology | Version | Description |
+|------------|---------|-------------|
+| **Vue** | 3.2.13 | Frontend Framework (Composition API) |
+| **Arco Design Vue** | 2.57.0 | UI Component Library |
+| **Vue Router** | 4.5.1 | Routing |
+| **Pinia** | 3.0.3 | State Management |
+| **Axios** | 1.10.0 | HTTP Client |
+| **ECharts** | 6.0.0 | Data Visualization |
+| **Mermaid** | 11.9.0 | Diagram Rendering |
+| **SCSS** | - | CSS Preprocessor |
+
+---
+
+## 📁 Project Structure
+
+```
+mq-ai-agent/
+├── 📂 src/main/java/com/mq/mqaiagent/
+│   ├── 📂 agent/                  # 🤖 Agent Core Architecture
+│   │   ├── BaseAgent.java         #    Base Agent (State Machine + Execution Loop)
+│   │   ├── ReActAgent.java        #    ReAct Pattern (Think-Act-Observe)
+│   │   ├── ToolCallAgent.java     #    Tool Calling Agent
+│   │   └── MqManus.java           #    Multi-functional Agent Instance
+│   ├── 📂 app/                    # 💪 Fitness Application
+│   │   └── KeepApp.java           #    AI Fitness Coach
+│   ├── 📂 tools/                  # 🔧 Tool Set (7 tools)
+│   ├── 📂 rag/                    # 📚 RAG Knowledge Base Config
+│   ├── 📂 chatmemory/             # 🧠 Chat Memory (MySQL + Redis)
+│   ├── 📂 ai/                     # 🎛️ Multi-model Routing
+│   ├── 📂 controller/             # 🌐 API Controllers
+│   ├── 📂 service/                # ⚙️ Business Services
+│   └── 📂 config/                 # ⚙️ Configuration
+├── 📂 mq-ai-agent-frontend/       # 🎨 Vue 3 Frontend
+├── 📂 sql/                        # 🗃️ Database Scripts
+├── 📂 docs/                       # 📄 Documentation
+└── 📂 scripts/                    # 📜 Deployment Scripts
+```
+
+---
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### Requirements
 
-- **Java**: 21+
-- **Maven**: 3.8+
-- **MySQL**: 8.0+
-- **Redis**: 6.0+ (Optional)
+| Environment | Version | Required |
+|-------------|---------|----------|
+| Java | 21+ | ✅ |
+| Maven | 3.8+ | ✅ |
+| Node.js | 14+ | ✅ |
+| MySQL | 8.0+ | ✅ |
+| Redis | 6.0+ | ❌ (Optional) |
 
-### Installation Steps
+### 1. Clone Repository
 
-1. **Clone the Repository**
 ```bash
 git clone https://github.com/lmqvq/mq-ai-agent.git
 cd mq-ai-agent
 ```
 
-2. **Setup Database**
+### 2. Start Backend
+
 ```bash
-# Create database
+# 2.1 Initialize Database
 mysql -u root -p < sql/create_table.sql
-```
 
-3. **Configure Application**
-```yaml
-# src/main/resources/application.yml
-spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/mq_ai_agent
-    username: your_username
-    password: your_password
-  
-  ai:
-    dashscope:
-      api-key: your_dashscope_api_key
+# 2.2 Configure application.yml
+# Edit database connection, AI model API Key, etc.
 
-search-api:
-  api-key: your_search_api_key
-```
-
-4. **Start Application**
-```bash
+# 2.3 Start Backend
 mvn spring-boot:run
 ```
 
-5. **Access Application**
-- API Documentation: http://localhost:8123/api/swagger-ui.html
-- Health Check: http://localhost:8123/api/actuator/health
-
-## 📚 API Usage Guide
-
-### Fitness Assistant API
+### 3. Start Frontend
 
 ```bash
-# Synchronous conversation
-curl -X GET "http://localhost:8123/api/ai/keep_app/chat/sync" \
-  -d "message=I want to build muscle, please give me advice" \
-  -d "chatId=chat_123"
+cd mq-ai-agent-frontend
 
-# Streaming conversation (with user authentication)
-curl -X GET "http://localhost:8123/api/ai/keep_app/chat/sse/user" \
-  -H "Cookie: JSESSIONID=your_session_id" \
-  -d "message=Create a weekly workout plan" \
-  -d "chatId=chat_456"
+# 3.1 Install Dependencies
+npm install
+
+# 3.2 Start Development Server
+npm run serve
 ```
 
-### Agent API
+### 4. Access Application
 
-```bash
-# MqManus Agent (with tool calling support)
-curl -X GET "http://localhost:8123/api/ai/manus/chat/user" \
-  -H "Cookie: JSESSIONID=your_session_id" \
-  -d "message=Help me search for latest fitness news and generate a PDF report" \
-  -d "chatId=chat_789"
+- 🌐 Frontend: http://localhost:8080
+- 📡 Backend API: http://localhost:8123/api
+
+### ⚙️ Core Configuration
+
+Configure in `src/main/resources/application.yml`:
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/mq_ai_agent
+    username: root
+    password: your_password
+  ai:
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY}    # Alibaba Qwen API Key
+
+# Multi-model Configuration (Optional)
+mq:
+  ai:
+    default-model: qwen-plus
+    models:
+      deepseek:
+        name: "DeepSeek"
+        api-key: ${DEEPSEEK_API_KEY}
+        base-url: https://api.deepseek.com
+        model: deepseek-chat
+        enabled: true
+
+# Search API (for Super Agent)
+search-api:
+  api-key: ${SEARCH_API_KEY}
+
+# Tencent COS (for avatar upload)
+cos:
+  client:
+    accessKey: ${COS_ACCESS_KEY}
+    secretKey: ${COS_SECRET_KEY}
+    region: ${COS_REGION}
+    bucket: ${COS_BUCKET}
 ```
 
-### Chat History API
+> 💡 It's recommended to use environment variables for sensitive information.
 
-```bash
-# Get conversation list
-curl -X GET "http://localhost:8123/api/chat/history/list" \
-  -H "Cookie: JSESSIONID=your_session_id"
+---
 
-# Get conversation details
-curl -X GET "http://localhost:8123/api/chat/history/detail?chatId=chat_123" \
-  -H "Cookie: JSESSIONID=your_session_id"
+## 🤖 Agent Architecture Details
+
+### Four-layer Inheritance Structure
+
+```
+BaseAgent (Base Agent)
+  ├── State Management: IDLE → RUNNING → FINISHED/ERROR
+  ├── Execution Loop: Max steps control, prevents infinite loops
+  └── Sync / Streaming execution modes
+       │
+       ▼
+ReActAgent (ReAct Pattern)
+  ├── think(): Reasoning phase — analyze task, decide if action needed
+  └── act(): Action phase — execute operations, return results
+       │
+       ▼
+ToolCallAgent (Tool Calling)
+  ├── ToolCallingManager
+  ├── Automatic tool discovery and registration
+  └── Tool execution result feedback
+       │
+       ▼
+MqManus (Multi-functional Agent Instance)
+  ├── Integrates 7 tools
+  ├── Chat memory + ChatClient pooling
+  └── Custom system prompts
 ```
 
-## 🛠️ Technology Stack
+### Built-in Tools Overview
 
-### Backend Technologies
-- **Framework**: Spring Boot 3.4.6, Spring AI
-- **AI Model**: Alibaba Cloud Qwen (DashScope)
-- **Database**: MySQL 8.0, MyBatis-Plus
-- **Cache**: Redis (Optional)
-- **Utilities**: Hutool, Lombok, FastJSON2
+| Tool | Function | Use Case |
+|------|----------|----------|
+| 📄 FileOperationTool | File create / read / write / delete | Save fitness plans, training records |
+| 🔍 WebSearchTool | Web information search | Search latest fitness news |
+| 🌐 WebCrawlingTool | Web content crawling (Jsoup) | Get fitness articles, nutrition info |
+| ⬇️ ResourceDownloadTool | Resource file download | Download exercise illustrations |
+| 📑 PDFGenerationTool | PDF document generation (iText) | Generate fitness plan PDF reports |
+| 🔎 GoogleWebSearchTool | Google Search (SerpApi) | High-quality search results |
+| 🛑 TerminateTool | Terminate agent loop | Task completion signal |
 
-### AI Capabilities
-- **Conversation Model**: Qwen series models
-- **Knowledge Base**: Alibaba Cloud Knowledge Base Service
-- **Tool Calling**: File operations, web search, PDF generation, etc.
-- **Memory Management**: Database-based persistent conversation memory
+---
 
-## 🎯 Feature Details
+## 🚢 Deployment Guide
 
-### 🏃‍♂️ Intelligent Fitness Assistant (KeepApp)
-
-KeepApp is an AI assistant designed specifically for fitness enthusiasts with the following capabilities:
-
-- **Personalized Training Plans**: Custom plans based on user's physical condition and fitness goals
-- **Nutrition Guidance**: Scientific dietary advice and nutritional combinations
-- **Exercise Instruction**: Detailed fitness movement descriptions and precautions
-- **Progress Tracking**: Recording and analyzing user's fitness progress
-- **RAG Knowledge Base**: Q&A service based on professional fitness knowledge base
-
-### 🤖 Multi-functional Agent (MqManus)
-
-MqManus is a universal agent based on ReAct architecture, supporting automated execution of complex tasks:
-
-#### 🔧 Built-in Tool Set
-
-| Tool Category | Tool Name | Function Description |
-|---------------|-----------|---------------------|
-| File Operations | FileOperationTool | File read/write, directory management |
-| Web Search | WebSearchTool | Network information search |
-| Web Crawling | WebCrawlingTool | Web content extraction |
-| Resource Download | ResourceDownloadTool | File download management |
-| PDF Generation | PDFGenerationTool | Document generation and conversion |
-| Task Termination | TerminateTool | Agent task control |
-
-#### 🧠 ReAct Workflow
-
-The agent follows the ReAct (Reasoning and Acting) pattern:
-1. **Think**: Analyze current state and plan next actions
-2. **Act**: Execute selected tools and actions
-3. **Observe**: Evaluate results and decide next steps
-4. **Repeat**: Continue until task completion
-
-### 💾 Conversation Memory System
-
-MySQL-based persistent conversation memory supporting:
-
-- **User Isolation**: Complete isolation of each user's conversation records
-- **Multi-turn Conversations**: Long-term conversation context memory
-- **History Queries**: Complete conversation history management
-- **Performance Optimization**: Intelligent memory retrieval and storage strategies
-
-## 🔐 Security Features
-
-### User Authentication & Authorization
-
-- **Session Management**: Spring Session-based user session management
-- **Access Control**: Fine-grained API access permission control
-- **Data Isolation**: Complete user data isolation ensuring privacy security
-
-### API Security
-
-- **Request Validation**: Complete request parameter validation
-- **Exception Handling**: Unified exception handling and error responses
-- **Audit Logging**: Detailed operation log recording
-
-## 📊 Performance Optimization
-
-### Database Optimization
-
-- **Index Strategy**: Database indexes optimized for query patterns
-- **Connection Pool**: HikariCP high-performance database connection pool
-- **Query Optimization**: Efficient ORM operations with MyBatis-Plus
-
-### Caching Strategy
-
-- **Conversation Cache**: Redis caching for hot conversation data
-- **User Cache**: User information and permission caching
-- **Tool Result Cache**: Intelligent caching of tool call results
-
-### Streaming Response
-
-- **SSE Support**: Server-Sent Events real-time data push
-- **Backpressure Handling**: Reactor reactive stream backpressure control
-- **Resource Management**: Automatic connection and resource cleanup
-
-## 🚀 Deployment Guide
-
-### Docker Deployment
-
-```dockerfile
-# Dockerfile
-FROM openjdk:21-jdk-slim
-
-WORKDIR /app
-COPY target/mq-ai-agent-0.0.1-SNAPSHOT.jar app.jar
-
-EXPOSE 8123
-ENTRYPOINT ["java", "-jar", "app.jar"]
-```
-
-```bash
-# Build image
-docker build -t mq-ai-agent:latest .
-
-# Run container
-docker run -d -p 8123:8123 \
-  -e DASHSCOPE_API_KEY=your_api_key \
-  -e MYSQL_URL=jdbc:mysql://host:3306/db \
-  mq-ai-agent:latest
-```
-
-### Docker Compose
+### Docker Compose One-click Deployment
 
 ```yaml
 # docker-compose.yml
@@ -333,48 +410,83 @@ volumes:
   mysql_data:
 ```
 
+```bash
+docker-compose up -d
+```
+
+### Nginx Reverse Proxy
+
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+
+    location / {
+        root /var/www/frontend;
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api/ {
+        proxy_pass http://localhost:8123/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
+
+---
+
 ## 🤝 Contributing
 
 We welcome all forms of contributions! Please check [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
-### Development Workflow
+```bash
+# 1. Fork & Clone
+git clone https://github.com/your-username/mq-ai-agent.git
 
-1. Fork the project
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Create a Pull Request
+# 2. Create feature branch
+git checkout -b feature/your-feature
 
-### Code Standards
+# 3. Commit changes (follow Conventional Commits)
+git commit -m "feat: add your feature"
 
-- Follow [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
-- Use Lombok to reduce boilerplate code
-- Write complete JavaDoc comments
-- Maintain test coverage > 80%
+# 4. Push and create PR
+git push origin feature/your-feature
+```
+
+---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the [MIT License](LICENSE) - you are free to use, modify, and distribute.
+
+---
 
 ## 🙏 Acknowledgments
 
-- [Spring AI](https://spring.io/projects/spring-ai) - Powerful AI application development framework
-- [Alibaba Cloud Qwen](https://dashscope.aliyun.com/) - Excellent large language model service
-- [Spring Boot](https://spring.io/projects/spring-boot) - Rapid application development framework
+- [Spring AI](https://spring.io/projects/spring-ai) - AI Application Framework
+- [Alibaba Cloud Qwen](https://dashscope.aliyun.com/) - Large Language Model Service
+- [Arco Design](https://arco.design/) - UI Component Library
+- [Vue.js](https://vuejs.org/) - Frontend Framework
+- [DeepSeek](https://www.deepseek.com/) - AI Model
 
-## 📞 Contact Us
+---
+
+## 📞 Contact
 
 - **Author**: LMQICU
 - **Email**: 2097489731@qq.com
-- **Project Homepage**: https://github.com/lmqvq/mq-ai-agent
-- **Issue Tracker**: https://github.com/lmqvq/mq-ai-agent/issues
+- **GitHub**: [https://github.com/lmqvq](https://github.com/lmqvq)
+- **Live Demo**: [https://cozi.chat/](https://cozi.chat/)
 
 ---
 
 <div align="center">
 
-**⭐ If this project helps you, please give us a Star! ⭐**
+**⭐ If this project helps you, please give it a Star! ⭐**
 
 Made with ❤️ by [LMQICU](https://github.com/lmqvq)
+
+[Back to Top](#-mq-ai-agent)
 
 </div>

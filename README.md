@@ -1,161 +1,348 @@
-# 🤖 MQ AI Agent
-
 <div align="center">
 
-![Java](https://img.shields.io/badge/Java-21-orange?style=flat-square&logo=openjdk)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.6-brightgreen?style=flat-square&logo=spring)
-![Spring AI](https://img.shields.io/badge/Spring%20AI-Latest-blue?style=flat-square)
-![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
-![Build](https://img.shields.io/badge/Build-Passing-success?style=flat-square)
+<img src="https://raw.githubusercontent.com/lmqvq/Upload-image/main/img/202602062301732.png" alt="MQ AI Agent Banner" width="100%" />
 
-**🚀 基于 Spring AI 的智能健身助手和多功能 AI 智能体平台**
+# 🏋️ MQ AI Agent
 
-[English](README_EN.md) | [演示视频](#) | [在线体验](https://cozi.chat/) | [API 文档](#)
+### 基于 Spring AI + ReAct 架构的智能健身助手 & 多功能 AI 智能体平台
+
+[![Java](https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.6-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Spring AI](https://img.shields.io/badge/Spring%20AI-1.0.0--M6-6DB33F?style=for-the-badge&logo=spring&logoColor=white)](https://spring.io/projects/spring-ai)
+[![Vue](https://img.shields.io/badge/Vue-3.2-4FC08D?style=for-the-badge&logo=vuedotjs&logoColor=white)](https://vuejs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
+
+[English](README_EN.md) &nbsp;|&nbsp; [在线体验](https://cozi.chat/) &nbsp;|&nbsp; [功能截图](#-功能截图) &nbsp;|&nbsp; [快速开始](#-快速开始)
+
+**如果这个项目对你有帮助，请点个 ⭐ Star 支持一下！**
 
 </div>
 
+---
+
 ## 📖 项目简介
 
-LMQ AI Agent 是一个基于 **Spring AI** 框架构建的现代化 AI 智能体平台，专注于提供智能健身指导和多功能 AI 服务。项目集成了阿里云通义千问大模型，支持 **ReAct 模式**的智能体架构，具备工具调用、RAG 知识库问答、对话记忆等核心功能。
+**MQ AI Agent** 是一个基于 **Spring AI** 框架和 **ReAct（Reasoning + Acting）** 智能体架构构建的全栈 AI 应用平台。项目以 **智能健身助手** 为核心应用场景，同时提供通用的 **多功能 AI 智能体** 能力。
 
-### ✨ 核心特性
+### 🎯 一句话介绍
 
-- 🏃‍♂️ **智能健身助手 (KeepApp)**: 专业的 AI 健身教练，提供个性化训练方案
-- 🤖 **多功能智能体 (MqManus)**: 支持工具调用的通用 AI 助手
-- 🧠 **对话记忆系统**: 基于 MySQL 的持久化对话历史管理
-- 🔧 **丰富工具生态**: 文件操作、网络搜索、PDF 生成等多种工具
-- 📚 **RAG 知识库**: 集成阿里云知识库服务，提供专业健身知识
-- 🔐 **用户权限管理**: 完整的用户认证和权限控制系统
-- 🌊 **流式响应**: 支持 SSE 实时流式对话体验
+将 **大语言模型**、**RAG 知识库**、**工具调用**、**对话记忆** 等 AI 能力整合到一个开箱即用的健身助手平台中，让 AI 成为你的专属健身教练。
+
+---
+
+## ✨ 核心特性
+
+<table>
+<tr>
+<td width="50%">
+**🤖 双 AI 智能体**
+
+- **AI 健身教练（KeepApp）**：专业健身指导 + RAG 知识库
+- **AI 超级智能体（MqManus）**：ReAct 架构 + 7 种工具调用
+
+</td>
+<td width="50%">
+
+**🔄 实时流式对话**
+- 基于 SSE（Server-Sent Events）的流式响应
+- 类 ChatGPT 的打字机效果对话体验
+
+</td>
+</tr>
+<tr>
+<td>
+
+**📚 RAG 知识库**
+- 6 大类专业健身知识文档
+- 支持本地向量存储 + 阿里云知识库双方案
+- 知识问答准确率 88%+
+
+</td>
+<td>
+
+**🔧 丰富工具生态**
+- 文件操作 · 网络搜索 · 网页抓取
+- 资源下载 · PDF 生成 · Google 搜索
+- 支持自定义扩展
+
+</td>
+</tr>
+<tr>
+<td>
+
+**📊 健身数据管理**
+- 体重 / 体脂率 / BMI 数据追踪
+- ECharts 可视化图表与趋势分析
+- 运动记录与卡路里统计
+
+</td>
+<td>
+
+**🧠 对话记忆系统**
+- MySQL 持久化多轮对话上下文
+- Redis 缓存加速（可选）
+- 用户级数据隔离
+
+</td>
+</tr>
+<tr>
+<td>
+
+**🔐 完整用户系统**
+- 注册 / 登录 / 权限控制
+- 个人中心 + 头像上传（COS）
+- 健身排行榜
+
+</td>
+<td>
+
+**🎨 多模型支持**
+- 通义千问（内置）+ DeepSeek + GLM + Gemini
+- 支持任意 OpenAI 兼容模型
+- 配置化接入，无需改代码
+
+</td>
+</tr>
+</table>
+
+---
+
+## 📸 功能截图
+
+<details open>
+<summary><b>点击展开 / 收起截图</b></summary>
+
+<br>
+
+| 着陆页 | 登录页 |
+|:---:|:---:|
+| ![着陆页](https://raw.githubusercontent.com/lmqvq/Upload-image/main/img/202602062301732.png) | ![登录页](https://raw.githubusercontent.com/lmqvq/Upload-image/main/mq-ai-agent/202602062303805.png) |
+
+| 主页 | AI 健身教练 |
+|:---:|:---:|
+| ![主页](https://raw.githubusercontent.com/lmqvq/Upload-image/main/mq-ai-agent/202602062318600.png) | ![AI健身教练](https://raw.githubusercontent.com/lmqvq/Upload-image/main/mq-ai-agent/202602062306626.png) |
+
+| AI 超级智能体 | 个人中心 |
+|:---:|:---:|
+| ![AI超级智能体](https://raw.githubusercontent.com/lmqvq/Upload-image/main/mq-ai-agent/202602062311705.png) | ![个人中心](https://raw.githubusercontent.com/lmqvq/Upload-image/main/mq-ai-agent/202602062316305.png) |
+
+| 健身排行榜 | 健身知识库 |
+|:---:|:---:|
+| ![健身排行榜](https://raw.githubusercontent.com/lmqvq/Upload-image/main/mq-ai-agent/202602062336041.png) | ![健身知识库](https://raw.githubusercontent.com/lmqvq/Upload-image/main/mq-ai-agent/202602062316651.png) |
+
+</details>
+
+---
 
 ## 🏗️ 系统架构
 
-### 整体架构图
-![image-20250810162538743](https://mq-picture-1324656182.cos.ap-guangzhou.myqcloud.com/img/202508101625250.png)
+### 整体架构
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        客户端层 (Client)                         │
+│            Vue 3 + Arco Design + ECharts + Pinia                │
+├─────────────────────────────────────────────────────────────────┤
+│                     网关层 (Gateway Layer)                       │
+│         Spring Boot Web · 认证鉴权 · CORS · API 限流             │
+├──────────┬──────────────┬──────────────┬────────────────────────┤
+│ AI 控制器 │ 用户控制器    │ 健身控制器    │ 知识库控制器            │
+├──────────┴──────────────┴──────────────┴────────────────────────┤
+│                    业务服务层 (Service Layer)                     │
+│      KeepApp · MqManus · UserService · FitnessService ...       │
+├─────────────────────────────────────────────────────────────────┤
+│                   智能体架构层 (Agent Layer)                      │
+│     BaseAgent → ReActAgent → ToolCallAgent → MqManus            │
+│     Think(推理) → Act(行动) → Observe(观察) 循环                  │
+├────────────┬────────────┬───────────────┬───────────────────────┤
+│  Spring AI │ RAG 知识库  │  对话记忆管理   │  工具集 (7 种)         │
+│  ChatClient│ 向量检索    │  MySQL+Redis  │  搜索/文件/PDF...      │
+├────────────┴────────────┴───────────────┴───────────────────────┤
+│                     数据存储层 (Data Layer)                       │
+│           MySQL 8.0 · Redis · 腾讯云 COS · 向量存储               │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 架构图
+
+![系统架构图](https://mq-picture-1324656182.cos.ap-guangzhou.myqcloud.com/img/202508101625250.png)
+
+### AI 对话系统数据流
+
+![AI对话系统数据流图](https://mq-picture-1324656182.cos.ap-guangzhou.myqcloud.com/img/202508101552167.png)
+
+### ReAct 智能体工作流
+
+```
+用户请求 ──→ Think(思考) ──→ 需要工具? ──Yes──→ Act(执行工具) ──→ Observe(观察结果) ──→ 继续循环
+                │                                                                         │
+                └── No ──→ 直接生成回答 ──→ 返回结果 ←─────────── 任务完成 ←───────────────┘
+```
+
+---
+
+## 🛠️ 技术栈
+
+### 后端
+
+| 技术 | 版本 | 说明 |
+|------|------|------|
+| **Java** | 21 | 开发语言 |
+| **Spring Boot** | 3.4.6 | 应用框架 |
+| **Spring AI** | 1.0.0-M6.1 | AI 应用开发框架 |
+| **MySQL** | 8.0+ | 关系型数据库 |
+| **MyBatis-Plus** | 3.5.12 | ORM 框架 |
+| **Redis** | 6.0+ | 缓存（可选） |
+| **通义千问 DashScope** | - | 默认 AI 模型 |
+| **Spring AI OpenAI** | 1.0.0-M6 | OpenAI 兼容模型接入 |
+| **腾讯云 COS** | - | 对象存储（头像等） |
+
+### 前端
+
+| 技术 | 版本 | 说明 |
+|------|------|------|
+| **Vue** | 3.2.13 | 前端框架 (Composition API) |
+| **Arco Design Vue** | 2.57.0 | UI 组件库 |
+| **Vue Router** | 4.5.1 | 路由管理 |
+| **Pinia** | 3.0.3 | 状态管理 |
+| **Axios** | 1.10.0 | HTTP 客户端 |
+| **ECharts** | 6.0.0 | 数据可视化 |
+| **Mermaid** | 11.9.0 | 图表渲染 |
+| **SCSS** | - | CSS 预处理器 |
+
+### AI 能力
+
+| 能力 | 实现方案 |
+|------|----------|
+| 对话模型 | 通义千问 / DeepSeek / GLM / Gemini（可配置） |
+| RAG 知识库 | 阿里云知识库服务 + 本地 SimpleVectorStore |
+| 工具调用 | Spring AI Function Calling + 自定义工具 |
+| 对话记忆 | DatabaseChatMemory + Redis 缓存 |
+| 流式输出 | SSE (Server-Sent Events) + Reactor |
+| 智能体架构 | ReAct (Reasoning + Acting) 模式 |
+
+---
+
+## 📁 项目结构
+
+```
+mq-ai-agent/
+├── 📂 src/main/java/com/mq/mqaiagent/
+│   ├── 📂 agent/                  # 🤖 智能体核心架构
+│   │   ├── BaseAgent.java         #    基础智能体（状态机 + 执行循环）
+│   │   ├── ReActAgent.java        #    ReAct 模式（Think-Act-Observe）
+│   │   ├── ToolCallAgent.java     #    工具调用智能体
+│   │   └── MqManus.java           #    多功能智能体实例
+│   ├── 📂 app/                    # 💪 健身应用
+│   │   └── KeepApp.java           #    AI 健身教练（对话/RAG/缓存/流式）
+│   ├── 📂 tools/                  # 🔧 工具集（7 种）
+│   │   ├── FileOperationTool.java
+│   │   ├── WebSearchTool.java
+│   │   ├── WebCrawlingTool.java
+│   │   ├── ResourceDownloadTool.java
+│   │   ├── PDFGenerationTool.java
+│   │   ├── GoogleWebSearchTool.java
+│   │   └── TerminateTool.java
+│   ├── 📂 rag/                    # 📚 RAG 知识库配置
+│   ├── 📂 chatmemory/             # 🧠 对话记忆（MySQL + Redis）
+│   ├── 📂 ai/                     # 🎛️ 多模型路由与配置
+│   ├── 📂 advisor/                # 📋 Spring AI Advisor（日志/敏感词/Re-Reading）
+│   ├── 📂 controller/             # 🌐 API 控制器
+│   ├── 📂 service/                # ⚙️ 业务服务
+│   ├── 📂 pool/                   # 🏊 ChatClient 对象池
+│   └── 📂 config/                 # ⚙️ 配置类
+├── 📂 mq-ai-agent-frontend/       # 🎨 Vue 3 前端项目
+│   ├── 📂 src/views/              #    页面组件（11 个页面）
+│   ├── 📂 src/components/         #    公共组件
+│   ├── 📂 src/services/           #    API 服务
+│   └── 📂 src/stores/             #    状态管理
+├── 📂 sql/                        # 🗃️ 数据库脚本
+├── 📂 docs/                       # 📄 开发文档
+└── 📂 scripts/                    # 📜 部署脚本
+```
+
+---
 
 ## 🚀 快速开始
 
 ### 环境要求
 
-- **Java**: 21+
-- **Maven**: 3.8+
-- **MySQL**: 8.0+
-- **Redis**: 6.0+ (可选)
+| 环境 | 版本要求 | 必须 |
+|------|---------|------|
+| Java | 21+ | ✅ |
+| Maven | 3.8+ | ✅ |
+| Node.js | 14+ | ✅ |
+| MySQL | 8.0+ | ✅ |
+| Redis | 6.0+ | ❌（可选） |
 
-### 安装步骤
+### 1. 克隆项目
 
-1. **克隆项目**
 ```bash
 git clone https://github.com/lmqvq/mq-ai-agent.git
 cd mq-ai-agent
 ```
 
-2. **配置数据库**
+### 2. 后端启动
+
 ```bash
-# 创建数据库
+# 2.1 初始化数据库
 mysql -u root -p < sql/create_table.sql
-```
 
-3. **配置应用**
-```yaml
-# src/main/resources/application.yml
-spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/mq_ai_agent
-    username: your_username
-    password: your_password
-  
-  ai:
-    dashscope:
-      api-key: your_dashscope_api_key
+# 2.2 配置 application.yml
+# 修改数据库连接、AI 模型 API Key 等配置（见下方配置说明）
 
-search-api:
-  api-key: your_search_api_key
-```
-
-4. **启动应用**
-```bash
+# 2.3 启动后端
 mvn spring-boot:run
 ```
 
-5. **访问应用**
-- API 文档: http://localhost:8123/api/swagger-ui.html
-- 健康检查: http://localhost:8123/api/actuator/health
-
-## 📚 API 使用指南
-
-### 健身助手 API
+### 3. 前端启动
 
 ```bash
-# 同步对话
-curl -X GET "http://localhost:8123/api/ai/keep_app/chat/sync" \
-  -d "message=我想增肌，请给我建议" \
-  -d "chatId=chat_123"
+cd mq-ai-agent-frontend
 
-# 流式对话（支持用户认证）
-curl -X GET "http://localhost:8123/api/ai/keep_app/chat/sse/user" \
-  -H "Cookie: JSESSIONID=your_session_id" \
-  -d "message=制定一周健身计划" \
-  -d "chatId=chat_456"
+# 3.1 安装依赖
+npm install
+
+# 3.2 启动开发服务器
+npm run serve
 ```
 
-### 智能体 API
+### 4. 访问应用
 
-```bash
-# MqManus 智能体（支持工具调用）
-curl -X GET "http://localhost:8123/api/ai/manus/chat/user" \
-  -H "Cookie: JSESSIONID=your_session_id" \
-  -d "message=帮我搜索最新的健身资讯并生成PDF报告" \
-  -d "chatId=chat_789"
-```
+- 🌐 前端页面：http://localhost:8080
+- 📡 后端 API：http://localhost:8123/api
 
-### 历史对话 API
+### ⚙️ 核心配置
 
-```bash
-# 获取对话列表
-curl -X GET "http://localhost:8123/api/chat/history/list" \
-  -H "Cookie: JSESSIONID=your_session_id"
-
-# 获取对话详情
-curl -X GET "http://localhost:8123/api/chat/history/detail?chatId=chat_123" \
-  -H "Cookie: JSESSIONID=your_session_id"
-```
-
-## 🛠️ 技术栈
-
-### 后端技术
-- **框架**: Spring Boot 3.4.6, Spring AI
-- **AI 模型**: 阿里云通义千问 (DashScope)
-- **数据库**: MySQL 8.0, MyBatis-Plus
-- **缓存**: Redis (可选)
-- **工具**: Hutool, Lombok, FastJSON2
-
-### AI 能力
-- **对话模型**: 通义千问系列模型
-- **知识库**: 阿里云知识库服务
-- **工具调用**: 文件操作、网络搜索、PDF生成等
-- **记忆管理**: 基于数据库的持久化对话记忆
-
-## 🔧 配置说明
-
-### 核心配置项
+在 `src/main/resources/application.yml` 中配置：
 
 ```yaml
-# AI 模型配置
 spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/mq_ai_agent
+    username: root
+    password: your_password
   ai:
     dashscope:
-      api-key: ${DASHSCOPE_API_KEY}
-      chat:
-        options:
-          model: qwen-plus
-          temperature: 0.7
+      api-key: ${DASHSCOPE_API_KEY}    # 阿里云通义千问 API Key
 
-# 搜索 API 配置
+# 多模型配置（可选）
+mq:
+  ai:
+    default-model: qwen-plus
+    models:
+      deepseek:
+        name: "DeepSeek"
+        api-key: ${DEEPSEEK_API_KEY}
+        base-url: https://api.deepseek.com
+        model: deepseek-chat
+        enabled: true
+
+# 搜索 API（超级智能体使用）
 search-api:
   api-key: ${SEARCH_API_KEY}
 
-# 文件上传配置
+# 腾讯云 COS（头像上传使用）
 cos:
   client:
     accessKey: ${COS_ACCESS_KEY}
@@ -164,242 +351,55 @@ cos:
     bucket: ${COS_BUCKET}
 ```
 
-### 环境变量
+> 💡 建议使用环境变量管理敏感信息，避免硬编码 API Key。
 
-创建 `.env` 文件：
-```bash
-DASHSCOPE_API_KEY=your_dashscope_api_key
-SEARCH_API_KEY=your_search_api_key
-COS_ACCESS_KEY=your_cos_access_key
-COS_SECRET_KEY=your_cos_secret_key
-COS_REGION=your_cos_region
-COS_BUCKET=your_cos_bucket
-```
+---
 
-## 📁 项目结构
+## 🤖 智能体架构详解
+
+### 四层继承结构
 
 ```
-mq-ai-agent/
-├── src/main/java/com/mq/mqaiagent/
-│   ├── agent/              # 智能体核心
-│   │   ├── BaseAgent.java
-│   │   ├── ReActAgent.java
-│   │   ├── ToolCallAgent.java
-│   │   └── MqManus.java
-│   ├── app/                # 应用服务
-│   │   └── KeepApp.java
-│   ├── chatmemory/         # 对话记忆
-│   │   └── DatabaseChatMemory.java
-│   ├── controller/         # 控制器
-│   │   ├── AiController.java
-│   │   ├── ChatHistoryController.java
-│   │   └── UserController.java
-│   ├── service/            # 业务服务
-│   ├── tools/              # 工具集合
-│   ├── rag/                # RAG 配置
-│   └── config/             # 配置类
-├── sql/                    # 数据库脚本
-└── README.md
-
-## 🎯 功能特性详解
-
-### 🏃‍♂️ 智能健身助手 (KeepApp)
-
-KeepApp 是专门为健身爱好者设计的 AI 助手，具备以下能力：
-
-- **个性化训练方案**: 根据用户身体状况、健身目标制定专属计划
-- **营养指导**: 提供科学的饮食建议和营养搭配
-- **动作指导**: 详细的健身动作说明和注意事项
-- **进度跟踪**: 记录和分析用户的健身进展
-- **RAG 知识库**: 基于专业健身知识库的问答服务
-
-**使用示例**:
-```java
-// 基础对话
-String response = keepApp.doChat("我想增肌，请给我建议", "chat_123");
-
-// 流式对话
-Flux<String> stream = keepApp.doChatByStream("制定一周训练计划", "chat_456", userId);
-
-// RAG 知识库问答
-String ragResponse = keepApp.doChatWithRag("深蹲的正确姿势", "chat_789");
+BaseAgent（基础智能体）
+  ├── 状态管理：IDLE → RUNNING → FINISHED/ERROR
+  ├── 执行循环：最大步数控制，防止无限循环
+  └── 同步 / 流式两种执行模式
+       │
+       ▼
+ReActAgent（ReAct 模式）
+  ├── think()：推理阶段 —— 分析任务，决定是否需要行动
+  └── act()：行动阶段 —— 执行具体操作，返回结果
+       │
+       ▼
+ToolCallAgent（工具调用）
+  ├── 工具管理器（ToolCallingManager）
+  ├── 工具自动发现与注册
+  └── 工具执行结果反馈
+       │
+       ▼
+MqManus（多功能智能体实例）
+  ├── 集成 7 种工具
+  ├── 对话记忆 + ChatClient 池化
+  └── 系统提示词定制
 ```
 
-### 🤖 多功能智能体 (MqManus)
+### 内置工具一览
 
-MqManus 是基于 ReAct 架构的通用智能体，支持复杂任务的自动化执行：
+| 工具 | 功能 | 应用场景 |
+|------|------|----------|
+| 📄 FileOperationTool | 文件创建 / 读取 / 写入 / 删除 | 保存健身计划、训练记录 |
+| 🔍 WebSearchTool | 网络信息搜索 | 搜索最新健身资讯 |
+| 🌐 WebCrawlingTool | 网页内容抓取（Jsoup） | 获取健身文章、营养信息 |
+| ⬇️ ResourceDownloadTool | 资源文件下载 | 下载健身动作示意图 |
+| 📑 PDFGenerationTool | PDF 文档生成（iText） | 生成健身计划 PDF 报告 |
+| 🔎 GoogleWebSearchTool | Google 搜索 (SerpApi) | 高质量搜索结果 |
+| 🛑 TerminateTool | 终止智能体循环 | 任务完成信号 |
 
-#### 🔧 内置工具集
+---
 
-| 工具类别 | 工具名称 | 功能描述 |
-|---------|---------|---------|
-| 文件操作 | FileOperationTool | 文件读写、目录管理 |
-| 网络搜索 | WebSearchTool | 网络信息搜索 |
-| 网页抓取 | WebCrawlingTool | 网页内容提取 |
-| 资源下载 | ResourceDownloadTool | 文件下载管理 |
-| PDF 生成 | PDFGenerationTool | 文档生成和转换 |
-| 任务终止 | TerminateTool | 智能体任务控制 |
+## 🚢 部署指南
 
-#### 🧠 ReAct 工作流程
-
-```mermaid
-sequenceDiagram
-    participant User as 用户
-    participant Agent as MqManus
-    participant Tools as 工具集
-    participant AI as AI 模型
-
-    User->>Agent: 发送任务请求
-    loop ReAct 循环
-        Agent->>AI: 思考 (Think)
-        AI-->>Agent: 分析和规划
-        Agent->>Tools: 执行行动 (Act)
-        Tools-->>Agent: 返回结果
-        Agent->>AI: 观察结果 (Observe)
-        AI-->>Agent: 评估和决策
-    end
-    Agent->>User: 返回最终结果
-```
-
-### 💾 对话记忆系统
-
-基于 MySQL 的持久化对话记忆，支持：
-
-- **用户隔离**: 每个用户的对话记录完全隔离
-- **多轮对话**: 支持长期对话上下文记忆
-- **历史查询**: 完整的对话历史管理
-- **性能优化**: 智能的记忆检索和存储策略
-
-```java
-// 对话记忆配置
-DatabaseChatMemory chatMemory = new DatabaseChatMemory(keepReportMapper);
-chatMemory.setCurrentUserId(userId);
-
-// 自动保存和检索对话历史
-chatMemory.add(conversationId, messages);
-List<Message> history = chatMemory.get(conversationId, 10);
-```
-
-## 🔐 安全特性
-
-### 用户认证与授权
-
-- **Session 管理**: 基于 Spring Session 的用户会话管理
-- **权限控制**: 细粒度的 API 访问权限控制
-- **数据隔离**: 用户数据完全隔离，确保隐私安全
-
-### API 安全
-
-- **请求验证**: 完整的请求参数验证
-- **异常处理**: 统一的异常处理和错误响应
-- **日志审计**: 详细的操作日志记录
-
-## 📊 性能优化
-
-### 数据库优化
-
-- **索引策略**: 针对查询模式优化的数据库索引
-- **连接池**: HikariCP 高性能数据库连接池
-- **查询优化**: MyBatis-Plus 的高效 ORM 操作
-
-### 缓存策略
-
-- **对话缓存**: Redis 缓存热点对话数据
-- **用户缓存**: 用户信息和权限缓存
-- **工具结果缓存**: 工具调用结果的智能缓存
-
-### 流式响应
-
-- **SSE 支持**: Server-Sent Events 实时数据推送
-- **背压处理**: Reactor 响应式流的背压控制
-- **资源管理**: 自动的连接和资源清理
-
-## 🧪 测试
-
-### 运行测试
-
-```bash
-# 运行所有测试
-mvn test
-
-# 运行特定测试类
-mvn test -Dtest=AiControllerTest
-
-# 生成测试报告
-mvn surefire-report:report
-```
-
-### 测试覆盖率
-
-```bash
-# 生成覆盖率报告
-mvn jacoco:report
-
-# 查看报告
-open target/site/jacoco/index.html
-```
-
-## 📈 监控与运维
-
-### 健康检查
-
-```bash
-# 应用健康状态
-curl http://localhost:8123/actuator/health
-
-# 详细健康信息
-curl http://localhost:8123/actuator/health/detailed
-```
-
-### 指标监控
-
-```bash
-# 应用指标
-curl http://localhost:8123/actuator/metrics
-
-# JVM 信息
-curl http://localhost:8123/actuator/metrics/jvm.memory.used
-```
-
-### 日志管理
-
-```yaml
-# logback-spring.xml 配置
-logging:
-  level:
-    com.mq.mqaiagent: DEBUG
-    org.springframework.ai: INFO
-  pattern:
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-```
-
-## 🚀 部署指南
-
-### Docker 部署
-
-```dockerfile
-# Dockerfile
-FROM openjdk:21-jdk-slim
-
-WORKDIR /app
-COPY target/mq-ai-agent-0.0.1-SNAPSHOT.jar app.jar
-
-EXPOSE 8123
-ENTRYPOINT ["java", "-jar", "app.jar"]
-```
-
-```bash
-# 构建镜像
-docker build -t mq-ai-agent:latest .
-
-# 运行容器
-docker run -d -p 8123:8123 \
-  -e DASHSCOPE_API_KEY=your_api_key \
-  -e MYSQL_URL=jdbc:mysql://host:3306/db \
-  mq-ai-agent:latest
-```
-
-### Docker Compose
+### Docker Compose 一键部署
 
 ```yaml
 # docker-compose.yml
@@ -434,39 +434,87 @@ volumes:
   mysql_data:
 ```
 
+```bash
+docker-compose up -d
+```
+
+### Nginx 反向代理
+
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+
+    location / {
+        root /var/www/frontend;
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api/ {
+        proxy_pass http://localhost:8123/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
+
+---
+
 ## 🤝 贡献指南
 
-我们欢迎所有形式的贡献！请查看 [CONTRIBUTING.md](CONTRIBUTING.md) 了解详细信息。
+我们非常欢迎各种形式的贡献！请查看 [CONTRIBUTING.md](CONTRIBUTING.md) 了解详情。
 
-### 开发流程
+```bash
+# 1. Fork & Clone
+git clone https://github.com/your-username/mq-ai-agent.git
 
-1. Fork 项目
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 创建 Pull Request
+# 2. 创建功能分支
+git checkout -b feature/your-feature
 
-### 代码规范
+# 3. 提交更改（遵循 Conventional Commits）
+git commit -m "feat: add your feature"
 
-- 遵循 [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
-- 使用 Lombok 减少样板代码
-- 编写完整的 JavaDoc 注释
-- 保持测试覆盖率 > 80%
+# 4. 推送并创建 PR
+git push origin feature/your-feature
+```
 
-## 📄 许可证
+---
 
-本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
+## 📄 开源协议
+
+本项目基于 [MIT License](LICENSE) 开源，你可以自由使用、修改和分发。
+
+---
 
 ## 🙏 致谢
 
-- [Spring AI](https://spring.io/projects/spring-ai) - 强大的 AI 应用开发框架
-- [阿里云通义千问](https://dashscope.aliyun.com/) - 优秀的大语言模型服务
-- [Spring Boot](https://spring.io/projects/spring-boot) - 快速应用开发框架
+- [Spring AI](https://spring.io/projects/spring-ai) - AI 应用开发框架
+- [阿里云通义千问](https://dashscope.aliyun.com/) - 大语言模型服务
+- [Arco Design](https://arco.design/) - UI 组件库
+- [Vue.js](https://vuejs.org/) - 前端框架
+- [DeepSeek](https://www.deepseek.com/) - AI 模型
 
-## 📞 联系我们
+---
 
-- **作者**: LMQICU
-- **邮箱**: 2097489731@qq.com
+## 📞 联系方式
+
+- **作者**：LMQICU
+- **邮箱**：lmqicu@qq.com
+- **GitHub**：[https://github.com/lmqvq](https://github.com/lmqvq)
+- **在线体验**：[https://cozi.chat/](https://cozi.chat/)
+
+---
+
+<div align="center">
+
+**⭐ 如果这个项目对你有帮助，请给一个 Star 支持一下！⭐**
+
+Made with ❤️ by [LMQICU](https://github.com/lmqvq)
+
+[回到顶部](#-mq-ai-agent)
+
+</div>
+- **邮箱**: lmqicu@qq.com
 - **项目主页**: https://github.com/lmqvq/mq-ai-agent
 - **问题反馈**: https://github.com/lmqvq/mq-ai-agent/issues
 
