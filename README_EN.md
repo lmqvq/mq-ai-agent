@@ -45,9 +45,11 @@ Integrate **Large Language Models**, **RAG Knowledge Base**, **Tool Calling**, a
 </td>
 <td width="50%">
 
-**🔄 Real-time Streaming**
+**🔄 Real-time Streaming & Tool Status Display**
 - SSE (Server-Sent Events) based streaming response
 - ChatGPT-like typewriter effect conversation experience
+- Real-time display of AI thinking process and tool execution progress
+- Collapsible tool execution cards (search, file operations, etc.)
 
 </td>
 </tr>
@@ -216,11 +218,10 @@ User Request ──→ Think ──→ Need Tools? ──Yes──→ Act (Execu
 
 ```
 mq-ai-agent/
-├── 📂 src/main/java/com/mq/mqaiagent/
-│   ├── 📂 agent/                  # 🤖 Agent Core Architecture
-│   │   ├── BaseAgent.java         #    Base Agent (State Machine + Execution Loop)
+├── 📂 agent/                  # 🤖 Agent Core Architecture
+│   │   ├── BaseAgent.java         #    Base Agent (State Machine + Execution Loop + SSE Events)
 │   │   ├── ReActAgent.java        #    ReAct Pattern (Think-Act-Observe)
-│   │   ├── ToolCallAgent.java     #    Tool Calling Agent
+│   │   ├── ToolCallAgent.java     #    Tool Calling Agent (Real-time Progress Push)
 │   │   └── MqManus.java           #    Multi-functional Agent Instance
 │   ├── 📂 app/                    # 💪 Fitness Application
 │   │   └── KeepApp.java           #    AI Fitness Coach
@@ -228,10 +229,17 @@ mq-ai-agent/
 │   ├── 📂 rag/                    # 📚 RAG Knowledge Base Config
 │   ├── 📂 chatmemory/             # 🧠 Chat Memory (MySQL + Redis)
 │   ├── 📂 ai/                     # 🎛️ Multi-model Routing
+│   ├── 📂 model/                  # 📦 Data Models
+│   │   ├── dto/AgentSseEvent.java #    SSE Event DTO
+│   │   └── enums/SseEventType.java#    SSE Event Type Enum
 │   ├── 📂 controller/             # 🌐 API Controllers
 │   ├── 📂 service/                # ⚙️ Business Services
 │   └── 📂 config/                 # ⚙️ Configuration
 ├── 📂 mq-ai-agent-frontend/       # 🎨 Vue 3 Frontend
+│   ├── 📂 src/components/         #    Components
+│   │   └── ToolCallCard.vue       #    Tool Call Card Component
+│   └── 📂 src/services/           #    API Services
+│       └── sseParser.js           #    SSE Message Parser
 ├── 📂 sql/                        # 🗃️ Database Scripts
 │   ├── init_all.sql               #    Complete init script (Recommended)
 │   ├── create_table.sql           #    Basic business tables
@@ -345,7 +353,8 @@ cos:
 BaseAgent (Base Agent)
   ├── State Management: IDLE → RUNNING → FINISHED/ERROR
   ├── Execution Loop: Max steps control, prevents infinite loops
-  └── Sync / Streaming execution modes
+  ├── Sync / Streaming execution modes
+  └── SSE Event Push (8 event types)
        │
        ▼
 ReActAgent (ReAct Pattern)
@@ -356,26 +365,30 @@ ReActAgent (ReAct Pattern)
 ToolCallAgent (Tool Calling)
   ├── ToolCallingManager
   ├── Automatic tool discovery and registration
-  └── Tool execution result feedback
+  ├── Tool execution result feedback
+  └── Real-time tool status push (thinking/tool_start/tool_complete/tool_error)
        │
        ▼
 MqManus (Multi-functional Agent Instance)
   ├── Integrates 7 tools
   ├── Chat memory + ChatClient pooling
-  └── Custom system prompts
+  ├── Custom system prompts
+  └── Tool summary generation (readable tool execution descriptions)
 ```
 
 ### Built-in Tools Overview
 
-| Tool | Function | Use Case |
-|------|----------|----------|
-| 📄 FileOperationTool | File create / read / write / delete | Save fitness plans, training records |
-| 🔍 WebSearchTool | Web information search | Search latest fitness news |
-| 🌐 WebCrawlingTool | Web content crawling (Jsoup) | Get fitness articles, nutrition info |
-| ⬇️ ResourceDownloadTool | Resource file download | Download exercise illustrations |
-| 📑 PDFGenerationTool | PDF document generation (iText) | Generate fitness plan PDF reports |
-| 🔎 GoogleWebSearchTool | Google Search (SerpApi) | High-quality search results |
-| 🛑 TerminateTool | Terminate agent loop | Task completion signal |
+|| Tool | Function | Use Case | Real-time Status |
+||------|----------|----------|------------------|
+|| 📄 FileOperationTool | File create / read / write / delete | Save fitness plans, training records | ✅ |
+|| 🔍 WebSearchTool | Web information search | Search latest fitness news | ✅ |
+|| 🌐 WebCrawlingTool | Web content crawling (Jsoup) | Get fitness articles, nutrition info | ✅ |
+|| ⬇️ ResourceDownloadTool | Resource file download | Download exercise illustrations | ✅ |
+|| 📑 PDFGenerationTool | PDF document generation (iText) | Generate fitness plan PDF reports | ✅ |
+|| 🔎 GoogleWebSearchTool | Google Search (SerpApi) | High-quality search results | ✅ |
+|| 🛑 TerminateTool | Terminate agent loop | Task completion signal | ✅ |
+
+> ✅ All tools support real-time status push, users can see tool execution progress and result summaries on the frontend
 
 ---
 

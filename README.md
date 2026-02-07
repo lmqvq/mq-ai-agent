@@ -43,9 +43,11 @@
 </td>
 <td width="50%">
 
-**🔄 实时流式对话**
+**🔄 实时流式对话与工具状态展示**
 - 基于 SSE（Server-Sent Events）的流式响应
 - 类 ChatGPT 的打字机效果对话体验
+- 实时展示 AI 思考过程和工具调用进度
+- 可折叠的工具执行卡片（搜索、文件操作等）
 
 </td>
 </tr>
@@ -219,6 +221,7 @@
 | 工具调用 | Spring AI Function Calling + 自定义工具 |
 | 对话记忆 | DatabaseChatMemory + Redis 缓存 |
 | 流式输出 | SSE (Server-Sent Events) + Reactor |
+| 实时进度展示 | 结构化 SSE 事件推送（8 种事件类型） |
 | 智能体架构 | ReAct (Reasoning + Acting) 模式 |
 
 ---
@@ -229,9 +232,9 @@
 mq-ai-agent/
 ├── 📂 src/main/java/com/mq/mqaiagent/
 │   ├── 📂 agent/                  # 🤖 智能体核心架构
-│   │   ├── BaseAgent.java         #    基础智能体（状态机 + 执行循环）
+│   │   ├── BaseAgent.java         #    基础智能体（状态机 + 执行循环 + SSE 事件）
 │   │   ├── ReActAgent.java        #    ReAct 模式（Think-Act-Observe）
-│   │   ├── ToolCallAgent.java     #    工具调用智能体
+│   │   ├── ToolCallAgent.java     #    工具调用智能体（实时进度推送）
 │   │   └── MqManus.java           #    多功能智能体实例
 │   ├── 📂 app/                    # 💪 健身应用
 │   │   └── KeepApp.java           #    AI 健身教练（对话/RAG/缓存/流式）
@@ -247,6 +250,9 @@ mq-ai-agent/
 │   ├── 📂 chatmemory/             # 🧠 对话记忆（MySQL + Redis）
 │   ├── 📂 ai/                     # 🎛️ 多模型路由与配置
 │   ├── 📂 advisor/                # 📋 Spring AI Advisor（日志/敏感词/Re-Reading）
+│   ├── 📂 model/                  # 📦 数据模型
+│   │   ├── dto/AgentSseEvent.java #    SSE 事件 DTO
+│   │   └── enums/SseEventType.java#    SSE 事件类型枚举
 │   ├── 📂 controller/             # 🌐 API 控制器
 │   ├── 📂 service/                # ⚙️ 业务服务
 │   ├── 📂 pool/                   # 🏊 ChatClient 对象池
@@ -254,7 +260,9 @@ mq-ai-agent/
 ├── 📂 mq-ai-agent-frontend/       # 🎨 Vue 3 前端项目
 │   ├── 📂 src/views/              #    页面组件（11 个页面）
 │   ├── 📂 src/components/         #    公共组件
+│   │   └── ToolCallCard.vue       #    工具调用卡片组件
 │   ├── 📂 src/services/           #    API 服务
+│   │   └── sseParser.js           #    SSE 消息解析器
 │   └── 📂 src/stores/             #    状态管理
 ├── 📂 sql/                        # 🗃️ 数据库脚本
 │   ├── init_all.sql               #    完整初始化脚本（推荐）
@@ -369,7 +377,8 @@ cos:
 BaseAgent（基础智能体）
   ├── 状态管理：IDLE → RUNNING → FINISHED/ERROR
   ├── 执行循环：最大步数控制，防止无限循环
-  └── 同步 / 流式两种执行模式
+  ├── 同步 / 流式两种执行模式
+  └── SSE 事件推送（8 种事件类型）
        │
        ▼
 ReActAgent（ReAct 模式）
@@ -380,26 +389,30 @@ ReActAgent（ReAct 模式）
 ToolCallAgent（工具调用）
   ├── 工具管理器（ToolCallingManager）
   ├── 工具自动发现与注册
-  └── 工具执行结果反馈
+  ├── 工具执行结果反馈
+  └── 实时工具状态推送（thinking/tool_start/tool_complete/tool_error）
        │
        ▼
 MqManus（多功能智能体实例）
   ├── 集成 7 种工具
   ├── 对话记忆 + ChatClient 池化
-  └── 系统提示词定制
+  ├── 系统提示词定制
+  └── 工具摘要生成（可读的工具执行描述）
 ```
 
 ### 内置工具一览
 
-| 工具 | 功能 | 应用场景 |
-|------|------|----------|
-| 📄 FileOperationTool | 文件创建 / 读取 / 写入 / 删除 | 保存健身计划、训练记录 |
-| 🔍 WebSearchTool | 网络信息搜索 | 搜索最新健身资讯 |
-| 🌐 WebCrawlingTool | 网页内容抓取（Jsoup） | 获取健身文章、营养信息 |
-| ⬇️ ResourceDownloadTool | 资源文件下载 | 下载健身动作示意图 |
-| 📑 PDFGenerationTool | PDF 文档生成（iText） | 生成健身计划 PDF 报告 |
-| 🔎 GoogleWebSearchTool | Google 搜索 (SerpApi) | 高质量搜索结果 |
-| 🛑 TerminateTool | 终止智能体循环 | 任务完成信号 |
+| 工具 | 功能 | 应用场景 | 实时状态 |
+|------|------|----------|----------|
+| 📄 FileOperationTool | 文件创建 / 读取 / 写入 / 删除 | 保存健身计划、训练记录 | ✅ |
+| 🔍 WebSearchTool | 网络信息搜索 | 搜索最新健身资讯 | ✅ |
+| 🌐 WebCrawlingTool | 网页内容抓取（Jsoup） | 获取健身文章、营养信息 | ✅ |
+| ⬇️ ResourceDownloadTool | 资源文件下载 | 下载健身动作示意图 | ✅ |
+| 📑 PDFGenerationTool | PDF 文档生成（iText） | 生成健身计划 PDF 报告 | ✅ |
+| 🔎 GoogleWebSearchTool | Google 搜索 (SerpApi) | 高质量搜索结果 | ✅ |
+| 🛑 TerminateTool | 终止智能体循环 | 任务完成信号 | ✅ |
+
+> ✅ 所有工具均支持实时状态推送，用户可在前端看到工具执行进度和结果摘要
 
 ---
 
