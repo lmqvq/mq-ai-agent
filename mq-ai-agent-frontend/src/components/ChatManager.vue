@@ -108,6 +108,20 @@
         <div class="chat-messages-inner">
           <div v-for="(message, index) in messages" :key="message.id || index" 
                :class="['message', message.messageType === 'user' ? 'user-message' : 'ai-message']">
+            <!-- 工具调用卡片展示（仅 AI 消息） -->
+            <div v-if="message.messageType === 'ai' && message.toolCalls && message.toolCalls.length > 0" 
+                 class="tool-calls-container">
+              <ToolCallCard
+                v-for="toolCall in message.toolCalls"
+                :key="toolCall.id"
+                :toolName="toolCall.toolName"
+                :status="toolCall.status"
+                :summary="toolCall.summary"
+                :arguments="toolCall.arguments"
+                :result="toolCall.result"
+                :collapsible="toolCall.collapsible"
+              />
+            </div>
             <div class="message-content">
               <span v-if="message.messageType === 'user'">{{ message.message }}</span>
               <MarkdownRenderer v-else :content="message.message" />
@@ -271,6 +285,8 @@ import {
 import ApiService from '../services/api';
 import LocalStorageService from '../services/localStorage';
 import MarkdownRenderer from './MarkdownRenderer.vue';
+import ToolCallCard from './ToolCallCard.vue';
+import { createSseHandler } from '../services/sseParser';
 
 export default {
   name: 'ChatManager',
@@ -287,7 +303,8 @@ export default {
     IconThumbUp,
     IconThumbDown,
     IconShareAlt,
-    MarkdownRenderer
+    MarkdownRenderer,
+    ToolCallCard
   },
   props: {
     title: {
@@ -328,6 +345,11 @@ export default {
     const isDialogueExpanded = ref(false);
     const showDialogueToggle = ref(false);
     const collapsedMaxHeight = ref(240);
+    
+    // 工具调用状态列表（用于 AI 超级智能体的工具调用卡片展示）
+    const currentToolCalls = ref([]);
+    // 是否使用新的结构化 SSE 格式
+    const isUsingStructuredSse = ref(false);
 
     let eventSource = null;
     
@@ -945,8 +967,8 @@ export default {
 
         // 创建对话后，清空输入框中的消息，因为我们要重新发送
         // 但保留用户输入的内容
-        const userMessage = message;
-        userInput.value = userMessage;
+        const userMessageText = message;
+        userInput.value = userMessageText;
         console.log('新对话创建完成，重新发送消息');
         // 递归调用发送消息
         return await sendMessage();
@@ -968,6 +990,10 @@ export default {
       userInput.value = '';
       isLoading.value = true;
       isTyping.value = true;
+      
+      // 重置工具调用状态
+      currentToolCalls.value = [];
+      isUsingStructuredSse.value = false;
 
       // 注意：新的keep_report系统会自动保存消息到数据库
 
@@ -988,15 +1014,105 @@ export default {
           message: '',
           messageType: 'ai',
           createTime: new Date().toISOString(),
-          dialogueId: currentDialogueId.value
+          dialogueId: currentDialogueId.value,
+          toolCalls: [] // 工具调用列表
         };
         messages.value.push(aiMessage);
+        
+        // 创建 SSE 消息处理器（支持新的结构化格式）
+        const sseHandler = createSseHandler({
+          // 收到思考内容
+          onThinking: () => {
+            isUsingStructuredSse.value = true;
+            // 思考内容可以选择性展示，暂不处理
+          },
+          
+          // 工具开始执行
+          onToolStart: (toolData) => {
+            isUsingStructuredSse.value = true;
+            const toolCall = {
+              id: `tool_${Date.now()}_${toolData.toolName}`,
+              toolName: toolData.toolName,
+              status: 'executing',
+              summary: toolData.summary,
+              arguments: toolData.arguments,
+              result: '',
+              collapsible: toolData.collapsible
+            };
+            currentToolCalls.value.push(toolCall);
+            // 同步到消息的 toolCalls
+            messages.value[aiMessageIndex].toolCalls = [...currentToolCalls.value];
+          },
+          
+          // 工具执行完成
+          onToolComplete: (toolData) => {
+            const toolIndex = currentToolCalls.value.findIndex(
+              t => t.toolName === toolData.toolName && t.status === 'executing'
+            );
+            if (toolIndex !== -1) {
+              currentToolCalls.value[toolIndex].status = 'completed';
+              currentToolCalls.value[toolIndex].summary = toolData.summary;
+              currentToolCalls.value[toolIndex].result = toolData.result;
+              // 同步到消息的 toolCalls
+              messages.value[aiMessageIndex].toolCalls = [...currentToolCalls.value];
+            }
+          },
+          
+          // 工具执行失败
+          onToolError: (toolData) => {
+            const toolIndex = currentToolCalls.value.findIndex(
+              t => t.toolName === toolData.toolName && t.status === 'executing'
+            );
+            if (toolIndex !== -1) {
+              currentToolCalls.value[toolIndex].status = 'failed';
+              currentToolCalls.value[toolIndex].summary = toolData.summary;
+              currentToolCalls.value[toolIndex].result = toolData.result;
+              // 同步到消息的 toolCalls
+              messages.value[aiMessageIndex].toolCalls = [...currentToolCalls.value];
+            }
+          },
+          
+          // 步骤开始
+          onStepStart: (stepData) => {
+            isUsingStructuredSse.value = true;
+            console.log(`Step ${stepData.stepNumber}/${stepData.maxSteps}`);
+          },
+          
+          // 收到最终结果
+          onResult: (content) => {
+            isUsingStructuredSse.value = true;
+            currentResponse = content;
+            messages.value[aiMessageIndex].message = content;
+          },
+          
+          // 收到错误
+          onError: (content) => {
+            isUsingStructuredSse.value = true;
+            messages.value[aiMessageIndex].message = content || '抱歉，处理请求时出现错误。';
+          },
+          
+          // 任务完成
+          onComplete: () => {
+            eventSource.close();
+            isLoading.value = false;
+            isTyping.value = false;
+            
+            // 保存AI响应到本地缓存
+            const finalAiMessage = messages.value[aiMessageIndex];
+            LocalStorageService.addMessage(currentDialogueId.value, finalAiMessage);
+          },
+          
+          // 旧格式消息（纯文本）
+          onLegacyMessage: (data) => {
+            currentResponse += data;
+            messages.value[aiMessageIndex].message = currentResponse;
+          }
+        });
 
         eventSource.onmessage = (event) => {
           if (event.data) {
-            currentResponse += event.data;
-            // 更新消息内容
-            messages.value[aiMessageIndex].message = currentResponse;
+            // 处理 SSE 消息
+            sseHandler(event.data);
           }
         };
 
@@ -1007,27 +1123,25 @@ export default {
           isTyping.value = false;
 
           // 如果没有收到任何响应，添加错误消息
-          if (!currentResponse) {
+          if (!currentResponse && !messages.value[aiMessageIndex].message) {
             messages.value[aiMessageIndex].message = "抱歉，服务器连接出现问题，请稍后再试。";
-            // 保存错误消息到本地缓存
-            LocalStorageService.addMessage(currentDialogueId.value, messages.value[aiMessageIndex]);
-          } else {
-            // 保存部分响应到本地缓存
-            LocalStorageService.addMessage(currentDialogueId.value, messages.value[aiMessageIndex]);
           }
+          // 保存消息到本地缓存
+          LocalStorageService.addMessage(currentDialogueId.value, messages.value[aiMessageIndex]);
         };
 
-        // SSE完成时的处理
+        // SSE完成时的处理（兼容旧格式）
         eventSource.addEventListener('complete', async () => {
-          eventSource.close();
-          isLoading.value = false;
-          isTyping.value = false;
+          if (!isUsingStructuredSse.value) {
+            // 旧格式的完成事件
+            eventSource.close();
+            isLoading.value = false;
+            isTyping.value = false;
 
-          // 保存AI响应到本地缓存
-          const finalAiMessage = messages.value[aiMessageIndex];
-          LocalStorageService.addMessage(currentDialogueId.value, finalAiMessage);
-
-          // 注意：新的keep_report系统会自动保存AI响应到数据库
+            // 保存AI响应到本地缓存
+            const finalAiMessage = messages.value[aiMessageIndex];
+            LocalStorageService.addMessage(currentDialogueId.value, finalAiMessage);
+          }
         });
       } catch (error) {
         console.error('Error sending message:', error);
@@ -1123,7 +1237,8 @@ export default {
       isEmptyConversation,
       emptyMessage,
       goToHome,
-      showWelcomeMessage
+      showWelcomeMessage,
+      currentToolCalls
     };
   }
 };
@@ -1524,6 +1639,14 @@ export default {
       &.ai-message {
         margin-right: auto;
         max-width: 85%;
+
+        .tool-calls-container {
+          margin-bottom: 12px;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
 
         .message-content {
           background-color: var(--theme-message-ai-bg);
