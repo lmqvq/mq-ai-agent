@@ -233,6 +233,10 @@ mq-ai-agent/
 │   └── 📂 config/                 # ⚙️ Configuration
 ├── 📂 mq-ai-agent-frontend/       # 🎨 Vue 3 Frontend
 ├── 📂 sql/                        # 🗃️ Database Scripts
+│   ├── init_all.sql               #    Complete init script (Recommended)
+│   ├── create_table.sql           #    Basic business tables
+│   ├── fitness_knowledge_tables.sql #  Fitness knowledge tables
+│   └── knowledge_init_data.sql    #    Knowledge test data
 ├── 📂 docs/                       # 📄 Documentation
 └── 📂 scripts/                    # 📜 Deployment Scripts
 ```
@@ -261,8 +265,8 @@ cd mq-ai-agent
 ### 2. Start Backend
 
 ```bash
-# 2.1 Initialize Database
-mysql -u root -p < sql/create_table.sql
+# 2.1 Initialize Database (one-click setup for all tables and test data)
+mysql -u root -p < sql/init_all.sql
 
 # 2.2 Configure application.yml
 # Edit database connection, AI model API Key, etc.
@@ -270,6 +274,8 @@ mysql -u root -p < sql/create_table.sql
 # 2.3 Start Backend
 mvn spring-boot:run
 ```
+
+> 📦 **Database Note**: `sql/init_all.sql` contains complete schema for 10 tables with test data. Run once to complete initialization.
 
 ### 3. Start Frontend
 
@@ -475,7 +481,7 @@ This project is licensed under the [MIT License](LICENSE) - you are free to use,
 ## 📞 Contact
 
 - **Author**: LMQICU
-- **Email**: 2097489731@qq.com
+- **Email**: lmqicu@qq.com
 - **GitHub**: [https://github.com/lmqvq](https://github.com/lmqvq)
 - **Live Demo**: [https://cozi.chat/](https://cozi.chat/)
 

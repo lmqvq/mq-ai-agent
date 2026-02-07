@@ -347,7 +347,7 @@ Closes #issue_number
 如果你有任何问题或需要帮助，可以通过以下方式联系我们：
 
 - **GitHub Issues**: [项目问题页面](https://github.com/lmqvq/mq-ai-agent/issues)
-- **Email**: 2097489731@qq.com
+- **Email**: lmqicu@qq.com
 - **讨论区**: [GitHub Discussions](https://github.com/lmqvq/mq-ai-agent/discussions)
 
 ---

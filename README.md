@@ -257,6 +257,10 @@ mq-ai-agent/
 │   ├── 📂 src/services/           #    API 服务
 │   └── 📂 src/stores/             #    状态管理
 ├── 📂 sql/                        # 🗃️ 数据库脚本
+│   ├── init_all.sql               #    完整初始化脚本（推荐）
+│   ├── create_table.sql           #    基础业务表
+│   ├── fitness_knowledge_tables.sql #  健身知识表
+│   └── knowledge_init_data.sql    #    知识库测试数据
 ├── 📂 docs/                       # 📄 开发文档
 └── 📂 scripts/                    # 📜 部署脚本
 ```
@@ -285,8 +289,8 @@ cd mq-ai-agent
 ### 2. 后端启动
 
 ```bash
-# 2.1 初始化数据库
-mysql -u root -p < sql/create_table.sql
+# 2.1 初始化数据库（一键初始化所有表结构和测试数据）
+mysql -u root -p < sql/init_all.sql
 
 # 2.2 配置 application.yml
 # 修改数据库连接、AI 模型 API Key 等配置（见下方配置说明）
@@ -294,6 +298,8 @@ mysql -u root -p < sql/create_table.sql
 # 2.3 启动后端
 mvn spring-boot:run
 ```
+
+> 📦 **数据库说明**：`sql/init_all.sql` 包含完整的 10 张表结构及测试数据，一次运行即可完成初始化。
 
 ### 3. 前端启动
 
@@ -514,17 +520,3 @@ Made with ❤️ by [LMQICU](https://github.com/lmqvq)
 [回到顶部](#-mq-ai-agent)
 
 </div>
-- **邮箱**: lmqicu@qq.com
-- **项目主页**: https://github.com/lmqvq/mq-ai-agent
-- **问题反馈**: https://github.com/lmqvq/mq-ai-agent/issues
-
----
-
-<div align="center">
-
-**⭐ 如果这个项目对你有帮助，请给我们一个 Star！⭐**
-
-Made with ❤️ by [LMQICU](https://github.com/lmqvq)
-
-</div>
-```
