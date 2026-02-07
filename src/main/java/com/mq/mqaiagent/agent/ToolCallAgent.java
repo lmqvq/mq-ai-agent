@@ -108,6 +108,10 @@ public class ToolCallAgent extends ReActAgent{
             log.info(toolCallInfo);
             // 保存 LLM 的回答内容
             this.lastThinkResult = result;
+            
+            // 发送思考内容事件（实时流式输出）
+            sendThinkingEvent(result);
+            
             if (toolCallList.isEmpty()) {
                 // 不调用工具时，记录助手消息并标记任务完成
                 getMessageList().add(assistantMessage);
@@ -151,11 +155,18 @@ public class ToolCallAgent extends ReActAgent{
         
         // 在执行工具之前，检查是否是 writeFile 工具，如果是则保存其内容
         AssistantMessage assistantMessage = toolCallChatResponse.getResult().getOutput();
+        
+        // 发送工具开始执行事件（实时流式输出）
         for (AssistantMessage.ToolCall toolCall : assistantMessage.getToolCalls()) {
-            if ("writeFile".equals(toolCall.name())) {
+            String toolName = toolCall.name();
+            String arguments = toolCall.arguments();
+            String summary = generateToolSummary(toolName, arguments);
+            sendToolStartEvent(toolName, arguments, summary);
+            
+            // 如果是 writeFile 工具，保存内容
+            if ("writeFile".equals(toolName)) {
                 try {
                     // 从参数中提取 content
-                    String arguments = toolCall.arguments();
                     // 简单解析 JSON 获取 content 字段
                     int contentStart = arguments.indexOf("\"content\":");
                     if (contentStart != -1) {
@@ -183,6 +194,21 @@ public class ToolCallAgent extends ReActAgent{
         // 记录消息上下文，conversationHistory 已经包含了助手消息和工具调用返回的结果
         setMessageList(toolExecutionResult.conversationHistory());
         ToolResponseMessage toolResponseMessage = (ToolResponseMessage) CollUtil.getLast(toolExecutionResult.conversationHistory());
+        
+        // 发送工具执行完成事件（实时流式输出）
+        for (ToolResponseMessage.ToolResponse response : toolResponseMessage.getResponses()) {
+            String toolName = response.name();
+            String result = response.responseData() != null ? response.responseData().toString() : "";
+            String summary = generateToolResultSummary(toolName, result);
+            
+            // 判断是成功还是失败
+            if (result.contains("失败") || result.contains("error") || result.contains("Error")) {
+                sendToolErrorEvent(toolName, result);
+            } else {
+                sendToolCompleteEvent(toolName, result, summary);
+            }
+        }
+        
         // 判断是否调用了终止工具
         boolean terminateToolCalled = toolResponseMessage.getResponses().stream()
                 .anyMatch(response -> response.name().equals("doTerminate"));
@@ -217,6 +243,127 @@ public class ToolCallAgent extends ReActAgent{
             }
         }
         return results;
+    }
+    
+    /**
+     * 生成工具调用的摘要信息
+     * 
+     * @param toolName 工具名称
+     * @param arguments 工具参数
+     * @return 摘要信息
+     */
+    private String generateToolSummary(String toolName, String arguments) {
+        return switch (toolName) {
+            case "searchWeb" -> extractSearchQuery(arguments, "正在搜索: ");
+            case "googleSearch" -> extractSearchQuery(arguments, "正在搜索: ");
+            case "crawl" -> extractUrl(arguments, "正在爬取网页: ");
+            case "writeFile" -> extractFilePath(arguments, "正在写入文件: ");
+            case "readFile" -> extractFilePath(arguments, "正在读取文件: ");
+            case "doTerminate" -> "正在结束任务";
+            default -> "正在执行 " + toolName;
+        };
+    }
+    
+    /**
+     * 生成工具执行结果的摘要信息
+     * 
+     * @param toolName 工具名称
+     * @param result 执行结果
+     * @return 摘要信息
+     */
+    private String generateToolResultSummary(String toolName, String result) {
+        if (result == null || result.isEmpty()) {
+            return "执行完成";
+        }
+        
+        return switch (toolName) {
+            case "searchWeb", "googleSearch" -> {
+                int count = countSearchResults(result);
+                yield count > 0 ? "找到 " + count + " 条结果" : "搜索完成";
+            }
+            case "crawl" -> result.length() > 100 ? "获取了 " + result.length() + " 字符的内容" : "爬取完成";
+            case "writeFile" -> "文件写入成功";
+            case "readFile" -> result.length() > 50 ? "读取了 " + result.length() + " 字符" : "读取完成";
+            case "doTerminate" -> "任务结束";
+            default -> "执行完成";
+        };
+    }
+    
+    /**
+     * 从参数中提取搜索查询
+     */
+    private String extractSearchQuery(String arguments, String prefix) {
+        try {
+            int start = arguments.indexOf("\"query\":");
+            if (start == -1) start = arguments.indexOf("\"keyword\":");
+            if (start != -1) {
+                int valueStart = arguments.indexOf("\"", start + 9) + 1;
+                int valueEnd = arguments.indexOf("\"", valueStart);
+                if (valueStart > 0 && valueEnd > valueStart) {
+                    String query = arguments.substring(valueStart, valueEnd);
+                    return prefix + (query.length() > 30 ? query.substring(0, 30) + "..." : query);
+                }
+            }
+        } catch (Exception ignored) {}
+        return prefix + "...";
+    }
+    
+    /**
+     * 从参数中提取 URL
+     */
+    private String extractUrl(String arguments, String prefix) {
+        try {
+            int start = arguments.indexOf("\"url\":");
+            if (start != -1) {
+                int valueStart = arguments.indexOf("\"", start + 7) + 1;
+                int valueEnd = arguments.indexOf("\"", valueStart);
+                if (valueStart > 0 && valueEnd > valueStart) {
+                    String url = arguments.substring(valueStart, valueEnd);
+                    return prefix + (url.length() > 40 ? url.substring(0, 40) + "..." : url);
+                }
+            }
+        } catch (Exception ignored) {}
+        return prefix + "...";
+    }
+    
+    /**
+     * 从参数中提取文件路径
+     */
+    private String extractFilePath(String arguments, String prefix) {
+        try {
+            int start = arguments.indexOf("\"path\":");
+            if (start == -1) start = arguments.indexOf("\"filePath\":");
+            if (start != -1) {
+                int valueStart = arguments.indexOf("\"", start + 8) + 1;
+                int valueEnd = arguments.indexOf("\"", valueStart);
+                if (valueStart > 0 && valueEnd > valueStart) {
+                    String path = arguments.substring(valueStart, valueEnd);
+                    // 只显示文件名
+                    int lastSlash = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
+                    String fileName = lastSlash >= 0 ? path.substring(lastSlash + 1) : path;
+                    return prefix + fileName;
+                }
+            }
+        } catch (Exception ignored) {}
+        return prefix + "...";
+    }
+    
+    /**
+     * 统计搜索结果数量
+     */
+    private int countSearchResults(String result) {
+        try {
+            // 简单统计，计算结果中 URL 的数量
+            int count = 0;
+            int index = 0;
+            while ((index = result.indexOf("http", index)) != -1) {
+                count++;
+                index++;
+            }
+            return count;
+        } catch (Exception e) {
+            return 0;
+        }
     }
     
     /**

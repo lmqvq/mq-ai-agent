@@ -1,7 +1,9 @@
 package com.mq.mqaiagent.agent;
 
 import cn.hutool.core.util.StrUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mq.mqaiagent.agent.model.AgentState;
+import com.mq.mqaiagent.model.dto.AgentSseEvent;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.internal.StringUtil;
@@ -10,6 +12,7 @@ import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -45,6 +48,10 @@ public abstract class BaseAgent {
 
     // Memory 记忆（需要自主维护会话上下文）
     private List<Message> messageList = new ArrayList<>();
+    
+    // SSE 相关
+    private SseEmitter currentEmitter;
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * 运行代理
@@ -117,9 +124,92 @@ public abstract class BaseAgent {
     protected void onTaskCompleted(String userMessage, String aiResponse) {
         // 默认不做任何操作，子类可以重写此方法
     }
+    
+    // ============== SSE 事件发送方法 ==============
+    
+    /**
+     * 发送 SSE 事件
+     * 
+     * @param event 事件对象
+     */
+    protected void sendSseEvent(AgentSseEvent event) {
+        if (currentEmitter == null) {
+            return;
+        }
+        try {
+            String json = objectMapper.writeValueAsString(event);
+            currentEmitter.send(SseEmitter.event().data(json));
+        } catch (IOException e) {
+            log.warn("发送 SSE 事件失败: {}", e.getMessage());
+        }
+    }
+    
+    /**
+     * 发送思考内容事件
+     */
+    protected void sendThinkingEvent(String content) {
+        if (content != null && !content.trim().isEmpty()) {
+            sendSseEvent(AgentSseEvent.thinking(content));
+        }
+    }
+    
+    /**
+     * 发送步骤开始事件
+     */
+    protected void sendStepStartEvent(int stepNumber, int maxSteps) {
+        sendSseEvent(AgentSseEvent.stepStart(stepNumber, maxSteps));
+    }
+    
+    /**
+     * 发送工具开始执行事件
+     */
+    protected void sendToolStartEvent(String toolName, String arguments, String summary) {
+        sendSseEvent(AgentSseEvent.toolStart(toolName, arguments, summary));
+    }
+    
+    /**
+     * 发送工具执行完成事件
+     */
+    protected void sendToolCompleteEvent(String toolName, String result, String summary) {
+        sendSseEvent(AgentSseEvent.toolComplete(toolName, result, summary));
+    }
+    
+    /**
+     * 发送工具执行失败事件
+     */
+    protected void sendToolErrorEvent(String toolName, String error) {
+        sendSseEvent(AgentSseEvent.toolError(toolName, error));
+    }
+    
+    /**
+     * 发送最终结果事件
+     */
+    protected void sendResultEvent(String content) {
+        sendSseEvent(AgentSseEvent.result(content));
+    }
+    
+    /**
+     * 发送错误事件
+     */
+    protected void sendErrorEvent(String errorMessage) {
+        sendSseEvent(AgentSseEvent.error(errorMessage));
+    }
+    
+    /**
+     * 发送完成事件
+     */
+    protected void sendCompleteEvent() {
+        sendSseEvent(AgentSseEvent.complete());
+    }
 
     /**
      * 运行代理（流式输出）
+     * 
+     * 支持实时发送 SSE 事件：
+     * - 步骤开始/完成
+     * - AI 思考内容
+     * - 工具调用状态（开始/完成/失败）
+     * - 最终结果
      *
      * @param userPrompt 用户提示词
      * @return SseEmitter实例
@@ -127,17 +217,18 @@ public abstract class BaseAgent {
     public SseEmitter runStream(String userPrompt) {
         // 创建SseEmitter，设置较长的超时时间
         SseEmitter emitter = new SseEmitter(300000L); // 5分钟超时
+        this.currentEmitter = emitter;
 
         // 使用线程异步处理，避免阻塞主线程
         CompletableFuture.runAsync(() -> {
             try {
                 if (this.state != AgentState.IDLE) {
-                    emitter.send("错误：无法从状态运行代理: " + this.state);
+                    sendErrorEvent("无法从状态运行代理: " + this.state);
                     emitter.complete();
                     return;
                 }
                 if (StringUtil.isBlank(userPrompt)) {
-                    emitter.send("错误：不能使用空提示词运行代理");
+                    sendErrorEvent("不能使用空提示词运行代理");
                     emitter.complete();
                     return;
                 }
@@ -155,7 +246,10 @@ public abstract class BaseAgent {
                     for (int i = 0; i < maxSteps && state != AgentState.FINISHED; i++) {
                         int stepNumber = i + 1;
                         currentStep = stepNumber;
-                        log.info("Executing step " + stepNumber + "/" + maxSteps);
+                        log.info("Executing step {}/{}", stepNumber, maxSteps);
+                        
+                        // 发送步骤开始事件
+                        sendStepStartEvent(stepNumber, maxSteps);
 
                         // 单步执行
                         String stepResult = step();
@@ -215,13 +309,14 @@ public abstract class BaseAgent {
                         }
                     }
                     
-                    // 发送最终结果给用户
+                    // 发送最终结果给用户（使用新的事件格式）
                     if (finalResult != null && !finalResult.isEmpty()) {
-                        emitter.send(finalResult);
+                        sendResultEvent(finalResult);
                         // 任务完成后，调用回调方法保存对话（用于子类实现持久化）
                         onTaskCompleted(userPrompt, finalResult);
                     }
-                    // 正常完成
+                    // 发送完成事件
+                    sendCompleteEvent();
                     emitter.complete();
                 } catch (Exception e) {
                     state = AgentState.ERROR;
@@ -234,13 +329,14 @@ public abstract class BaseAgent {
                         } else {
                             errorResponse = "抱歉，处理您的请求时出现错误: " + e.getMessage();
                         }
-                        emitter.send(errorResponse);
+                        sendErrorEvent(errorResponse);
                         emitter.complete();
                     } catch (Exception ex) {
                         emitter.completeWithError(ex);
                     }
                 } finally {
                     // 清理资源
+                    this.currentEmitter = null;
                     this.cleanup();
                 }
             } catch (Exception e) {
@@ -251,6 +347,7 @@ public abstract class BaseAgent {
         // 设置超时和完成回调
         emitter.onTimeout(() -> {
             this.state = AgentState.ERROR;
+            this.currentEmitter = null;
             this.cleanup();
             log.warn("SSE connection timed out");
         });
@@ -259,6 +356,7 @@ public abstract class BaseAgent {
             if (this.state == AgentState.RUNNING) {
                 this.state = AgentState.FINISHED;
             }
+            this.currentEmitter = null;
             this.cleanup();
             log.info("SSE connection completed");
         });
