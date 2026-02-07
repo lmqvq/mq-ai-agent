@@ -106,6 +106,17 @@ public abstract class BaseAgent {
     protected void cleanup() {
         // 子类可以重写此方法来清理资源
     }
+    
+    /**
+     * 任务完成后的回调方法，用于保存对话到数据库。
+     * 子类可以重写此方法实现对话持久化。
+     * 
+     * @param userMessage 用户消息
+     * @param aiResponse AI回答
+     */
+    protected void onTaskCompleted(String userMessage, String aiResponse) {
+        // 默认不做任何操作，子类可以重写此方法
+    }
 
     /**
      * 运行代理（流式输出）
@@ -136,6 +147,10 @@ public abstract class BaseAgent {
                 // 记录消息上下文
                 messageList.add(new UserMessage(userPrompt));
 
+                // 保存最终结果和所有有效的思考结果
+                String finalResult = null;
+                StringBuilder collectedContent = new StringBuilder();
+
                 try {
                     for (int i = 0; i < maxSteps && state != AgentState.FINISHED; i++) {
                         int stepNumber = i + 1;
@@ -144,15 +159,67 @@ public abstract class BaseAgent {
 
                         // 单步执行
                         String stepResult = step();
-                        String result = "Step " + stepNumber + ": " + stepResult;
-
-                        // 发送每一步的结果
-                        emitter.send(result);
+                        // 保存最后一次结果
+                        finalResult = stepResult;
+                        
+                        // 收集每一步的有效内容
+                        if (stepResult != null && !stepResult.isEmpty()) {
+                            // 提取 readFile 工具返回的内容（通常是有价值的文档内容）
+                            if (stepResult.contains("工具 readFile 返回的结果：")) {
+                                String readFileContent = stepResult.replace("工具 readFile 返回的结果：", "").trim();
+                                // 去除首尾的引号
+                                if (readFileContent.startsWith("\"") && readFileContent.endsWith("\"")) {
+                                    readFileContent = readFileContent.substring(1, readFileContent.length() - 1);
+                                }
+                                if (!readFileContent.isEmpty() && readFileContent.length() > 50) {
+                                    // 只收集较长的内容（通常是有价值的文档）
+                                    if (collectedContent.length() > 0) {
+                                        collectedContent.append("\n\n");
+                                    }
+                                    collectedContent.append(readFileContent);
+                                }
+                            }
+                            // 收集非工具调用结果的思考内容
+                            else if (!stepResult.startsWith("工具 ")  // 过滤其他工具调用结果
+                                    && !stepResult.contains("返回的结果：")  // 过滤工具返回信息
+                                    && !stepResult.equals("思考完成")
+                                    && !stepResult.equals("思考完成 - 无需行动")) {
+                                if (collectedContent.length() > 0) {
+                                    collectedContent.append("\n\n");
+                                }
+                                collectedContent.append(stepResult);
+                            }
+                        }
                     }
                     // 检查是否超出步骤限制
-                    if (currentStep >= maxSteps) {
+                    if (currentStep >= maxSteps && state != AgentState.FINISHED) {
                         state = AgentState.FINISHED;
-                        emitter.send("执行结束: 达到最大步骤 (" + maxSteps + ")");
+                        // 如果有收集到的内容，优先输出收集的内容
+                        if (collectedContent.length() > 0) {
+                            finalResult = collectedContent.toString() + "\n\n---\n*（提示：任务已达到最大步骤限制，以上是目前收集到的信息）*";
+                        } else if (finalResult != null && !finalResult.isEmpty()) {
+                            // 如果没有收集到内容但有最后结果，输出最后结果
+                            finalResult = finalResult + "\n\n---\n*（提示：任务已达到最大步骤限制）*";
+                        } else {
+                            finalResult = "抱歉，任务达到最大步骤限制，暂时无法获取完整信息。请尝试简化您的问题。";
+                        }
+                    }
+                    
+                    // 处理最终结果：如果是 doTerminate 工具的结果，使用收集到的内容代替
+                    if (finalResult != null && finalResult.contains("doTerminate") && finalResult.contains("返回的结果")) {
+                        if (collectedContent.length() > 0) {
+                            finalResult = collectedContent.toString();
+                        } else {
+                            // 如果没有收集到内容，返回一个友好的提示
+                            finalResult = "任务已完成，但未能获取到有效的输出内容。";
+                        }
+                    }
+                    
+                    // 发送最终结果给用户
+                    if (finalResult != null && !finalResult.isEmpty()) {
+                        emitter.send(finalResult);
+                        // 任务完成后，调用回调方法保存对话（用于子类实现持久化）
+                        onTaskCompleted(userPrompt, finalResult);
                     }
                     // 正常完成
                     emitter.complete();
@@ -160,7 +227,14 @@ public abstract class BaseAgent {
                     state = AgentState.ERROR;
                     log.error("执行智能体失败", e);
                     try {
-                        emitter.send("执行错误: " + e.getMessage());
+                        // 如果有收集到的内容，即使出错也尝试返回
+                        String errorResponse;
+                        if (collectedContent.length() > 0) {
+                            errorResponse = collectedContent.toString() + "\n\n---\n*（提示：处理过程中出现错误，以上是已收集到的信息）*";
+                        } else {
+                            errorResponse = "抱歉，处理您的请求时出现错误: " + e.getMessage();
+                        }
+                        emitter.send(errorResponse);
                         emitter.complete();
                     } catch (Exception ex) {
                         emitter.completeWithError(ex);

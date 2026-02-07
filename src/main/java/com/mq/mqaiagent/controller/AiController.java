@@ -114,17 +114,24 @@ public class AiController {
 
     /**
      * 流式调用 Manus 超级智能体（支持用户认证和对话记忆）前端调用的接口
+     * 
+     * 对话持久化逻辑：
+     * - 前端传入 chatId（对话ID），"新对话"时生成新的 chatId
+     * - 用户消息和 AI 回答通过 DatabaseChatMemory 持久化到数据库
+     * - 不同 chatId 之间数据隔离，解决"对话污染"问题
+     * - 刷新页面后，前端通过 chatId 加载历史对话
      *
-     * @param message
-     * @param chatId
-     * @param request
-     * @return
+     * @param message 用户消息
+     * @param chatId 对话ID（用于持久化和加载历史记录）
+     * @param model AI模型
+     * @param request HTTP请求
+     * @return SSE流
      */
     @GetMapping("/manus/chat/user")
     public SseEmitter doChatWithManusUser(String message, String chatId, String model, HttpServletRequest request) {
         User currentUser = userService.getLoginUser(request);
         AiModelType modelType = chatClientPool.resolveModel(model).modelType();
-        MqManus mqManus = new MqManus(allTools, chatClientPool, currentUser.getId(), modelType);
+        MqManus mqManus = new MqManus(allTools, chatClientPool, currentUser.getId(), chatId, modelType);
         return mqManus.runStream(message);
     }
 

@@ -4,6 +4,7 @@ import com.mq.mqaiagent.ai.AiModelRouter;
 import com.mq.mqaiagent.ai.AiModelType;
 import com.mq.mqaiagent.advisor.MyLoggerAdvisor;
 import com.mq.mqaiagent.chatmemory.CachedDatabaseChatMemory;
+import com.mq.mqaiagent.chatmemory.DatabaseChatMemory;
 import com.mq.mqaiagent.mapper.KeepReportMapper;
 import com.mq.mqaiagent.service.CacheService;
 import jakarta.annotation.Resource;
@@ -220,9 +221,11 @@ public class ChatClientPool {
 
     /**
      * 创建支持记忆的 MqManus ChatClient
+     * 注意：MqManus 不使用 Redis 缓存，直接使用数据库存储，避免序列化问题
      */
     private ChatClient createMqManusClientWithMemory(ChatModel chatModel, Long userId, String systemPrompt) {
-        CachedDatabaseChatMemory chatMemory = new CachedDatabaseChatMemory(keepReportMapper, cacheService);
+        // MqManus 使用不带缓存的 DatabaseChatMemory，避免 Redis 序列化错误
+        DatabaseChatMemory chatMemory = new DatabaseChatMemory(keepReportMapper);
         chatMemory.setCurrentUserId(userId);
         return ChatClient.builder(chatModel)
                 .defaultAdvisors(
@@ -230,6 +233,21 @@ public class ChatClientPool {
                         new MyLoggerAdvisor()
                 )
                 .build();
+    }
+    
+    /**
+     * 创建 MqManus 专用的 DatabaseChatMemory
+     * 用于 AI超级智能体的对话持久化
+     * 
+     * @param userId 用户ID
+     * @return DatabaseChatMemory 实例
+     */
+    public DatabaseChatMemory createMqManusChatMemory(Long userId) {
+        DatabaseChatMemory chatMemory = new DatabaseChatMemory(keepReportMapper);
+        if (userId != null) {
+            chatMemory.setCurrentUserId(userId);
+        }
+        return chatMemory;
     }
 
     /**

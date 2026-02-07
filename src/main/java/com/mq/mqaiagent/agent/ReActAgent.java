@@ -40,7 +40,8 @@ public abstract class ReActAgent extends BaseAgent{
         try {
             boolean shouldAct = think();
             if (!shouldAct) {
-                return "思考完成 - 无需行动";
+                // 不需要调用工具，返回 LLM 的思考结果
+                return getThinkResult();
             }
             return act();
         } catch (Exception e) {
@@ -48,5 +49,14 @@ public abstract class ReActAgent extends BaseAgent{
             e.printStackTrace();
             return "步骤执行失败: " + e.getMessage();
         }
+    }
+
+    /**
+     * 获取思考结果（子类可重写）
+     *
+     * @return LLM 的思考/回答内容
+     */
+    protected String getThinkResult() {
+        return "思考完成 - 无需行动";
     }
 }

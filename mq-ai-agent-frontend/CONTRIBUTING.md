@@ -163,6 +163,6 @@ src/
 如果您有任何问题或建议，可以通过以下方式联系我们：
 
 - 创建 [Issue](https://github.com/lmqvq/mq-ai-agent-frontend/issues)
-- 发送邮件至 [2097489731@qq.com](mailto:2097489731@qq.com)
+- 发送邮件至 [lmqicu@qq.com](mailto:lmqicu@qq.com)
 
 再次感谢您的贡献！🎉

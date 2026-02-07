@@ -27,7 +27,6 @@ public class ToolRegistration {
         WebSearchTool webSearchTool = new WebSearchTool(searchApiKey);
         WebCrawlingTool webCrawlingTool = new WebCrawlingTool();
         ResourceDownloadTool resourceDownloadTool = new ResourceDownloadTool();
-        PDFGenerationTool pdfGenerationTool = new PDFGenerationTool();
         GoogleWebSearchTool googleWebSearchTool = new GoogleWebSearchTool(searchApiKey);
         TerminateTool terminateTool = new TerminateTool();
         return ToolCallbacks.from(
@@ -35,7 +34,6 @@ public class ToolRegistration {
                 webSearchTool,
                 webCrawlingTool,
                 resourceDownloadTool,
-                pdfGenerationTool,
                 googleWebSearchTool,
                 terminateTool
         );

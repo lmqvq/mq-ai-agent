@@ -420,26 +420,32 @@ public class DatabaseChatMemory implements ChatMemory {
         JSONArray jsonArray = new JSONArray();
 
         for (Message message : messages) {
+            // 跳过空内容的消息
+            String text = message.getText();
+            if (text == null || text.isBlank()) {
+                log.debug("跳过空内容的消息，类型: {}", message.getMessageType());
+                continue;
+            }
+
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("messageType", message.getMessageType().toString());
 
             if (message instanceof UserMessage) {
                 // 用户消息直接存储文本内容
-                jsonObject.put("message", message.getText());
+                jsonObject.put("message", text);
             } else if (message instanceof AssistantMessage) {
                 // 助手消息可能包含JSON格式的内容，尝试解析
-                String content = message.getText();
                 try {
                     // 尝试将内容解析为JSON对象
-                    JSONObject contentJson = JSON.parseObject(content);
+                    JSONObject contentJson = JSON.parseObject(text);
                     jsonObject.put("message", contentJson);
                 } catch (Exception e) {
                     // 如果解析失败，则直接存储文本内容
-                    jsonObject.put("message", content);
+                    jsonObject.put("message", text);
                 }
             } else {
                 // 其他类型的消息直接存储文本内容
-                jsonObject.put("message", message.getText());
+                jsonObject.put("message", text);
             }
 
             jsonArray.add(jsonObject);
@@ -466,18 +472,33 @@ public class DatabaseChatMemory implements ChatMemory {
             if (messageType == MessageType.USER) {
                 // 用户消息
                 String content = jsonObject.getString("message");
+                // 跳过空内容的消息
+                if (content == null || content.isBlank()) {
+                    log.warn("跳过空内容的用户消息");
+                    continue;
+                }
                 messages.add(new UserMessage(content));
             } else if (messageType == MessageType.ASSISTANT) {
                 // 助手消息
                 Object messageObj = jsonObject.get("message");
                 String content;
 
-                if (messageObj instanceof JSONObject) {
+                if (messageObj == null) {
+                    // 消息内容为null，跳过该消息
+                    log.warn("跳过空内容的助手消息");
+                    continue;
+                } else if (messageObj instanceof JSONObject) {
                     // 如果是JSON对象，转换为字符串
                     content = messageObj.toString();
                 } else {
                     // 否则直接使用字符串值
                     content = jsonObject.getString("message");
+                }
+
+                // 跳过空内容的消息
+                if (content == null || content.isBlank()) {
+                    log.warn("跳过空内容的助手消息");
+                    continue;
                 }
 
                 // 创建助手消息，使用空的元数据
