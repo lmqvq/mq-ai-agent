@@ -14,5 +14,7 @@ public class AssessmentReportGenerateRequest implements Serializable {
 
     private Boolean regenerate;
 
+    private String model;
+
     private static final long serialVersionUID = 1L;
 }

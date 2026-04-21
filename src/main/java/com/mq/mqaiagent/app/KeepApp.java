@@ -25,11 +25,27 @@ import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvis
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_RETRIEVE_SIZE_KEY;
 
 /**
- * 健身助手应用。
+ * Keep 健身助手应用。
  */
 @Component
 @Slf4j
 public class KeepApp {
+
+    private static final String ASSESSMENT_ADVICE_PROMPT_VERSION = "assessment_advice_v1";
+
+    private static final String ASSESSMENT_ADVICE_CHAT_ID_PREFIX = "assessment_report_";
+
+    private static final String ASSESSMENT_ADVICE_SYSTEM_PROMPT = SYSTEM_PROMPT + "\n\n"
+            + "【大学生体测报告任务】\n"
+            + "你现在的任务不是进行普通闲聊，而是根据用户的体测成绩、身体画像和历史趋势，生成个性化健身建议。\n"
+            + "请严格遵守以下要求：\n"
+            + "1. 只基于用户提供的数据给建议，不编造体测成绩、伤病史或生活习惯。\n"
+            + "2. 输出必须使用简体中文，内容务实、具体、可执行。\n"
+            + "3. 建议要优先围绕体测短板、体重管理、耐力、力量、柔韧性和恢复安排展开。\n"
+            + "4. 如果没有明显弱项，也要结合当前分数段给出从当前水平提升到下一档的建议。\n"
+            + "5. 不要给疾病诊断和药物建议；涉及风险时，只做审慎提醒。\n"
+            + "6. 请按以下结构输出：\n"
+            + "整体判断\n训练建议\n每周安排\n恢复与营养\n注意事项\n下一次体测前目标";
 
     private final KeepReportMapper keepReportMapper;
     private final CacheService cacheService;
@@ -47,31 +63,73 @@ public class KeepApp {
     }
 
     /**
-     * KeepAPP 基础对话（默认模型）。
+     * KeepApp 基础对话（默认模型）。
      */
     public String doChat(String message, String chatId) {
         return doChatWithCache(message, chatId, null, null);
     }
 
     /**
-     * KeepAPP 基础对话（默认模型，支持用户 ID）。
+     * KeepApp 基础对话（默认模型，支持用户 ID）。
      */
     public String doChat(String message, String chatId, Long userId) {
         return doChatWithCache(message, chatId, userId, null);
     }
 
     /**
-     * KeepAPP 基础对话（支持模型选择）。
+     * KeepApp 基础对话（支持模型选择）。
      */
     public String doChat(String message, String chatId, String model) {
         return doChatWithCache(message, chatId, null, model);
     }
 
     /**
-     * KeepAPP 基础对话（支持模型选择 + 用户 ID）。
+     * KeepApp 基础对话（支持模型选择 + 用户 ID）。
      */
     public String doChat(String message, String chatId, Long userId, String model) {
         return doChatWithCache(message, chatId, userId, model);
+    }
+
+    /**
+     * 生成体测报告 AI 建议。
+     */
+    public String generateAssessmentAdvice(String message, Long userId, Long recordId, String model) {
+        return generateAssessmentAdvice(message, userId, recordId, model, false);
+    }
+
+    /**
+     * 生成体测报告 AI 建议。
+     */
+    public String generateAssessmentAdvice(String message, Long userId, Long recordId, String model,
+            boolean forceRefresh) {
+        AiModelRouter.ResolvedModel resolvedModel = chatClientPool.resolveModel(model);
+        AiModelType modelType = resolvedModel.modelType();
+        String cacheQuestion = buildAssessmentAdviceCacheQuestion(message, recordId);
+
+        if (forceRefresh) {
+            aiResponseCacheService.clearCache(cacheQuestion, userId, modelType);
+        } else {
+            String cachedResponse = aiResponseCacheService.getCachedResponse(cacheQuestion, userId, modelType);
+            if (cachedResponse != null) {
+                log.info("使用缓存的 assessment AI 建议，model: {}, recordId: {}", modelType.getCode(), recordId);
+                return cachedResponse;
+            }
+        }
+
+        ChatClient chatClient = resolveAssessmentClient(modelType, userId);
+        ChatResponse chatResponse = chatClient
+                .prompt()
+                .user(message)
+                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY,
+                                buildAssessmentConversationId(userId, recordId))
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 0))
+                .call()
+                .chatResponse();
+        String response = chatResponse.getResult().getOutput().getText();
+        aiResponseCacheService.cacheResponse(cacheQuestion, response, userId, modelType);
+        log.info("assessment AI 建议生成完成，model: {}, recordId: {}, response: {}",
+                modelType.getCode(), recordId, abbreviate(response, 120));
+        return response;
     }
 
     /**
@@ -101,31 +159,32 @@ public class KeepApp {
 
         // 3. 缓存 AI 响应（按模型隔离）
         aiResponseCacheService.cacheResponse(message, response, userId, modelType);
-
         log.info("AI 模型响应，model: {}, response: {}", modelType.getCode(), abbreviate(response, 80));
         return response;
     }
 
-    // 定义 KeepReport 的 record，包含 title 和 suggestions 列表
+    /**
+     * Keep 报告结构。
+     */
     record KeepReport(String title, List<String> suggestions) {
     }
 
     /**
-     * KeepAPP 生成健身报告（默认模型）。
+     * KeepApp 生成健身报告（默认模型）。
      */
     public KeepReport doChatWithReport(String message, String chatId) {
         return doChatWithReport(message, chatId, null);
     }
 
     /**
-     * KeepAPP 生成健身报告（支持模型选择）。
+     * KeepApp 生成健身报告（支持模型选择）。
      */
     public KeepReport doChatWithReport(String message, String chatId, String model) {
         AiModelType modelType = chatClientPool.resolveModel(model).modelType();
         ChatClient chatClient = resolveKeepAppClient(modelType, null);
         KeepReport keepReport = chatClient
                 .prompt()
-                .system(SYSTEM_PROMPT + "每次对话后都要生成健身结果，标题为‘用户的健身报告’，内容为建议列表")
+                .system(SYSTEM_PROMPT + "每次对话后都要生成健身结果，标题为“用户的健身报告”，内容为建议列表")
                 .user(message)
                 .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
@@ -237,6 +296,30 @@ public class KeepApp {
             return chatClientPool.getKeepAppClientWithMemory(modelType, userId, SYSTEM_PROMPT);
         }
         return chatClientPool.getKeepAppClient(modelType, SYSTEM_PROMPT);
+    }
+
+    private ChatClient resolveAssessmentClient(AiModelType modelType, Long userId) {
+        if (userId != null) {
+            return chatClientPool.getKeepAppClientWithMemory(modelType, userId, ASSESSMENT_ADVICE_SYSTEM_PROMPT);
+        }
+        return chatClientPool.getKeepAppClient(modelType, ASSESSMENT_ADVICE_SYSTEM_PROMPT);
+    }
+
+    private String buildAssessmentConversationId(Long userId, Long recordId) {
+        StringBuilder conversationId = new StringBuilder(ASSESSMENT_ADVICE_CHAT_ID_PREFIX);
+        if (userId != null) {
+            conversationId.append(userId).append("_");
+        }
+        if (recordId != null) {
+            conversationId.append(recordId);
+        } else {
+            conversationId.append("general");
+        }
+        return conversationId.toString();
+    }
+
+    private String buildAssessmentAdviceCacheQuestion(String message, Long recordId) {
+        return ASSESSMENT_ADVICE_PROMPT_VERSION + "|recordId=" + recordId + "|" + message;
     }
 
     private String abbreviate(String text, int maxLen) {

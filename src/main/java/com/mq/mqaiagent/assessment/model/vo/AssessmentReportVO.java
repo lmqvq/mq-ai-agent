@@ -31,6 +31,8 @@ public class AssessmentReportVO implements Serializable {
 
     private String aiSuggestion;
 
+    private AssessmentAiSuggestionStructuredVO aiSuggestionStructured;
+
     private Date createTime;
 
     private static final long serialVersionUID = 1L;
