@@ -1,5 +1,6 @@
 package com.mq.mqaiagent.assessment.model.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -20,6 +21,7 @@ public class AssessmentRecordVO implements Serializable {
 
     private String schemeVersion;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Shanghai")
     private Date assessmentDate;
 
     private String sourceType;
@@ -46,6 +48,7 @@ public class AssessmentRecordVO implements Serializable {
 
     private String summary;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Shanghai")
     private Date createTime;
 
     private static final long serialVersionUID = 1L;

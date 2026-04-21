@@ -33,7 +33,8 @@ public class AssessmentRule implements Serializable {
 
     private BigDecimal minValue;
 
-    @TableField("maxValue")
+    // MySQL treats MAXVALUE as a reserved keyword, so this column must be quoted explicitly.
+    @TableField("`maxValue`")
     private BigDecimal maxValue;
 
     private String comparisonType;

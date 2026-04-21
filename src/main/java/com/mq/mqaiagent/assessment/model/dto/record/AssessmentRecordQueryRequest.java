@@ -1,5 +1,6 @@
 package com.mq.mqaiagent.assessment.model.dto.record;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mq.mqaiagent.common.PageRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,8 +21,10 @@ public class AssessmentRecordQueryRequest extends PageRequest implements Seriali
 
     private String level;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Shanghai")
     private Date startDate;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Shanghai")
     private Date endDate;
 
     private static final long serialVersionUID = 1L;

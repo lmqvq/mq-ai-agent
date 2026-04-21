@@ -1,5 +1,6 @@
 package com.mq.mqaiagent.assessment.model.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -14,6 +15,7 @@ public class AssessmentTrendVO implements Serializable {
 
     private Long recordId;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Shanghai")
     private Date assessmentDate;
 
     private BigDecimal totalScore;

@@ -1,6 +1,7 @@
 package com.mq.mqaiagent.assessment.model.dto.record;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -16,6 +17,7 @@ public class AssessmentRecordAddRequest implements Serializable {
 
     private String schemeCode;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Shanghai")
     private Date assessmentDate;
 
     private String sourceType;
