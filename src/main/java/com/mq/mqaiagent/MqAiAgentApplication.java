@@ -8,7 +8,7 @@ import org.springframework.context.annotation.FilterType;
 
 @SpringBootApplication
 @ComponentScan(excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE))
-@MapperScan("com.mq.mqaiagent.mapper")
+@MapperScan({"com.mq.mqaiagent.mapper", "com.mq.mqaiagent.assessment.mapper"})
 public class MqAiAgentApplication {
 
     public static void main(String[] args) {

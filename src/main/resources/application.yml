@@ -21,7 +21,7 @@ springdoc:
   group-configs:
     - group: 'default'
       paths-to-match: '/**'
-      packages-to-scan: com.mq.mqaiagent.controller
+      packages-to-scan: com.mq.mqaiagent
     # todo
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
