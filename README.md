@@ -324,7 +324,7 @@ npm run serve
 ### 4. 访问应用
 
 - 🌐 前端页面：http://localhost:8080
-- 📡 后端 API：http://localhost:8123/api
+- 📡 后端 API：http://localhost:8123/api/doc.html#/home
 
 ### ⚙️ 核心配置
 

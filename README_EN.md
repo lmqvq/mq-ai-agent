@@ -300,7 +300,7 @@ npm run serve
 ### 4. Access Application
 
 - 🌐 Frontend: http://localhost:8080
-- 📡 Backend API: http://localhost:8123/api
+- 📡 Backend API: http://localhost:8123/api/doc.html#/home
 
 ### ⚙️ Core Configuration
 

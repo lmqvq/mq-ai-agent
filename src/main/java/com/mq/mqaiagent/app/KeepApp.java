@@ -10,6 +10,7 @@ import com.mq.mqaiagent.service.CacheService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.tool.ToolCallback;
@@ -223,6 +224,8 @@ public class KeepApp {
         return chatClient
                 .prompt()
                 .user(message)
+                // 应用知识库问答
+                .advisors(new QuestionAnswerAdvisor(keepAppVectorStore))
                 .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 .stream()
