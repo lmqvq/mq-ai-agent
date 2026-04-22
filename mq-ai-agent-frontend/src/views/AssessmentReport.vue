@@ -234,6 +234,52 @@
               </div>
             </div>
 
+            <div class="section-card record-section">
+              <div class="section-header">
+                <h3><icon-dashboard />体测记录列表</h3>
+                <span class="section-tip">最近 {{ records.length }} 条记录，可直接查看、编辑和删除</span>
+              </div>
+
+              <div class="record-list">
+                <div
+                  v-for="record in records"
+                  :key="record.id"
+                  class="record-row"
+                  :class="{ active: record.id === selectedRecordId }"
+                >
+                  <div class="record-main" @click="openRecord(record.id)">
+                    <div class="record-title-row">
+                      <strong>{{ formatDate(record.assessmentDate) }}</strong>
+                      <a-tag :color="getLevelColor(record.level)">{{ record.level || '未评分' }}</a-tag>
+                    </div>
+                    <div class="record-meta-row">
+                      <span>总分 {{ formatDecimal(record.totalScore) }}</span>
+                      <span>强项 {{ record.strengthCount ?? '--' }} 项</span>
+                      <span>弱项 {{ record.weaknessCount ?? '--' }} 项</span>
+                    </div>
+                    <p>{{ record.summary || '暂无摘要' }}</p>
+                  </div>
+
+                  <div class="record-actions">
+                    <a-button size="small" @click="openRecord(record.id)">查看</a-button>
+                    <a-button size="small" @click="editRecord(record.id)">编辑</a-button>
+                    <a-popconfirm
+                      content="确定删除这条体测记录吗？删除后对应报告也会一起移除。"
+                      @ok="deleteRecord(record.id)"
+                    >
+                      <a-button
+                        size="small"
+                        status="danger"
+                        :loading="deletingRecordId === record.id"
+                      >
+                        删除
+                      </a-button>
+                    </a-popconfirm>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="section-card trend-section">
               <div class="section-header">
                 <h3><icon-calendar />历史趋势</h3>
@@ -351,6 +397,7 @@ export default {
     const pageLoading = ref(false);
     const contentLoading = ref(false);
     const generating = ref(false);
+    const deletingRecordId = ref(null);
     const unauthorized = ref(false);
     const records = ref([]);
     const trends = ref([]);
@@ -451,6 +498,30 @@ export default {
       router.push('/assessment/entry');
     };
 
+    const openRecord = (recordId) => {
+      if (!recordId) {
+        return;
+      }
+      router.replace({
+        path: '/assessment',
+        query: {
+          recordId
+        }
+      });
+    };
+
+    const editRecord = (recordId) => {
+      if (!recordId) {
+        return;
+      }
+      router.push({
+        path: '/assessment/entry',
+        query: {
+          recordId
+        }
+      });
+    };
+
     const refreshData = async () => {
       await loadPage(true);
     };
@@ -474,6 +545,28 @@ export default {
         handlePageError(error, '重新生成 AI 建议失败');
       } finally {
         generating.value = false;
+      }
+    };
+
+    const deleteRecord = async (recordId) => {
+      if (!recordId) {
+        return;
+      }
+      deletingRecordId.value = recordId;
+      try {
+        const response = await ApiService.deleteAssessmentRecord(recordId);
+        if (response.code !== 0) {
+          throw response;
+        }
+        if (String(route.query.recordId || '') === String(recordId)) {
+          await router.replace({ path: '/assessment' });
+        }
+        Message.success('体测记录删除成功');
+        await loadPage(false);
+      } catch (error) {
+        handlePageError(error, '删除体测记录失败');
+      } finally {
+        deletingRecordId.value = null;
       }
     };
 
@@ -606,14 +699,19 @@ export default {
       contentLoading,
       currentRecord,
       currentReport,
+      deleteRecord,
+      deletingRecordId,
+      editRecord,
       generating,
       goBack,
       goToEntry,
       goToLogin,
       handleRecordChange,
+      openRecord,
       hasRecords,
       insightCards,
       pageLoading,
+      records,
       recordOptions,
       refreshData,
       regenerateReport,
@@ -1273,6 +1371,71 @@ function isNotFoundLikeError(error) {
   flex-wrap: wrap;
 }
 
+.record-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.record-row {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  border-radius: 14px;
+  background: var(--theme-bg-card-hover);
+  border: 1px solid var(--theme-border-secondary);
+  transition: all 0.25s ease;
+
+  &.active {
+    border-color: var(--theme-color-primary);
+    box-shadow: 0 6px 18px rgba(44, 191, 138, 0.12);
+  }
+}
+
+.record-main {
+  flex: 1;
+  cursor: pointer;
+
+  p {
+    margin: 10px 0 0;
+    color: var(--theme-text-secondary);
+    line-height: 1.7;
+  }
+}
+
+.record-title-row,
+.record-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.record-title-row {
+  strong {
+    font-size: 16px;
+    color: var(--theme-text-primary);
+  }
+}
+
+.record-meta-row {
+  margin-top: 10px;
+
+  span {
+    font-size: 12px;
+    color: var(--theme-text-muted);
+  }
+}
+
+.record-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .marker {
   font-size: 12px;
   padding: 4px 10px;
@@ -1422,6 +1585,12 @@ function isNotFoundLikeError(error) {
   .item-grid,
   .item-score-row {
     grid-template-columns: 1fr;
+  }
+
+  .record-row,
+  .record-actions {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .record-select {

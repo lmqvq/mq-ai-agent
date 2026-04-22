@@ -8,6 +8,7 @@ import com.mq.mqaiagent.assessment.engine.AssessmentScoringEngine;
 import com.mq.mqaiagent.assessment.engine.model.AssessmentItemScoreResult;
 import com.mq.mqaiagent.assessment.engine.model.AssessmentScoreContext;
 import com.mq.mqaiagent.assessment.engine.model.AssessmentScoreResult;
+import com.mq.mqaiagent.assessment.mapper.AssessmentReportMapper;
 import com.mq.mqaiagent.assessment.mapper.AssessmentRecordItemMapper;
 import com.mq.mqaiagent.assessment.mapper.AssessmentRecordMapper;
 import com.mq.mqaiagent.assessment.mapper.AssessmentSchemeItemMapper;
@@ -15,7 +16,9 @@ import com.mq.mqaiagent.assessment.mapper.AssessmentSchemeMapper;
 import com.mq.mqaiagent.assessment.model.dto.record.AssessmentRecordAddRequest;
 import com.mq.mqaiagent.assessment.model.dto.record.AssessmentRecordItemInput;
 import com.mq.mqaiagent.assessment.model.dto.record.AssessmentRecordQueryRequest;
+import com.mq.mqaiagent.assessment.model.dto.record.AssessmentRecordUpdateRequest;
 import com.mq.mqaiagent.assessment.model.entity.AssessmentProfile;
+import com.mq.mqaiagent.assessment.model.entity.AssessmentReport;
 import com.mq.mqaiagent.assessment.model.entity.AssessmentRecord;
 import com.mq.mqaiagent.assessment.model.entity.AssessmentRecordItem;
 import com.mq.mqaiagent.assessment.model.entity.AssessmentScheme;
@@ -65,6 +68,9 @@ public class AssessmentRecordServiceImpl extends ServiceImpl<AssessmentRecordMap
     private AssessmentRecordItemMapper assessmentRecordItemMapper;
 
     @Resource
+    private AssessmentReportMapper assessmentReportMapper;
+
+    @Resource
     private AssessmentProfileService assessmentProfileService;
 
     @Resource
@@ -73,85 +79,32 @@ public class AssessmentRecordServiceImpl extends ServiceImpl<AssessmentRecordMap
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createRecord(Long userId, AssessmentRecordAddRequest recordAddRequest) {
-        ThrowUtils.throwIf(userId == null || recordAddRequest == null, ErrorCode.PARAMS_ERROR);
-        ThrowUtils.throwIf(recordAddRequest.getItemList() == null || recordAddRequest.getItemList().isEmpty(),
-                ErrorCode.PARAMS_ERROR, "itemList is required");
-        String schemeCode = resolveSchemeCode(recordAddRequest.getSchemeCode());
+        return saveRecord(userId, recordAddRequest, null);
+    }
 
-        QueryWrapper<AssessmentScheme> schemeQueryWrapper = new QueryWrapper<>();
-        schemeQueryWrapper.eq("schemeCode", schemeCode).last("limit 1");
-        AssessmentScheme assessmentScheme = assessmentSchemeMapper.selectOne(schemeQueryWrapper);
-        ThrowUtils.throwIf(assessmentScheme == null, ErrorCode.NOT_FOUND_ERROR, "assessment scheme not found");
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Long updateRecord(Long userId, AssessmentRecordUpdateRequest recordUpdateRequest) {
+        ThrowUtils.throwIf(userId == null || recordUpdateRequest == null || recordUpdateRequest.getId() == null
+                || recordUpdateRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
+        AssessmentRecord existingRecord = this.getById(recordUpdateRequest.getId());
+        ThrowUtils.throwIf(existingRecord == null, ErrorCode.NOT_FOUND_ERROR);
+        ThrowUtils.throwIf(!userId.equals(existingRecord.getUserId()), ErrorCode.NO_AUTH_ERROR);
+        return saveRecord(userId, recordUpdateRequest, existingRecord);
+    }
 
-        AssessmentProfile assessmentProfile = assessmentProfileService.getByUserIdAndSchemeCode(userId, schemeCode);
-        Map<String, AssessmentSchemeItem> schemeItemMap = listSchemeItemMap(schemeCode);
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean deleteRecord(Long userId, Long recordId) {
+        ThrowUtils.throwIf(userId == null || recordId == null || recordId <= 0, ErrorCode.PARAMS_ERROR);
+        AssessmentRecord existingRecord = this.getById(recordId);
+        ThrowUtils.throwIf(existingRecord == null, ErrorCode.NOT_FOUND_ERROR);
+        ThrowUtils.throwIf(!userId.equals(existingRecord.getUserId()), ErrorCode.NO_AUTH_ERROR);
 
-        AssessmentRecord assessmentRecord = new AssessmentRecord();
-        assessmentRecord.setUserId(userId);
-        assessmentRecord.setSchemeCode(schemeCode);
-        assessmentRecord.setSchemeVersion(StringUtils.defaultIfBlank(assessmentScheme.getVersion(),
-                AssessmentConstant.DEFAULT_RULE_VERSION));
-        assessmentRecord.setAssessmentDate(
-                ObjectUtils.defaultIfNull(recordAddRequest.getAssessmentDate(), new Date()));
-        assessmentRecord.setSourceType(StringUtils.defaultIfBlank(recordAddRequest.getSourceType(),
-                AssessmentConstant.SOURCE_MANUAL));
-        String genderSnapshot = normalizeGender(firstNonBlank(recordAddRequest.getGender(),
-                assessmentProfile == null ? null : assessmentProfile.getGender()));
-        String gradeSnapshot = firstNonBlank(recordAddRequest.getGrade(),
-                assessmentProfile == null ? null : assessmentProfile.getGrade());
-        String gradeGroupSnapshot = resolveGradeGroup(firstNonBlank(recordAddRequest.getGradeGroup(),
-                assessmentProfile == null ? null : assessmentProfile.getGradeGroup()), gradeSnapshot);
-        assessmentRecord.setGenderSnapshot(genderSnapshot);
-        assessmentRecord.setGradeSnapshot(gradeSnapshot);
-        assessmentRecord.setGradeGroupSnapshot(gradeGroupSnapshot);
-        assessmentRecord.setHeightSnapshot(firstNonNull(recordAddRequest.getHeight(),
-                assessmentProfile == null ? null : assessmentProfile.getHeight()));
-        assessmentRecord.setWeightSnapshot(firstNonNull(recordAddRequest.getWeight(),
-                assessmentProfile == null ? null : assessmentProfile.getWeight()));
-        assessmentRecord.setBmiSnapshot(
-                calculateBmi(assessmentRecord.getWeightSnapshot(), assessmentRecord.getHeightSnapshot()));
-        assessmentRecord.setExtraDataJson(recordAddRequest.getExtraDataJson());
-
-        List<AssessmentRecordItemInput> workingItemList = buildWorkingItemList(recordAddRequest.getItemList(),
-                assessmentRecord, schemeItemMap);
-        validateDuplicateItemCode(workingItemList);
-        validateRequiredItems(workingItemList, schemeItemMap, assessmentRecord.getGenderSnapshot(),
-                assessmentRecord.getGradeGroupSnapshot());
-
-        AssessmentScoreResult scoreResult = assessmentScoringEngine.score(buildScoreContext(assessmentRecord,
-                workingItemList, schemeItemMap));
-        assessmentRecord.setTotalScore(scoreResult.getTotalScore());
-        assessmentRecord.setLevel(scoreResult.getLevel());
-        assessmentRecord.setWeaknessCount(scoreResult.getWeaknessCount());
-        assessmentRecord.setStrengthCount(scoreResult.getStrengthCount());
-        assessmentRecord.setSummary(StringUtils.defaultIfBlank(recordAddRequest.getSummary(), scoreResult.getSummary()));
-
-        boolean saveResult = this.save(assessmentRecord);
-        ThrowUtils.throwIf(!saveResult, ErrorCode.OPERATION_ERROR);
-
-        Map<String, AssessmentRecordItemInput> itemInputMap = workingItemList.stream().collect(Collectors.toMap(
-                AssessmentRecordItemInput::getItemCode, Function.identity(), (left, right) -> left));
-        for (AssessmentItemScoreResult itemScoreResult : scoreResult.getItemScoreResults()) {
-            AssessmentSchemeItem schemeItem = schemeItemMap.get(itemScoreResult.getItemCode());
-            AssessmentRecordItemInput itemInput = itemInputMap.get(itemScoreResult.getItemCode());
-            AssessmentRecordItem recordItem = new AssessmentRecordItem();
-            recordItem.setRecordId(assessmentRecord.getId());
-            recordItem.setItemCode(schemeItem.getItemCode());
-            recordItem.setItemName(resolveItemDisplayName(schemeItem, assessmentRecord.getGenderSnapshot()));
-            recordItem.setItemOrder(ObjectUtils.defaultIfNull(schemeItem.getDisplayOrder(), 0));
-            recordItem.setUnit(schemeItem.getUnit());
-            recordItem.setRawValue(itemScoreResult.getRawValue());
-            recordItem.setItemWeight(itemScoreResult.getItemWeight());
-            recordItem.setItemScore(itemScoreResult.getItemScore());
-            recordItem.setExtraScore(itemScoreResult.getExtraScore());
-            recordItem.setItemLevel(itemScoreResult.getItemLevel());
-            recordItem.setIsWeakness(itemScoreResult.isWeakness() ? 1 : 0);
-            recordItem.setIsStrength(itemScoreResult.isStrength() ? 1 : 0);
-            recordItem.setRemark(buildRecordItemRemark(itemInput, itemScoreResult));
-            assessmentRecordItemMapper.insert(recordItem);
-        }
-
-        return assessmentRecord.getId();
+        deleteRelatedItemsAndReports(recordId);
+        boolean removeResult = this.removeById(recordId);
+        ThrowUtils.throwIf(!removeResult, ErrorCode.OPERATION_ERROR);
+        return true;
     }
 
     @Override
@@ -239,6 +192,105 @@ public class AssessmentRecordServiceImpl extends ServiceImpl<AssessmentRecordMap
         AssessmentRecordItemVO itemVO = new AssessmentRecordItemVO();
         BeanUtils.copyProperties(assessmentRecordItem, itemVO);
         return itemVO;
+    }
+
+    private Long saveRecord(Long userId, AssessmentRecordAddRequest recordRequest, AssessmentRecord existingRecord) {
+        ThrowUtils.throwIf(userId == null || recordRequest == null, ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(recordRequest.getItemList() == null || recordRequest.getItemList().isEmpty(),
+                ErrorCode.PARAMS_ERROR, "itemList is required");
+
+        String schemeCode = resolveSchemeCode(firstNonBlank(recordRequest.getSchemeCode(),
+                existingRecord == null ? null : existingRecord.getSchemeCode()));
+        AssessmentScheme assessmentScheme = getAssessmentScheme(schemeCode);
+        AssessmentProfile assessmentProfile = assessmentProfileService.getByUserIdAndSchemeCode(userId, schemeCode);
+        Map<String, AssessmentSchemeItem> schemeItemMap = listSchemeItemMap(schemeCode);
+
+        AssessmentRecord assessmentRecord = existingRecord == null ? new AssessmentRecord() : existingRecord;
+        assessmentRecord.setUserId(userId);
+        assessmentRecord.setSchemeCode(schemeCode);
+        assessmentRecord.setSchemeVersion(StringUtils.defaultIfBlank(assessmentScheme.getVersion(),
+                AssessmentConstant.DEFAULT_RULE_VERSION));
+        assessmentRecord.setAssessmentDate(ObjectUtils.defaultIfNull(recordRequest.getAssessmentDate(), new Date()));
+        assessmentRecord.setSourceType(StringUtils.defaultIfBlank(recordRequest.getSourceType(),
+                AssessmentConstant.SOURCE_MANUAL));
+
+        String genderSnapshot = normalizeGender(firstNonBlank(recordRequest.getGender(),
+                assessmentProfile == null ? null : assessmentProfile.getGender()));
+        String gradeSnapshot = firstNonBlank(recordRequest.getGrade(),
+                assessmentProfile == null ? null : assessmentProfile.getGrade());
+        String gradeGroupSnapshot = resolveGradeGroup(firstNonBlank(recordRequest.getGradeGroup(),
+                assessmentProfile == null ? null : assessmentProfile.getGradeGroup()), gradeSnapshot);
+        assessmentRecord.setGenderSnapshot(genderSnapshot);
+        assessmentRecord.setGradeSnapshot(gradeSnapshot);
+        assessmentRecord.setGradeGroupSnapshot(gradeGroupSnapshot);
+        assessmentRecord.setHeightSnapshot(firstNonNull(recordRequest.getHeight(),
+                assessmentProfile == null ? null : assessmentProfile.getHeight()));
+        assessmentRecord.setWeightSnapshot(firstNonNull(recordRequest.getWeight(),
+                assessmentProfile == null ? null : assessmentProfile.getWeight()));
+        assessmentRecord.setBmiSnapshot(
+                calculateBmi(assessmentRecord.getWeightSnapshot(), assessmentRecord.getHeightSnapshot()));
+        assessmentRecord.setExtraDataJson(recordRequest.getExtraDataJson());
+
+        List<AssessmentRecordItemInput> workingItemList = buildWorkingItemList(recordRequest.getItemList(),
+                assessmentRecord, schemeItemMap);
+        validateDuplicateItemCode(workingItemList);
+        validateRequiredItems(workingItemList, schemeItemMap, assessmentRecord.getGenderSnapshot(),
+                assessmentRecord.getGradeGroupSnapshot());
+
+        AssessmentScoreResult scoreResult = assessmentScoringEngine.score(buildScoreContext(assessmentRecord,
+                workingItemList, schemeItemMap));
+        assessmentRecord.setTotalScore(scoreResult.getTotalScore());
+        assessmentRecord.setLevel(scoreResult.getLevel());
+        assessmentRecord.setWeaknessCount(scoreResult.getWeaknessCount());
+        assessmentRecord.setStrengthCount(scoreResult.getStrengthCount());
+        assessmentRecord.setSummary(StringUtils.defaultIfBlank(recordRequest.getSummary(), scoreResult.getSummary()));
+
+        boolean persisted = existingRecord == null ? this.save(assessmentRecord) : this.updateById(assessmentRecord);
+        ThrowUtils.throwIf(!persisted, ErrorCode.OPERATION_ERROR);
+
+        if (existingRecord != null) {
+            deleteRelatedItemsAndReports(assessmentRecord.getId());
+        }
+        saveRecordItems(assessmentRecord, scoreResult, workingItemList, schemeItemMap);
+        return assessmentRecord.getId();
+    }
+
+    private AssessmentScheme getAssessmentScheme(String schemeCode) {
+        QueryWrapper<AssessmentScheme> schemeQueryWrapper = new QueryWrapper<>();
+        schemeQueryWrapper.eq("schemeCode", schemeCode).last("limit 1");
+        AssessmentScheme assessmentScheme = assessmentSchemeMapper.selectOne(schemeQueryWrapper);
+        ThrowUtils.throwIf(assessmentScheme == null, ErrorCode.NOT_FOUND_ERROR, "assessment scheme not found");
+        return assessmentScheme;
+    }
+
+    private void saveRecordItems(AssessmentRecord assessmentRecord, AssessmentScoreResult scoreResult,
+            List<AssessmentRecordItemInput> workingItemList, Map<String, AssessmentSchemeItem> schemeItemMap) {
+        Map<String, AssessmentRecordItemInput> itemInputMap = workingItemList.stream().collect(Collectors.toMap(
+                AssessmentRecordItemInput::getItemCode, Function.identity(), (left, right) -> left));
+        for (AssessmentItemScoreResult itemScoreResult : scoreResult.getItemScoreResults()) {
+            AssessmentSchemeItem schemeItem = schemeItemMap.get(itemScoreResult.getItemCode());
+            AssessmentRecordItemInput itemInput = itemInputMap.get(itemScoreResult.getItemCode());
+            AssessmentRecordItem recordItem = new AssessmentRecordItem();
+            recordItem.setRecordId(assessmentRecord.getId());
+            recordItem.setItemCode(schemeItem.getItemCode());
+            recordItem.setItemName(resolveItemDisplayName(schemeItem, assessmentRecord.getGenderSnapshot()));
+            recordItem.setItemOrder(ObjectUtils.defaultIfNull(schemeItem.getDisplayOrder(), 0));
+            recordItem.setUnit(schemeItem.getUnit());
+            recordItem.setRawValue(itemScoreResult.getRawValue());
+            recordItem.setItemWeight(itemScoreResult.getItemWeight());
+            recordItem.setItemScore(itemScoreResult.getItemScore());
+            recordItem.setExtraScore(itemScoreResult.getExtraScore());
+            recordItem.setItemLevel(itemScoreResult.getItemLevel());
+            recordItem.setIsWeakness(itemScoreResult.isWeakness() ? 1 : 0);
+            recordItem.setIsStrength(itemScoreResult.isStrength() ? 1 : 0);
+            recordItem.setRemark(buildRecordItemRemark(itemInput, itemScoreResult));
+            assessmentRecordItemMapper.insert(recordItem);
+        }
+    }
+
+    private void deleteRelatedItemsAndReports(Long recordId) {
+        assessmentRecordItemMapper.deleteByRecordIdForce(recordId);
+        assessmentReportMapper.deleteByRecordIdForce(recordId);
     }
 
     private void validateRawValue(BigDecimal rawValue, AssessmentSchemeItem schemeItem) {

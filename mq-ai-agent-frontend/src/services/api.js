@@ -914,6 +914,24 @@ const ApiService = {
         }
     },
 
+    async updateAssessmentRecord(recordData) {
+        try {
+            const response = await apiClient.post('/assessment/record/update', recordData)
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    async deleteAssessmentRecord(id) {
+        try {
+            const response = await apiClient.post('/assessment/record/delete', { id })
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
     async getMyAssessmentRecordByPage(queryParams) {
         try {
             const response = await apiClient.post('/assessment/record/my/list/page', queryParams)

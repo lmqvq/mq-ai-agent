@@ -9,14 +9,14 @@
       <div class="page-header">
         <div class="header-content">
           <div class="title-section">
-            <h1><icon-plus />体测数据录入</h1>
-            <p>录入大学生体测成绩后，系统会自动评分并跳转到 AI 体测报告页。</p>
+            <h1><icon-plus />{{ pageTitle }}</h1>
+            <p>{{ pageSubtitle }}</p>
           </div>
           <div class="header-actions">
             <a-button @click="goToReport">查看体测报告</a-button>
             <a-button type="primary" :loading="submitting" @click="submitRecord">
               <icon-check-circle />
-              提交并生成报告
+              {{ submitButtonText }}
             </a-button>
           </div>
         </div>
@@ -118,9 +118,18 @@
                 <p>{{ currentContextText }}</p>
               </div>
 
+              <div v-if="isEditMode" class="helper-card edit-note">
+                <div class="helper-title"><icon-info-circle />编辑模式说明</div>
+                <p>保存后会覆盖当前体测记录，并清空旧报告缓存。回到报告页时系统会按最新成绩重新生成建议。</p>
+              </div>
+
               <div class="profile-actions">
                 <a-checkbox v-model="saveProfileAfterSubmit">提交后同步保存为常用画像</a-checkbox>
-                <a-button :loading="savingProfile" @click="saveProfileOnly">先保存常用画像</a-button>
+                <div class="profile-action-buttons">
+                  <a-button :loading="savingProfile" @click="saveProfileOnly">先保存常用画像</a-button>
+                  <a-button v-if="isEditMode" @click="resetForm">恢复当前记录</a-button>
+                  <a-button v-else @click="resetForm">重置本页</a-button>
+                </div>
               </div>
             </div>
 
@@ -144,8 +153,8 @@
                   <span>直接输入次数，系统会按当前性别套用对应评分规则。</span>
                 </div>
                 <div class="tip-item">
-                  <strong>提交后：</strong>
-                  <span>系统会自动评分、生成报告，并跳转到对应体测报告页。</span>
+                  <strong>{{ isEditMode ? '编辑后：' : '提交后：' }}</strong>
+                  <span>{{ isEditMode ? '系统会按新成绩重新评分并刷新报告。' : '系统会自动评分、生成报告，并跳转到对应体测报告页。' }}</span>
                 </div>
               </div>
             </div>
@@ -159,11 +168,7 @@
               </div>
 
               <div class="item-grid">
-                <div
-                  v-for="item in renderedItems"
-                  :key="item.itemCode"
-                  class="item-card"
-                >
+                <div v-for="item in renderedItems" :key="item.itemCode" class="item-card">
                   <div class="item-card-header">
                     <div>
                       <h4>{{ getDisplayItemName(item, baseForm.gender) }}</h4>
@@ -213,9 +218,9 @@
               </div>
 
               <div class="section-footer">
-                <a-button @click="resetForm">重置本页</a-button>
+                <a-button @click="goToReport">返回记录列表</a-button>
                 <a-button type="primary" :loading="submitting" @click="submitRecord">
-                  提交并查看报告
+                  {{ submitButtonText }}
                 </a-button>
               </div>
             </div>
@@ -228,7 +233,7 @@
 
 <script>
 import { computed, onMounted, reactive, ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { Message } from '@arco-design/web-vue';
 import {
   IconBarChart,
@@ -263,6 +268,7 @@ export default {
     IconPlus
   },
   setup() {
+    const route = useRoute();
     const router = useRouter();
 
     const pageLoading = ref(false);
@@ -270,6 +276,9 @@ export default {
     const savingProfile = ref(false);
     const unauthorized = ref(false);
     const scheme = ref(null);
+    const profileSnapshot = ref(null);
+    const editingRecordId = ref(null);
+    const currentRecordDetail = ref(null);
     const saveProfileAfterSubmit = ref(true);
     const enduranceMinutes = ref(null);
     const enduranceSeconds = ref(null);
@@ -278,7 +287,14 @@ export default {
     const baseForm = reactive(getDefaultBaseForm());
 
     const schemeReady = computed(() => !!scheme.value);
+    const isEditMode = computed(() => editingRecordId.value !== null);
+    const routeRecordId = computed(() => getRouteRecordId(route.query.recordId));
     const schemeName = computed(() => scheme.value?.schemeName || '体测方案');
+    const pageTitle = computed(() => (isEditMode.value ? '编辑体测记录' : '体测数据录入'));
+    const pageSubtitle = computed(() => (isEditMode.value
+      ? '修改这条体测记录后，系统会重新评分并刷新对应的 AI 报告。'
+      : '录入大学生体测成绩后，系统会自动评分并跳转到 AI 体测报告页。'));
+    const submitButtonText = computed(() => (isEditMode.value ? '保存并更新报告' : '提交并生成报告'));
     const bmiValue = computed(() => calculateBmi(baseForm.height, baseForm.weight));
     const bmiDisplay = computed(() => formatDecimal(bmiValue.value));
     const bmiStatus = computed(() => getBmiStatus(bmiValue.value));
@@ -307,6 +323,19 @@ export default {
       syncEnduranceFieldsFromValue(value);
     });
 
+    watch(routeRecordId, async (newRecordId, oldRecordId) => {
+      if (!scheme.value || newRecordId === oldRecordId) {
+        return;
+      }
+      if (newRecordId) {
+        await loadRecordForEdit(newRecordId);
+      } else {
+        editingRecordId.value = null;
+        currentRecordDetail.value = null;
+        resetForm();
+      }
+    });
+
     const goBack = () => {
       router.push('/assessment');
     };
@@ -333,25 +362,44 @@ export default {
         }
         scheme.value = schemeResponse.data;
         initializeItemValues();
+        await loadProfileSnapshot();
 
-        try {
-          const profileResponse = await ApiService.getMyAssessmentProfile(DEFAULT_SCHEME_CODE);
-          if (profileResponse.code === 0 && profileResponse.data) {
-            applyProfile(profileResponse.data);
-          }
-        } catch (error) {
-          if (isUnauthorizedError(error)) {
-            throw error;
-          }
-          if (!isNotFoundLikeError(error)) {
-            Message.warning(error?.message || '常用画像加载失败，本次将使用空白表单');
-          }
+        if (routeRecordId.value) {
+          await loadRecordForEdit(routeRecordId.value);
+        } else {
+          resetForm();
         }
       } catch (error) {
         handlePageError(error, '体测录入页加载失败');
       } finally {
         pageLoading.value = false;
       }
+    };
+
+    const loadProfileSnapshot = async () => {
+      try {
+        const profileResponse = await ApiService.getMyAssessmentProfile(DEFAULT_SCHEME_CODE);
+        if (profileResponse.code === 0 && profileResponse.data) {
+          profileSnapshot.value = profileResponse.data;
+        }
+      } catch (error) {
+        if (isUnauthorizedError(error)) {
+          throw error;
+        }
+        if (!isNotFoundLikeError(error)) {
+          Message.warning(error?.message || '常用画像加载失败，本次将使用空白表单');
+        }
+      }
+    };
+
+    const loadRecordForEdit = async (recordId) => {
+      const response = await ApiService.getMyAssessmentRecord(recordId);
+      if (response.code !== 0) {
+        throw response;
+      }
+      editingRecordId.value = recordId;
+      currentRecordDetail.value = response.data;
+      applyRecordDetail(response.data);
     };
 
     const initializeItemValues = () => {
@@ -369,11 +417,34 @@ export default {
     };
 
     const applyProfile = (profile) => {
+      if (!profile) {
+        return;
+      }
       baseForm.gender = profile.gender || baseForm.gender;
       baseForm.grade = profile.grade || baseForm.grade;
       baseForm.gradeGroup = profile.gradeGroup || mapGradeToGroup(profile.grade);
       baseForm.height = toNumber(profile.height);
       baseForm.weight = toNumber(profile.weight);
+    };
+
+    const applyRecordDetail = (recordDetail) => {
+      Object.assign(baseForm, {
+        assessmentDate: formatDateTimeForInput(recordDetail?.assessmentDate ? new Date(recordDetail.assessmentDate) : new Date()),
+        gender: recordDetail?.genderSnapshot || 'male',
+        grade: recordDetail?.gradeSnapshot || '大一',
+        gradeGroup: recordDetail?.gradeGroupSnapshot || mapGradeToGroup(recordDetail?.gradeSnapshot),
+        height: toNumber(recordDetail?.heightSnapshot),
+        weight: toNumber(recordDetail?.weightSnapshot)
+      });
+
+      initializeItemValues();
+      (recordDetail?.itemList || []).forEach((item) => {
+        if (item.itemCode === 'BMI') {
+          return;
+        }
+        itemValues[item.itemCode] = toNumber(item.rawValue);
+      });
+      syncEnduranceFieldsFromValue(itemValues.ENDURANCE_RUN);
     };
 
     const saveProfileOnly = async () => {
@@ -389,6 +460,7 @@ export default {
         if (response.code !== 0) {
           throw response;
         }
+        profileSnapshot.value = response.data || buildProfilePayload();
         Message.success('常用画像已保存，后续录入会自动预填');
       } catch (error) {
         handlePageError(error, '保存常用画像失败');
@@ -406,22 +478,27 @@ export default {
 
       submitting.value = true;
       try {
-        const response = await ApiService.addAssessmentRecord(buildRecordPayload());
+        const response = isEditMode.value
+          ? await ApiService.updateAssessmentRecord(buildRecordPayload())
+          : await ApiService.addAssessmentRecord(buildRecordPayload());
         if (response.code !== 0) {
           throw response;
         }
 
         if (saveProfileAfterSubmit.value) {
           try {
-            await ApiService.saveMyAssessmentProfile(buildProfilePayload());
+            const profileResponse = await ApiService.saveMyAssessmentProfile(buildProfilePayload());
+            if (profileResponse.code === 0 && profileResponse.data) {
+              profileSnapshot.value = profileResponse.data;
+            }
           } catch (profileError) {
             if (!isUnauthorizedError(profileError)) {
-              Message.warning(profileError?.message || '体测记录已提交，但常用画像保存失败');
+              Message.warning(profileError?.message || '体测记录已保存，但常用画像保存失败');
             }
           }
         }
 
-        Message.success('体测记录提交成功，正在打开体测报告');
+        Message.success(isEditMode.value ? '体测记录已更新，正在打开最新报告' : '体测记录提交成功，正在打开体测报告');
         router.push({
           path: '/assessment',
           query: {
@@ -429,7 +506,7 @@ export default {
           }
         });
       } catch (error) {
-        handlePageError(error, '提交体测记录失败');
+        handlePageError(error, isEditMode.value ? '更新体测记录失败' : '提交体测记录失败');
       } finally {
         submitting.value = false;
       }
@@ -438,8 +515,14 @@ export default {
     const resetForm = () => {
       const nextForm = getDefaultBaseForm();
       Object.assign(baseForm, nextForm);
-      if (scheme.value) {
-        initializeItemValues();
+      initializeItemValues();
+      applyProfile(profileSnapshot.value);
+
+      if (isEditMode.value && currentRecordDetail.value) {
+        applyRecordDetail(currentRecordDetail.value);
+      } else {
+        editingRecordId.value = null;
+        currentRecordDetail.value = null;
       }
     };
 
@@ -475,21 +558,27 @@ export default {
       weight: baseForm.weight
     });
 
-    const buildRecordPayload = () => ({
-      schemeCode: DEFAULT_SCHEME_CODE,
-      assessmentDate: baseForm.assessmentDate,
-      sourceType: DEFAULT_SOURCE_TYPE,
-      gender: baseForm.gender,
-      grade: baseForm.grade,
-      gradeGroup: baseForm.gradeGroup,
-      height: baseForm.height,
-      weight: baseForm.weight,
-      itemList: renderedItems.value.map((item) => ({
-        itemCode: item.itemCode,
-        rawValue: itemValues[item.itemCode],
-        remark: ''
-      }))
-    });
+    const buildRecordPayload = () => {
+      const payload = {
+        schemeCode: DEFAULT_SCHEME_CODE,
+        assessmentDate: baseForm.assessmentDate,
+        sourceType: DEFAULT_SOURCE_TYPE,
+        gender: baseForm.gender,
+        grade: baseForm.grade,
+        gradeGroup: baseForm.gradeGroup,
+        height: baseForm.height,
+        weight: baseForm.weight,
+        itemList: renderedItems.value.map((item) => ({
+          itemCode: item.itemCode,
+          rawValue: itemValues[item.itemCode],
+          remark: ''
+        }))
+      };
+      if (isEditMode.value) {
+        payload.id = editingRecordId.value;
+      }
+      return payload;
+    };
 
     const validateBaseForm = () => {
       if (!baseForm.assessmentDate) {
@@ -523,11 +612,9 @@ export default {
         const value = itemValues[item.itemCode];
         return item.isRequired && (value === null || value === undefined || value === '');
       });
-
       if (missingItem) {
         return `请填写 ${getDisplayItemName(missingItem, baseForm.gender)}`;
       }
-
       return '';
     };
 
@@ -565,9 +652,12 @@ export default {
       gradeGroupLabel,
       gradeOptions,
       handleGradeChange,
+      isEditMode,
       itemValues,
       loadInitialData,
       pageLoading,
+      pageSubtitle,
+      pageTitle,
       renderedItems,
       resetForm,
       saveProfileAfterSubmit,
@@ -575,6 +665,7 @@ export default {
       savingProfile,
       schemeName,
       schemeReady,
+      submitButtonText,
       submitRecord,
       submitting,
       syncEnduranceValue,
@@ -603,6 +694,12 @@ function formatDateTimeForInput(date) {
   const minute = `${date.getMinutes()}`.padStart(2, '0');
   const second = `${date.getSeconds()}`.padStart(2, '0');
   return `${year}-${month}-${day}T${hour}:${minute}:${second}`;
+}
+
+function getRouteRecordId(recordId) {
+  const rawValue = Array.isArray(recordId) ? recordId[0] : recordId;
+  const numericValue = Number(rawValue);
+  return Number.isFinite(numericValue) && numericValue > 0 ? numericValue : null;
 }
 
 function mapGradeToGroup(grade) {
@@ -1018,12 +1115,22 @@ function isNotFoundLikeError(error) {
   line-height: 1.7;
 }
 
+.edit-note {
+  border-color: rgba(79, 140, 255, 0.2);
+}
+
 .profile-actions {
   margin-top: 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  flex-wrap: wrap;
+}
+
+.profile-action-buttons {
+  display: flex;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
@@ -1138,6 +1245,11 @@ function isNotFoundLikeError(error) {
   .header-actions {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .profile-action-buttons {
+    width: 100%;
+    flex-direction: column;
   }
 
   .title-section h1 {

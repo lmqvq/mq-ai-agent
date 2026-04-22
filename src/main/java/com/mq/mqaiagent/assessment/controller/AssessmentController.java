@@ -5,6 +5,7 @@ import com.mq.mqaiagent.assessment.constant.AssessmentConstant;
 import com.mq.mqaiagent.assessment.model.dto.profile.AssessmentProfileSaveRequest;
 import com.mq.mqaiagent.assessment.model.dto.record.AssessmentRecordAddRequest;
 import com.mq.mqaiagent.assessment.model.dto.record.AssessmentRecordQueryRequest;
+import com.mq.mqaiagent.assessment.model.dto.record.AssessmentRecordUpdateRequest;
 import com.mq.mqaiagent.assessment.model.dto.report.AssessmentReportGenerateRequest;
 import com.mq.mqaiagent.assessment.model.dto.scheme.AssessmentSchemeQueryRequest;
 import com.mq.mqaiagent.assessment.model.vo.AssessmentProfileVO;
@@ -18,6 +19,7 @@ import com.mq.mqaiagent.assessment.service.AssessmentRecordService;
 import com.mq.mqaiagent.assessment.service.AssessmentReportService;
 import com.mq.mqaiagent.assessment.service.AssessmentSchemeService;
 import com.mq.mqaiagent.common.BaseResponse;
+import com.mq.mqaiagent.common.DeleteRequest;
 import com.mq.mqaiagent.common.ErrorCode;
 import com.mq.mqaiagent.common.ResultUtils;
 import com.mq.mqaiagent.exception.BusinessException;
@@ -99,6 +101,25 @@ public class AssessmentController {
         }
         User loginUser = userService.getLoginUser(request);
         return ResultUtils.success(assessmentRecordService.createRecord(loginUser.getId(), recordAddRequest));
+    }
+
+    @PostMapping("/record/update")
+    public BaseResponse<Long> updateRecord(@RequestBody AssessmentRecordUpdateRequest recordUpdateRequest,
+            HttpServletRequest request) {
+        if (recordUpdateRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        return ResultUtils.success(assessmentRecordService.updateRecord(loginUser.getId(), recordUpdateRequest));
+    }
+
+    @PostMapping("/record/delete")
+    public BaseResponse<Boolean> deleteRecord(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+        if (deleteRequest == null || deleteRequest.getId() == null || deleteRequest.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        return ResultUtils.success(assessmentRecordService.deleteRecord(loginUser.getId(), deleteRequest.getId()));
     }
 
     @PostMapping("/record/my/list/page")
