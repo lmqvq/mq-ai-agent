@@ -1,9 +1,9 @@
 -- ============================================================
 -- MQ-AI-Agent 数据库完整初始化脚本
--- 
--- 说明：本脚本包含项目所需的全部数据库表结构及测试数据
--- 使用方法：直接在MySQL中运行此脚本即可完成初始化
--- 
+--
+-- 说明：本脚本包含项目所需的全部数据库表结构、初始化数据和 assessment 评分规则
+-- 使用方法：直接在 MySQL 中运行此脚本即可完成初始化
+--
 -- 包含表：
 --   1. user - 用户表
 --   2. keep_report - 上下文对话表
@@ -15,89 +15,104 @@
 --   8. knowledge_nutrient - 营养知识表
 --   9. knowledge_program - 训练计划表
 --  10. knowledge_meal - 饮食计划表
+--  11. assessment_scheme - 评测方案表
+--  12. assessment_scheme_item - 评测方案项目表
+--  13. assessment_rule - 评测规则表
+--  14. assessment_profile - 评测画像表
+--  15. assessment_record - 评测记录主表
+--  16. assessment_record_item - 评测记录明细表
+--  17. assessment_report - 评测报告表
 -- ============================================================
-
--- 创建数据库
-CREATE DATABASE IF NOT EXISTS mq_ai_agent;
-
--- 切换数据库
-USE mq_ai_agent;
 
 -- ============================================================
 -- 第一部分：基础业务表
 -- ============================================================
+-- 创建库
+create database if not exists mq_ai_agent;
+
+-- 切换库
+use mq_ai_agent;
 
 -- 1. 用户表
-CREATE TABLE IF NOT EXISTS user
+create table if not exists user
 (
-    id           BIGINT AUTO_INCREMENT COMMENT 'id' PRIMARY KEY,
-    userAccount  VARCHAR(256)                           NOT NULL COMMENT '账号',
-    userPassword VARCHAR(512)                           NOT NULL COMMENT '密码',
-    userName     VARCHAR(256)                           NULL COMMENT '用户昵称',
-    userAvatar   VARCHAR(1024)                          NULL COMMENT '用户头像',
-    userProfile  VARCHAR(512)                           NULL COMMENT '用户简介',
-    userRole     VARCHAR(256) DEFAULT 'user'            NOT NULL COMMENT '用户角色：user/admin/vip/ban',
-    editTime     DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '编辑时间',
-    createTime   DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
-    updateTime   DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    isDelete     TINYINT      DEFAULT 0                 NOT NULL COMMENT '是否删除',
+    id           bigint auto_increment comment 'id' primary key,
+    userAccount  varchar(256)                           not null comment '账号',
+    userPassword varchar(512)                           not null comment '密码',
+    userName     varchar(256)                           null comment '用户昵称',
+    userAvatar   varchar(1024)                          null comment '用户头像',
+    userProfile  varchar(512)                           null comment '用户简介',
+    userRole     varchar(256) default 'user'            not null comment '用户角色：user/admin/vip/ban',
+    editTime     datetime     default CURRENT_TIMESTAMP not null comment '编辑时间',
+    createTime   datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime   datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete     tinyint      default 0                 not null comment '是否删除',
     UNIQUE KEY uk_userAccount (userAccount),
     INDEX idx_userName (userName)
-) COMMENT '用户' COLLATE = utf8mb4_unicode_ci;
+) comment '用户' collate = utf8mb4_unicode_ci;
 
 -- 2. 上下文对话表
-CREATE TABLE IF NOT EXISTS keep_report
+create table if not exists keep_report
 (
-    id         BIGINT AUTO_INCREMENT COMMENT 'id' PRIMARY KEY,
-    chatId     VARCHAR(255)                       NOT NULL COMMENT '对话id',
-    userId     BIGINT                             NOT NULL COMMENT '创建用户id',
-    messages   TEXT                               NOT NULL COMMENT '对话记录（JSON格式存储）',
-    lastMessage TEXT                              NULL COMMENT '最后一条消息内容（用于列表展示）',
-    createTime DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
-    editTime   DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '编辑时间',
-    updateTime DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    isDelete   TINYINT  DEFAULT 0                 NOT NULL COMMENT '是否删除',
-    INDEX idx_user_chat (chatId, userId),
-    INDEX idx_user_time (userId, updateTime)
-) COMMENT '上下文对话表' COLLATE = utf8mb4_unicode_ci;
+    id         bigint auto_increment comment 'id' primary key,
+    chatId     varchar(255)                       not null comment '对话id',
+    userId     bigint                             not null comment '创建用户id',
+    messages   text                               not null comment '对话记录（JSON格式存储）',
+    lastMessage text                              null comment '最后一条消息内容（用于列表展示）',
+    createTime datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    editTime   datetime default CURRENT_TIMESTAMP not null comment '编辑时间',
+    updateTime datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete   tinyint  default 0                 not null comment '是否删除',
+    INDEX idx_user_chat (chatId, userId),  -- 新增索引，优化查询效率
+    INDEX idx_user_time (userId, updateTime)  -- 按用户和时间查询的索引
+) comment '上下文对话表' collate = utf8mb4_unicode_ci;
 
 -- 3. 用户健身数据表
-CREATE TABLE IF NOT EXISTS fitness_data
+create table if not exists fitness_data
 (
-    id           BIGINT AUTO_INCREMENT COMMENT 'id' PRIMARY KEY,
-    userId       BIGINT                             NOT NULL COMMENT '用户id',
-    weight       FLOAT                              NOT NULL COMMENT '体重(kg)',
-    bodyFat      FLOAT                              NULL COMMENT '体脂率(%)',
-    height       FLOAT                              NOT NULL COMMENT '身高(cm)',
-    bmi          FLOAT                              NULL COMMENT 'BMI指数',
-    dateRecorded DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '数据记录时间',
-    createTime   DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
-    updateTime   DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    isDelete     TINYINT  DEFAULT 0                 NOT NULL COMMENT '是否删除',
-    INDEX idx_user_data (userId, dateRecorded)
-) COMMENT '用户健身数据表' COLLATE = utf8mb4_unicode_ci;
+    id           bigint auto_increment comment 'id' primary key,
+    userId       bigint                             not null comment '用户id',
+    weight       float                              not null comment '体重(kg)',
+    bodyFat      float                              null comment '体脂率(%)',
+    height       float                              not null comment '身高(cm)',
+    bmi          float                              null comment 'BMI指数',
+    dateRecorded datetime default CURRENT_TIMESTAMP not null comment '数据记录时间',
+    createTime   datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime   datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete     tinyint  default 0                 not null comment '是否删除',
+    INDEX idx_user_data (userId, dateRecorded)      -- 优化查询效率
+) comment '用户健身数据表' collate = utf8mb4_unicode_ci;
 
 -- 4. 运动记录表
-CREATE TABLE IF NOT EXISTS exercise_log
+create table if not exists exercise_log
 (
-    id             BIGINT AUTO_INCREMENT COMMENT 'id' PRIMARY KEY,
-    userId         BIGINT                             NOT NULL COMMENT '用户id',
-    exerciseType   VARCHAR(256)                       NOT NULL COMMENT '运动类型（如：力量训练、有氧、瑜伽等）',
-    duration       INT                                NOT NULL COMMENT '运动时长（分钟）',
-    caloriesBurned FLOAT                              NOT NULL COMMENT '消耗卡路里',
-    dateRecorded   DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '运动记录时间',
-    weekStartDate  DATE                               NULL COMMENT '所属周的开始日期（周一）',
-    monthStartDate DATE                               NULL COMMENT '所属月的开始日期（30天前）',
-    notes          TEXT                               NULL COMMENT '运动备注（如：训练动作、强度感受等）',
-    createTime     DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
-    updateTime     DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    isDelete       TINYINT  DEFAULT 0                 NOT NULL COMMENT '是否删除',
-    INDEX idx_user_exercise (userId, dateRecorded),
-    INDEX idx_week_start (userId, weekStartDate, isDelete),
-    INDEX idx_month_start (userId, monthStartDate, isDelete)
-) COMMENT '运动记录表' COLLATE = utf8mb4_unicode_ci;
+    id           bigint auto_increment comment 'id' primary key,
+    userId       bigint                             not null comment '用户id',
+    exerciseType varchar(256)                       not null comment '运动类型（如：力量训练、有氧、瑜伽等）',
+    duration     int                                not null comment '运动时长（分钟）',
+    caloriesBurned float                            not null comment '消耗卡路里',
+    dateRecorded datetime default CURRENT_TIMESTAMP not null comment '运动记录时间',
+    notes        text                               null comment '运动备注（如：训练动作、强度感受等）',
+    createTime   datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime   datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete     tinyint  default 0                 not null comment '是否删除',
+    INDEX idx_user_exercise (userId, dateRecorded)   -- 优化查询效率
+) comment '运动记录表' collate = utf8mb4_unicode_ci;
 
--- 5. 排行榜快照表
+-- 健身排行榜功能数据库更新脚本
+use mq_ai_agent;
+
+-- 为 exercise_log 表添加字段（用于排行榜周期统计）
+ALTER TABLE exercise_log
+    ADD COLUMN weekStartDate DATE COMMENT '所属周的开始日期（周一）' AFTER dateRecorded,
+    ADD COLUMN monthStartDate DATE COMMENT '所属月的开始日期（30天前）' AFTER weekStartDate;
+
+-- 添加索引以优化查询性能
+ALTER TABLE exercise_log
+    ADD INDEX idx_week_start (userId, weekStartDate, isDelete),
+    ADD INDEX idx_month_start (userId, monthStartDate, isDelete);
+
+-- 5. 创建排行榜快照表（用于数据恢复和历史记录）
 CREATE TABLE IF NOT EXISTS ranking_snapshot
 (
     id              BIGINT AUTO_INCREMENT COMMENT 'id' PRIMARY KEY,
@@ -119,146 +134,123 @@ CREATE TABLE IF NOT EXISTS ranking_snapshot
 -- ============================================================
 -- 第二部分：健身知识模块表
 -- ============================================================
+-- 健身知识模块数据库表创建脚本
+-- 用于存储健身知识、动作指导、营养知识、训练计划等内容
+
+-- 切换到数据库
+use mq_ai_agent;
 
 -- 6. 健身基础知识表
-CREATE TABLE IF NOT EXISTS knowledge_basics
+create table if not exists knowledge_basics
 (
-    id          BIGINT AUTO_INCREMENT COMMENT 'id' PRIMARY KEY,
-    title       VARCHAR(256)                       NOT NULL COMMENT '标题',
-    description VARCHAR(512)                       NULL COMMENT '简短描述',
-    image       VARCHAR(1024)                      NULL COMMENT '图片URL',
-    difficulty  VARCHAR(50)                        NULL COMMENT '难度级别（初级/中级/高级）',
-    readTime    INT                                NULL COMMENT '阅读时长（分钟）',
-    views       INT      DEFAULT 0                 NOT NULL COMMENT '浏览次数',
-    content     TEXT                               NULL COMMENT '详细内容',
-    tips        JSON                               NULL COMMENT '提示数组（JSON格式）',
-    sortOrder   INT      DEFAULT 0                 NOT NULL COMMENT '排序字段',
-    createTime  DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
-    updateTime  DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    isDelete    TINYINT  DEFAULT 0                 NOT NULL COMMENT '是否删除',
+    id          bigint auto_increment comment 'id' primary key,
+    title       varchar(256)                       not null comment '标题',
+    description varchar(512)                       null comment '简短描述',
+    image       varchar(1024)                      null comment '图片URL',
+    difficulty  varchar(50)                        null comment '难度级别（初级/中级/高级）',
+    readTime    int                                null comment '阅读时长（分钟）',
+    views       int      default 0                 not null comment '浏览次数',
+    content     text                               null comment '详细内容',
+    tips        json                               null comment '提示数组（JSON格式）',
+    sortOrder   int      default 0                 not null comment '排序字段',
+    createTime  datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime  datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete    tinyint  default 0                 not null comment '是否删除',
     INDEX idx_difficulty (difficulty, isDelete),
     INDEX idx_sort (sortOrder, isDelete)
-) COMMENT '健身基础知识表' COLLATE = utf8mb4_unicode_ci;
+) comment '健身基础知识表' collate = utf8mb4_unicode_ci;
 
 -- 7. 健身动作指导表
-CREATE TABLE IF NOT EXISTS knowledge_exercise
+create table if not exists knowledge_exercise
 (
-    id           BIGINT AUTO_INCREMENT COMMENT 'id' PRIMARY KEY,
-    name         VARCHAR(256)                       NOT NULL COMMENT '动作名称',
-    category     VARCHAR(100)                       NOT NULL COMMENT '分类（胸部训练/背部训练/腿部训练等）',
-    description  VARCHAR(512)                       NULL COMMENT '简短描述',
-    image        VARCHAR(1024)                      NULL COMMENT '图片URL',
-    muscleGroup  VARCHAR(100)                       NULL COMMENT '目标肌群',
-    difficulty   VARCHAR(50)                        NULL COMMENT '难度级别（初级/中级/高级）',
-    instructions JSON                               NULL COMMENT '动作步骤数组（JSON格式）',
-    tips         JSON                               NULL COMMENT '提示数组（JSON格式）',
-    sortOrder    INT      DEFAULT 0                 NOT NULL COMMENT '排序字段',
-    createTime   DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
-    updateTime   DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    isDelete     TINYINT  DEFAULT 0                 NOT NULL COMMENT '是否删除',
+    id           bigint auto_increment comment 'id' primary key,
+    name         varchar(256)                       not null comment '动作名称',
+    category     varchar(100)                       not null comment '分类（胸部训练/背部训练/腿部训练等）',
+    description  varchar(512)                       null comment '简短描述',
+    image        varchar(1024)                      null comment '图片URL',
+    muscleGroup  varchar(100)                       null comment '目标肌群',
+    difficulty   varchar(50)                        null comment '难度级别（初级/中级/高级）',
+    instructions json                               null comment '动作步骤数组（JSON格式）',
+    tips         json                               null comment '提示数组（JSON格式）',
+    sortOrder    int      default 0                 not null comment '排序字段',
+    createTime   datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime   datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete     tinyint  default 0                 not null comment '是否删除',
     INDEX idx_category (category, isDelete),
     INDEX idx_difficulty (difficulty, isDelete),
     INDEX idx_muscle (muscleGroup, isDelete),
     INDEX idx_sort (sortOrder, isDelete)
-) COMMENT '健身动作指导表' COLLATE = utf8mb4_unicode_ci;
+) comment '健身动作指导表' collate = utf8mb4_unicode_ci;
 
 -- 8. 营养知识表
-CREATE TABLE IF NOT EXISTS knowledge_nutrient
+create table if not exists knowledge_nutrient
 (
-    id          BIGINT AUTO_INCREMENT COMMENT 'id' PRIMARY KEY,
-    name        VARCHAR(256)                       NOT NULL COMMENT '营养素名称',
-    description VARCHAR(512)                       NULL COMMENT '简短描述',
-    color       VARCHAR(50)                        NULL COMMENT '显示颜色（用于前端展示）',
-    icon        VARCHAR(100)                       NULL COMMENT '图标标识',
-    benefits    JSON                               NULL COMMENT '益处数组（JSON格式）',
-    sortOrder   INT      DEFAULT 0                 NOT NULL COMMENT '排序字段',
-    createTime  DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
-    updateTime  DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    isDelete    TINYINT  DEFAULT 0                 NOT NULL COMMENT '是否删除',
+    id          bigint auto_increment comment 'id' primary key,
+    name        varchar(256)                       not null comment '营养素名称',
+    description varchar(512)                       null comment '简短描述',
+    color       varchar(50)                        null comment '显示颜色（用于前端展示）',
+    icon        varchar(100)                       null comment '图标标识',
+    benefits    json                               null comment '益处数组（JSON格式）',
+    sortOrder   int      default 0                 not null comment '排序字段',
+    createTime  datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime  datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete    tinyint  default 0                 not null comment '是否删除',
     INDEX idx_sort (sortOrder, isDelete)
-) COMMENT '营养知识表' COLLATE = utf8mb4_unicode_ci;
+) comment '营养知识表' collate = utf8mb4_unicode_ci;
 
 -- 9. 训练计划表
-CREATE TABLE IF NOT EXISTS knowledge_program
+create table if not exists knowledge_program
 (
-    id          BIGINT AUTO_INCREMENT COMMENT 'id' PRIMARY KEY,
-    name        VARCHAR(256)                       NOT NULL COMMENT '计划名称',
-    description VARCHAR(512)                       NULL COMMENT '简短描述',
-    type        VARCHAR(100)                       NULL COMMENT '类型（beginner/intermediate/advanced/fat-loss等）',
-    icon        VARCHAR(100)                       NULL COMMENT '图标标识',
-    duration    VARCHAR(100)                       NULL COMMENT '持续时间',
-    intensity   VARCHAR(100)                       NULL COMMENT '强度级别',
-    level       VARCHAR(50)                        NULL COMMENT '适合级别（初级/中级/高级）',
-    schedule    JSON                               NULL COMMENT '训练安排数组（JSON格式）',
-    sortOrder   INT      DEFAULT 0                 NOT NULL COMMENT '排序字段',
-    createTime  DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
-    updateTime  DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    isDelete    TINYINT  DEFAULT 0                 NOT NULL COMMENT '是否删除',
+    id          bigint auto_increment comment 'id' primary key,
+    name        varchar(256)                       not null comment '计划名称',
+    description varchar(512)                       null comment '简短描述',
+    type        varchar(100)                       null comment '类型（beginner/intermediate/advanced/fat-loss等）',
+    icon        varchar(100)                       null comment '图标标识',
+    duration    varchar(100)                       null comment '持续时间',
+    intensity   varchar(100)                       null comment '强度级别',
+    level       varchar(50)                        null comment '适合级别（初级/中级/高级）',
+    schedule    json                               null comment '训练安排数组（JSON格式）',
+    sortOrder   int      default 0                 not null comment '排序字段',
+    createTime  datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime  datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete    tinyint  default 0                 not null comment '是否删除',
     INDEX idx_type (type, isDelete),
     INDEX idx_level (level, isDelete),
     INDEX idx_sort (sortOrder, isDelete)
-) COMMENT '训练计划表' COLLATE = utf8mb4_unicode_ci;
+) comment '训练计划表' collate = utf8mb4_unicode_ci;
 
 -- 10. 饮食计划表
-CREATE TABLE IF NOT EXISTS knowledge_meal
+-- 饮食计划表创建脚本
+-- 用于存储健身营养模块中的推荐饮食计划
+create table if not exists knowledge_meal
 (
-    id          BIGINT AUTO_INCREMENT COMMENT 'id' PRIMARY KEY,
-    name        VARCHAR(256)                       NOT NULL COMMENT '餐食名称',
-    mealType    VARCHAR(100)                       NOT NULL COMMENT '餐食类型（早餐/午餐/晚餐/加餐/训练前/训练后）',
-    description VARCHAR(512)                       NULL COMMENT '简短描述',
-    image       VARCHAR(1024)                      NULL COMMENT '图片URL',
-    calories    INT                                NOT NULL COMMENT '卡路里(kcal)',
-    protein     INT                                NOT NULL COMMENT '蛋白质(g)',
-    carbs       INT                                NOT NULL COMMENT '碳水化合物(g)',
-    fat         INT                                NOT NULL COMMENT '脂肪(g)',
-    sortOrder   INT      DEFAULT 0                 NOT NULL COMMENT '排序字段',
-    createTime  DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
-    updateTime  DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    isDelete    TINYINT  DEFAULT 0                 NOT NULL COMMENT '是否删除',
+    id          bigint auto_increment comment 'id' primary key,
+    name        varchar(256)                       not null comment '餐食名称',
+    mealType    varchar(100)                       not null comment '餐食类型（早餐/午餐/晚餐/加餐/训练前/训练后）',
+    description varchar(512)                       null comment '简短描述',
+    image       varchar(1024)                      null comment '图片URL',
+    calories    int                                not null comment '卡路里(kcal)',
+    protein     int                                not null comment '蛋白质(g)',
+    carbs       int                                not null comment '碳水化合物(g)',
+    fat         int                                not null comment '脂肪(g)',
+    sortOrder   int      default 0                 not null comment '排序字段',
+    createTime  datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime  datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete    tinyint  default 0                 not null comment '是否删除',
     INDEX idx_type (mealType, isDelete),
     INDEX idx_sort (sortOrder, isDelete)
-) COMMENT '饮食计划表' COLLATE = utf8mb4_unicode_ci;
+) comment '饮食计划表' collate = utf8mb4_unicode_ci;
 
 -- ============================================================
 -- 第三部分：测试数据初始化
 -- ============================================================
+-- 健身知识库数据初始化SQL
+-- 使用前请确保已创建相关表结构
 
--- 3.1 用户测试数据
--- 密码均为 12345678 (加密后)
-INSERT INTO user (userAccount, userPassword, userName, userAvatar, userProfile, userRole) VALUES
-('admin', 'b0dd3697a192885d7c055db46155b26a', '管理员', '', '系统管理员', 'admin'),
-('testuser1', 'b0dd3697a192885d7c055db46155b26a', '健身达人小明', '', '热爱健身，坚持每天锻炼', 'user'),
-('testuser2', 'b0dd3697a192885d7c055db46155b26a', '减脂小红', '', '减脂ing，加油！', 'user'),
-('testuser3', 'b0dd3697a192885d7c055db46155b26a', '增肌大伟', '', '目标：增肌10kg', 'vip');
+-- 切换到数据库
+USE mq_ai_agent;
 
--- 3.2 用户健身数据测试数据
-INSERT INTO fitness_data (userId, weight, bodyFat, height, bmi, dateRecorded) VALUES
-(2, 75.5, 18.5, 175, 24.65, DATE_SUB(NOW(), INTERVAL 30 DAY)),
-(2, 74.8, 17.8, 175, 24.42, DATE_SUB(NOW(), INTERVAL 20 DAY)),
-(2, 74.2, 17.2, 175, 24.23, DATE_SUB(NOW(), INTERVAL 10 DAY)),
-(2, 73.5, 16.5, 175, 24.0, NOW()),
-(3, 68.0, 28.0, 165, 24.98, DATE_SUB(NOW(), INTERVAL 30 DAY)),
-(3, 66.5, 26.5, 165, 24.43, DATE_SUB(NOW(), INTERVAL 15 DAY)),
-(3, 65.0, 25.0, 165, 23.88, NOW()),
-(4, 72.0, 15.0, 178, 22.72, DATE_SUB(NOW(), INTERVAL 30 DAY)),
-(4, 73.5, 14.5, 178, 23.2, DATE_SUB(NOW(), INTERVAL 15 DAY)),
-(4, 75.0, 14.0, 178, 23.67, NOW());
-
--- 3.3 运动记录测试数据
-INSERT INTO exercise_log (userId, exerciseType, duration, caloriesBurned, dateRecorded, weekStartDate, monthStartDate, notes) VALUES
-(2, '力量训练', 60, 350, DATE_SUB(NOW(), INTERVAL 7 DAY), DATE_SUB(CURDATE(), INTERVAL WEEKDAY(DATE_SUB(NOW(), INTERVAL 7 DAY)) DAY), DATE_SUB(CURDATE(), INTERVAL 30 DAY), '今天练了胸部和肱三头肌，感觉不错'),
-(2, '有氧运动', 30, 280, DATE_SUB(NOW(), INTERVAL 5 DAY), DATE_SUB(CURDATE(), INTERVAL WEEKDAY(DATE_SUB(NOW(), INTERVAL 5 DAY)) DAY), DATE_SUB(CURDATE(), INTERVAL 30 DAY), '跑步5公里'),
-(2, '力量训练', 75, 420, DATE_SUB(NOW(), INTERVAL 3 DAY), DATE_SUB(CURDATE(), INTERVAL WEEKDAY(DATE_SUB(NOW(), INTERVAL 3 DAY)) DAY), DATE_SUB(CURDATE(), INTERVAL 30 DAY), '背部训练日'),
-(2, 'HIIT', 25, 320, DATE_SUB(NOW(), INTERVAL 1 DAY), DATE_SUB(CURDATE(), INTERVAL WEEKDAY(DATE_SUB(NOW(), INTERVAL 1 DAY)) DAY), DATE_SUB(CURDATE(), INTERVAL 30 DAY), '高强度间歇训练'),
-(3, '瑜伽', 45, 150, DATE_SUB(NOW(), INTERVAL 6 DAY), DATE_SUB(CURDATE(), INTERVAL WEEKDAY(DATE_SUB(NOW(), INTERVAL 6 DAY)) DAY), DATE_SUB(CURDATE(), INTERVAL 30 DAY), '拉伸放松'),
-(3, '有氧运动', 40, 320, DATE_SUB(NOW(), INTERVAL 4 DAY), DATE_SUB(CURDATE(), INTERVAL WEEKDAY(DATE_SUB(NOW(), INTERVAL 4 DAY)) DAY), DATE_SUB(CURDATE(), INTERVAL 30 DAY), '动感单车课'),
-(3, '有氧运动', 35, 290, DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_SUB(CURDATE(), INTERVAL WEEKDAY(DATE_SUB(NOW(), INTERVAL 2 DAY)) DAY), DATE_SUB(CURDATE(), INTERVAL 30 DAY), '快走+慢跑'),
-(4, '力量训练', 90, 520, DATE_SUB(NOW(), INTERVAL 6 DAY), DATE_SUB(CURDATE(), INTERVAL WEEKDAY(DATE_SUB(NOW(), INTERVAL 6 DAY)) DAY), DATE_SUB(CURDATE(), INTERVAL 30 DAY), '腿部训练：深蹲+硬拉'),
-(4, '力量训练', 80, 480, DATE_SUB(NOW(), INTERVAL 4 DAY), DATE_SUB(CURDATE(), INTERVAL WEEKDAY(DATE_SUB(NOW(), INTERVAL 4 DAY)) DAY), DATE_SUB(CURDATE(), INTERVAL 30 DAY), '推举日：胸+肩'),
-(4, '力量训练', 85, 500, DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_SUB(CURDATE(), INTERVAL WEEKDAY(DATE_SUB(NOW(), INTERVAL 2 DAY)) DAY), DATE_SUB(CURDATE(), INTERVAL 30 DAY), '拉的训练：背+二头'),
-(4, '有氧运动', 20, 180, NOW(), DATE_SUB(CURDATE(), INTERVAL WEEKDAY(NOW()) DAY), DATE_SUB(CURDATE(), INTERVAL 30 DAY), '训练后有氧');
-
--- 3.4 健身基础知识数据
+-- 1. 基础知识表数据 (knowledge_basics)
 INSERT INTO knowledge_basics (id, title, description, image, difficulty, readTime, views, content, tips, sortOrder, createTime, updateTime, isDelete) VALUES
 (1, '健身入门指南', '新手必读的健身基础知识，从零开始学习健身', '', '初级', 5, 1234, 
 '健身是一个循序渐进的过程。作为初学者，首先要明确自己的健身目标：是为了减脂、增肌还是提升体能？不同的目标需要不同的训练方式。建议新手从每周3-4次的全身训练开始，每次训练30-45分钟，逐步适应运动强度。记住，坚持比强度更重要，循序渐进才能避免受伤并获得长期效果。',
@@ -292,7 +284,7 @@ INSERT INTO knowledge_basics (id, title, description, image, difficulty, readTim
 '平台期是每个健身者都会遇到的挑战。身体适应了当前训练强度后，进步会变慢甚至停滞。突破方法：1.改变训练变量（重量、次数、组数、休息时间）；2.尝试新的训练方法（超级组、递减组、金字塔训练）；3.调整训练频率和分化方式；4.增加或减少训练量；5.检查饮食和睡眠是否充足；6.deload周（降低训练强度让身体完全恢复）。记住，有时候退一步是为了进两步。',
 '["定期改变训练计划（每4-6周）", "尝试不同的训练方法", "每6-8周安排deload周", "重新评估饮食和恢复", "保持训练日志追踪进度", "保持耐心和信心"]', 8, NOW(), NOW(), 0);
 
--- 3.5 动作指导数据
+-- 2. 动作指导表数据 (knowledge_exercise)
 INSERT INTO knowledge_exercise (id, name, category, description, image, muscleGroup, difficulty, instructions, tips, sortOrder, createTime, updateTime, isDelete) VALUES
 -- 胸部训练
 (1, '俯卧撑', '胸部训练', '经典的胸部训练动作，适合各个水平的健身者', '', '胸肌', '初级',
@@ -368,7 +360,7 @@ INSERT INTO knowledge_exercise (id, name, category, description, image, muscleGr
 '["仰卧，双手垂直上举，双腿屈膝90度抬起", "下背贴地，核心紧缩", "同时伸展对侧手臂和腿部", "保持下背始终贴地", "返回起始位置后换另一侧"]',
 '["下背全程贴地不要拱起", "动作缓慢控制", "呼吸保持均匀", "腹部持续紧缩", "如不能全伸直可先小范围"]', 17, NOW(), NOW(), 0);
 
--- 3.6 营养知识数据
+-- 3. 营养知识表数据 (knowledge_nutrient)
 INSERT INTO knowledge_nutrient (id, name, description, color, icon, benefits, sortOrder, createTime, updateTime, isDelete) VALUES
 (1, '蛋白质', '肌肉生长和修复的基础，建议每公斤体重摄入1.8-2.2克', '#ff7875', 'icon-fire', 
 '["肌肉合成与修复", "增强饱腹感", "维持免疫系统", "促进代谢", "保持肌肉量"]', 1, NOW(), NOW(), 0),
@@ -388,7 +380,7 @@ INSERT INTO knowledge_nutrient (id, name, description, color, icon, benefits, so
 (6, '补剂与运动营养', '合理使用补剂可以辅助训练，但不能替代真实食物', '#b37feb', 'icon-star', 
 '["方便补充蛋白质", "提高训练表现", "加速恢复过程", "弥补饮食不足", "优化身体成分"]', 6, NOW(), NOW(), 0);
 
--- 3.7 饮食计划数据
+-- 4. 饮食计划表数据 (knowledge_meal)
 INSERT INTO knowledge_meal (id, name, mealType, description, image, calories, protein, carbs, fat, sortOrder, createTime, updateTime, isDelete) VALUES
 (1, '增肌能量早餐', '早餐', '高蛋白、适量碳水的增肌早餐搭配：燕麦粥+鸡蛋+香蕉+坚果', '', 520, 30, 55, 15, 1, NOW(), NOW(), 0),
 (2, '训练前能量餐', '训练前', '提供持久能量的训练前餐：全麦面包+花生酱+香蕉+咖啡', '', 380, 15, 65, 8, 2, NOW(), NOW(), 0),
@@ -403,7 +395,7 @@ INSERT INTO knowledge_meal (id, name, mealType, description, image, calories, pr
 (11, '低碳高蛋白餐', '晚餐', '减脂期低碳餐：三文鱼+水煮鸡蛋+牛油果+芦笋', '', 380, 45, 15, 18, 11, NOW(), NOW(), 0),
 (12, '高热量增重餐', '午餐', '增重期高热量餐：意大利面+肉丸+芝士+橄榄油', '', 850, 40, 95, 28, 12, NOW(), NOW(), 0);
 
--- 3.8 训练计划数据
+-- 5. 训练计划表数据 (knowledge_program)
 INSERT INTO knowledge_program (id, name, description, type, icon, duration, intensity, level, schedule, sortOrder, createTime, updateTime, isDelete) VALUES
 (1, '新手全身训练', '适合健身初学者的全身训练计划，每周三练，每次45分钟', 'beginner', 'icon-user', '8周', '低-中等', '初级',
 '[{"day":"周一","content":"全身力量：深蹲、俯卧撑、哑铃划船、平板支撑"},{"day":"周三","content":"轻度有氧+柔韧拉伸，30分钟慢跑或快走"},{"day":"周五","content":"全身力量：弓步蹲、哑铃卧推、引体向上、俄罗斯转体"},{"day":"周六","content":"活动性恢复：瑜伽或散步"},{"day":"其他时间","content":"完全休息或轻度活动"}]', 1, NOW(), NOW(), 0),
@@ -430,9 +422,1357 @@ INSERT INTO knowledge_program (id, name, description, type, icon, duration, inte
 '[{"day":"周一","content":"全身复合：深蹲+卧推+划船 3轮循环 30分钟"},{"day":"周三","content":"HIIT训练：波比、登山者、跳跃深蹲 25分钟"},{"day":"周五","content":"全身力量：硬拉+推举+引体向上 3轮 35分钟"},{"day":"周六/日","content":"轻度活动：散步、瑜伽或休息"}]', 8, NOW(), NOW(), 0);
 
 -- ============================================================
+-- Source: sql/assessment_tables.sql
+-- ============================================================
+-- ============================================================
+-- 标准化评测模块建表脚本
+--
+-- 说明：
+-- 1. 本脚本用于 mq-ai-agent 项目的 assessment 模块
+-- 2. 当前定位是“通用评测能力”，大学生体测只是第一套内置方案
+-- 3. 为了保持与现有项目风格一致，本脚本使用逻辑删除，不额外增加外键约束
+-- ============================================================
+
+create database if not exists mq_ai_agent;
+
+use mq_ai_agent;
+
+-- 11. 评测方案表
+create table if not exists assessment_scheme
+(
+    id          bigint auto_increment comment 'id' primary key,
+    schemeCode  varchar(64)                         not null comment '方案编码',
+    schemeName  varchar(128)                        not null comment '方案名称',
+    sceneType   varchar(64)                         not null comment '场景类型，如 student_physical_health',
+    description varchar(512)                        null comment '方案说明',
+    version     varchar(32) default 'v1'            not null comment '方案版本',
+    source      varchar(255)                        null comment '标准来源',
+    configJson  text                                null comment '扩展配置JSON',
+    status      tinyint     default 1               not null comment '状态：0-禁用 1-启用',
+    createTime  datetime    default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime  datetime    default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete    tinyint     default 0               not null comment '是否删除',
+    unique key uk_scheme_code (schemeCode),
+    index idx_scene_type (sceneType, status, isDelete)
+) comment '评测方案表' collate = utf8mb4_unicode_ci;
+
+-- 12. 评测方案项目定义表
+create table if not exists assessment_scheme_item
+(
+    id                   bigint auto_increment comment 'id' primary key,
+    schemeCode           varchar(64)                         not null comment '方案编码',
+    itemCode             varchar(64)                         not null comment '项目编码',
+    itemName             varchar(128)                        not null comment '项目名称',
+    itemCategory         varchar(64)                         null comment '项目分类',
+    unit                 varchar(32)                         not null comment '单位',
+    inputType            varchar(32) default 'number'       not null comment '输入类型',
+    inputPrecision       int         default 2               not null comment '输入精度',
+    weight               decimal(5, 2) default 0.00         not null comment '权重',
+    displayOrder         int         default 0               not null comment '展示顺序',
+    applicableGender     varchar(32) default 'all'          not null comment '适用性别：all/male/female',
+    applicableGradeGroup varchar(64) default 'all'          not null comment '适用年级组',
+    validationMin        decimal(10, 2)                     null comment '允许最小输入值',
+    validationMax        decimal(10, 2)                     null comment '允许最大输入值',
+    isRequired           tinyint     default 1               not null comment '是否必填',
+    isBonusItem          tinyint     default 0               not null comment '是否为附加分项目',
+    description          varchar(512)                        null comment '项目说明',
+    createTime           datetime    default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime           datetime    default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete             tinyint     default 0               not null comment '是否删除',
+    unique key uk_scheme_item (schemeCode, itemCode),
+    index idx_scheme_display (schemeCode, displayOrder, isDelete),
+    index idx_gender_grade (schemeCode, applicableGender, applicableGradeGroup, isDelete)
+) comment '评测方案项目定义表' collate = utf8mb4_unicode_ci;
+
+-- 13. 评测规则表
+create table if not exists assessment_rule
+(
+    id             bigint auto_increment comment 'id' primary key,
+    schemeCode     varchar(64)                         not null comment '方案编码',
+    itemCode       varchar(64)                         not null comment '项目编码',
+    gender         varchar(32) default 'all'          not null comment '性别：all/male/female',
+    gradeGroup     varchar(64) default 'all'          not null comment '年级组',
+    score          decimal(6, 2)                       not null comment '对应得分',
+    minValue       decimal(10, 2)                      null comment '匹配最小值',
+    `maxValue`     decimal(10, 2)                      null comment '匹配最大值',
+    comparisonType varchar(32) default 'RANGE'        not null comment '比较方式：RANGE/EXACT',
+    ruleVersion    varchar(32) default 'v1'           not null comment '规则版本',
+    sortOrder      int         default 0               not null comment '规则顺序',
+    description    varchar(255)                        null comment '规则说明',
+    createTime     datetime    default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime     datetime    default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete       tinyint     default 0               not null comment '是否删除',
+    unique key uk_rule_key (schemeCode, itemCode, gender, gradeGroup, ruleVersion, sortOrder),
+    index idx_scheme_item (schemeCode, itemCode, isDelete),
+    index idx_match_key (schemeCode, itemCode, gender, gradeGroup, ruleVersion, isDelete)
+) comment '评测规则表' collate = utf8mb4_unicode_ci;
+
+-- 14. 用户评测画像表
+create table if not exists assessment_profile
+(
+    id               bigint auto_increment comment 'id' primary key,
+    userId           bigint                              not null comment '用户ID',
+    schemeCode       varchar(64)                         not null comment '方案编码',
+    gender           varchar(32)                         not null comment '性别：male/female',
+    grade            varchar(32)                         null comment '年级，如 大一/大二',
+    gradeGroup       varchar(64)                         null comment '年级组，如 freshman_sophomore',
+    height           decimal(6, 2)                       null comment '身高(cm)',
+    weight           decimal(6, 2)                       null comment '体重(kg)',
+    bmi              decimal(6, 2)                       null comment 'BMI',
+    extraProfileJson text                                null comment '扩展画像JSON',
+    createTime       datetime    default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime       datetime    default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete         tinyint     default 0               not null comment '是否删除',
+    unique key uk_user_scheme (userId, schemeCode),
+    index idx_scheme_gender_grade (schemeCode, gender, gradeGroup, isDelete)
+) comment '用户评测画像表' collate = utf8mb4_unicode_ci;
+
+-- 15. 评测记录主表
+create table if not exists assessment_record
+(
+    id                 bigint auto_increment comment 'id' primary key,
+    userId             bigint                              not null comment '用户ID',
+    schemeCode         varchar(64)                         not null comment '方案编码',
+    schemeVersion      varchar(32) default 'v1'           not null comment '方案版本快照',
+    assessmentDate     datetime                            not null comment '评测日期',
+    sourceType         varchar(32) default 'manual'       not null comment '数据来源：manual/import/upload',
+    genderSnapshot     varchar(32)                         null comment '性别快照',
+    gradeSnapshot      varchar(32)                         null comment '年级快照',
+    gradeGroupSnapshot varchar(64)                         null comment '年级组快照',
+    heightSnapshot     decimal(6, 2)                       null comment '身高快照(cm)',
+    weightSnapshot     decimal(6, 2)                       null comment '体重快照(kg)',
+    bmiSnapshot        decimal(6, 2)                       null comment 'BMI快照',
+    totalScore         decimal(6, 2) default 0.00         not null comment '总分',
+    level              varchar(32)                         null comment '等级',
+    weaknessCount      int         default 0               not null comment '弱项数量',
+    strengthCount      int         default 0               not null comment '强项数量',
+    summary            varchar(1024)                       null comment '简要摘要',
+    extraDataJson      text                                null comment '扩展数据JSON',
+    createTime         datetime    default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime         datetime    default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete           tinyint     default 0               not null comment '是否删除',
+    index idx_user_scheme_date (userId, schemeCode, assessmentDate, isDelete),
+    index idx_scheme_level (schemeCode, level, assessmentDate, isDelete)
+) comment '评测记录主表' collate = utf8mb4_unicode_ci;
+
+-- 16. 评测记录明细表
+create table if not exists assessment_record_item
+(
+    id          bigint auto_increment comment 'id' primary key,
+    recordId    bigint                              not null comment '评测记录ID',
+    itemCode    varchar(64)                         not null comment '项目编码',
+    itemName    varchar(128)                        not null comment '项目名称快照',
+    itemOrder   int         default 0               not null comment '项目顺序快照',
+    unit        varchar(32)                         null comment '单位快照',
+    rawValue    decimal(10, 2)                      not null comment '原始成绩',
+    itemWeight  decimal(5, 2) default 0.00         not null comment '项目权重快照',
+    itemScore   decimal(6, 2) default 0.00         not null comment '单项分',
+    extraScore  decimal(6, 2) default 0.00         not null comment '附加分',
+    itemLevel   varchar(32)                         null comment '单项等级',
+    isWeakness  tinyint     default 0               not null comment '是否弱项',
+    isStrength  tinyint     default 0               not null comment '是否强项',
+    remark      varchar(255)                        null comment '备注',
+    createTime  datetime    default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime  datetime    default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete    tinyint     default 0               not null comment '是否删除',
+    unique key uk_record_item (recordId, itemCode),
+    index idx_record_order (recordId, itemOrder, isDelete),
+    index idx_item_code (itemCode, isDelete)
+) comment '评测记录明细表' collate = utf8mb4_unicode_ci;
+
+-- 17. 评测报告表
+create table if not exists assessment_report
+(
+    id              bigint auto_increment comment 'id' primary key,
+    recordId        bigint                              not null comment '评测记录ID',
+    version         varchar(32) default 'v1'           not null comment '报告版本',
+    overview        varchar(1024)                       null comment '总览摘要',
+    analysisJson    text                                null comment '结构化分析JSON',
+    weaknessSummary varchar(1024)                       null comment '弱项总结',
+    strengthSummary varchar(1024)                       null comment '强项总结',
+    trainingFocus   varchar(1024)                       null comment '训练重点',
+    riskNotes       varchar(1024)                       null comment '风险提示',
+    aiSuggestion    text                                null comment 'AI建议',
+    createTime      datetime    default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime      datetime    default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete        tinyint     default 0               not null comment '是否删除',
+    unique key uk_record_id (recordId),
+    index idx_create_time (createTime, isDelete)
+) comment '评测报告表' collate = utf8mb4_unicode_ci;
+
+-- ============================================================
+-- Source: sql/assessment_university_standard_seed.sql
+-- ============================================================
+-- ============================================================
+-- 大学生体测方案基础种子数据
+--
+-- 说明：
+-- 1. 本脚本只初始化方案元数据与项目定义
+-- 2. assessment_rule 的详细评分阈值建议在确认标准表后单独导入
+-- 3. 这里使用统一编码，便于后端和前端稳定对接
+-- ============================================================
+
+use mq_ai_agent;
+
+-- 1. 初始化大学生体测方案
+insert into assessment_scheme
+(
+    schemeCode,
+    schemeName,
+    sceneType,
+    description,
+    version,
+    source,
+    configJson,
+    status
+)
+values
+(
+    'CN_UNIVERSITY_PHYSICAL_HEALTH_STANDARD',
+    '大学生体测',
+    'student_physical_health',
+    '国家学生体质健康标准（大学生组）内置方案',
+    'v1',
+    '国家学生体质健康标准（大学生组）',
+    '{"gradeGroups":["freshman_sophomore","junior_senior"],"genders":["male","female"]}',
+    1
+)
+on duplicate key update
+schemeName = values(schemeName),
+sceneType = values(sceneType),
+description = values(description),
+version = values(version),
+source = values(source),
+configJson = values(configJson),
+status = values(status);
+
+-- 2. 初始化方案项目定义
+insert into assessment_scheme_item
+(
+    schemeCode,
+    itemCode,
+    itemName,
+    itemCategory,
+    unit,
+    inputType,
+    inputPrecision,
+    weight,
+    displayOrder,
+    applicableGender,
+    applicableGradeGroup,
+    validationMin,
+    validationMax,
+    isRequired,
+    isBonusItem,
+    description
+)
+values
+(
+    'CN_UNIVERSITY_PHYSICAL_HEALTH_STANDARD',
+    'BMI',
+    'BMI',
+    'body_composition',
+    'index',
+    'number',
+    2,
+    15.00,
+    1,
+    'all',
+    'all',
+    10.00,
+    50.00,
+    1,
+    0,
+    '体质指数，支持由身高体重自动换算'
+),
+(
+    'CN_UNIVERSITY_PHYSICAL_HEALTH_STANDARD',
+    'LUNG_CAPACITY',
+    '肺活量',
+    'cardiopulmonary',
+    'ml',
+    'number',
+    0,
+    15.00,
+    2,
+    'all',
+    'all',
+    500.00,
+    10000.00,
+    1,
+    0,
+    '肺活量测试结果'
+),
+(
+    'CN_UNIVERSITY_PHYSICAL_HEALTH_STANDARD',
+    'RUN_50M',
+    '50米跑',
+    'speed',
+    'second',
+    'number',
+    2,
+    20.00,
+    3,
+    'all',
+    'all',
+    5.00,
+    20.00,
+    1,
+    0,
+    '50米跑成绩，统一换算为秒'
+),
+(
+    'CN_UNIVERSITY_PHYSICAL_HEALTH_STANDARD',
+    'SIT_AND_REACH',
+    '坐位体前屈',
+    'flexibility',
+    'cm',
+    'number',
+    1,
+    10.00,
+    4,
+    'all',
+    'all',
+    -30.00,
+    50.00,
+    1,
+    0,
+    '坐位体前屈成绩'
+),
+(
+    'CN_UNIVERSITY_PHYSICAL_HEALTH_STANDARD',
+    'STANDING_LONG_JUMP',
+    '立定跳远',
+    'explosive_power',
+    'cm',
+    'number',
+    0,
+    10.00,
+    5,
+    'all',
+    'all',
+    50.00,
+    400.00,
+    1,
+    0,
+    '立定跳远成绩'
+),
+(
+    'CN_UNIVERSITY_PHYSICAL_HEALTH_STANDARD',
+    'UPPER_BODY_OR_CORE',
+    '引体向上/仰卧起坐',
+    'strength_endurance',
+    'count',
+    'number',
+    0,
+    10.00,
+    6,
+    'all',
+    'all',
+    0.00,
+    100.00,
+    1,
+    0,
+    '男性对应引体向上，女性对应1分钟仰卧起坐'
+),
+(
+    'CN_UNIVERSITY_PHYSICAL_HEALTH_STANDARD',
+    'ENDURANCE_RUN',
+    '1000米跑/800米跑',
+    'endurance',
+    'second',
+    'number',
+    0,
+    20.00,
+    7,
+    'all',
+    'all',
+    60.00,
+    1200.00,
+    1,
+    0,
+    '男性对应1000米跑，女性对应800米跑，统一换算为秒'
+)
+on duplicate key update
+itemName = values(itemName),
+itemCategory = values(itemCategory),
+unit = values(unit),
+inputType = values(inputType),
+inputPrecision = values(inputPrecision),
+weight = values(weight),
+displayOrder = values(displayOrder),
+applicableGender = values(applicableGender),
+applicableGradeGroup = values(applicableGradeGroup),
+validationMin = values(validationMin),
+validationMax = values(validationMax),
+isRequired = values(isRequired),
+isBonusItem = values(isBonusItem),
+description = values(description);
+
+-- 3. 评分规则导入说明
+-- assessment_rule 建议在你确认最终标准表后再单独导入。
+-- 推荐后续新增脚本：
+--   sql/assessment_university_standard_rules.sql
+--
+-- 推荐编码取值：
+--   gender: male / female / all
+--   gradeGroup: freshman_sophomore / junior_senior / all
+--   comparisonType: RANGE / EXACT
+
+-- ============================================================
+-- Source: sql/assessment_university_standard_rules.sql
+-- ============================================================
+-- ============================================================
+-- University physical health standard rules
+--
+-- Purpose:
+-- 1. Import the full scoring rules for the built-in university
+--    physical health assessment scheme.
+-- 2. The script is idempotent for the same schemeCode + ruleVersion.
+-- 3. This script requires MySQL 8.0+ because it uses window
+--    functions to generate interval rules.
+--
+-- Notes:
+-- 1. The official table publishes the minimum 10-point threshold.
+--    This script adds a trailing 0-point interval for worse values.
+-- 2. Male pull-up does not publish 78 / 74 / 70 / 66 / 62 rows.
+--    The script keeps the official discrete rows instead of fabricating
+--    missing score bands.
+-- 3. BMI "overweight" is imported as 80 points. This is inferred from
+--    the official table layout used by multiple mirror pages, where
+--    "low weight" and "overweight" share the same 80-point score cell.
+-- ============================================================
+
+use mq_ai_agent;
+
+start transaction;
+
+set @scheme_code := _utf8mb4'CN_UNIVERSITY_PHYSICAL_HEALTH_STANDARD' collate utf8mb4_unicode_ci;
+set @rule_version := _utf8mb4'v1' collate utf8mb4_unicode_ci;
+
+delete from assessment_rule
+where schemeCode collate utf8mb4_unicode_ci = @scheme_code
+  and ruleVersion collate utf8mb4_unicode_ci = @rule_version;
+
+drop temporary table if exists tmp_assessment_rule_source;
+
+create temporary table tmp_assessment_rule_source
+(
+    itemCode        varchar(64)   not null,
+    gender          varchar(32)   not null,
+    gradeGroup      varchar(64)   not null,
+    score           decimal(6, 2) not null,
+    thresholdValue  decimal(10, 2) not null,
+    unitStep        decimal(10, 2) not null,
+    direction       varchar(32)   not null
+) comment 'Temporary source thresholds for assessment_rule generation';
+
+-- ============================================================
+-- BMI
+-- gradeGroup is "all" because the official BMI rule only depends on gender
+-- ============================================================
+insert into assessment_rule
+(
+    schemeCode,
+    itemCode,
+    gender,
+    gradeGroup,
+    score,
+    minValue,
+    `maxValue`,
+    comparisonType,
+    ruleVersion,
+    sortOrder,
+    description
+)
+values
+(@scheme_code, 'BMI', 'male', 'all', 100.00, 17.90, 23.99, 'RANGE', @rule_version, 1, 'BMI normal'),
+(@scheme_code, 'BMI', 'male', 'all', 80.00, null, 17.89, 'RANGE', @rule_version, 2, 'BMI low weight'),
+(@scheme_code, 'BMI', 'male', 'all', 80.00, 24.00, 27.99, 'RANGE', @rule_version, 3, 'BMI overweight'),
+(@scheme_code, 'BMI', 'male', 'all', 60.00, 28.00, null, 'RANGE', @rule_version, 4, 'BMI obesity'),
+(@scheme_code, 'BMI', 'female', 'all', 100.00, 17.20, 23.99, 'RANGE', @rule_version, 1, 'BMI normal'),
+(@scheme_code, 'BMI', 'female', 'all', 80.00, null, 17.19, 'RANGE', @rule_version, 2, 'BMI low weight'),
+(@scheme_code, 'BMI', 'female', 'all', 80.00, 24.00, 27.99, 'RANGE', @rule_version, 3, 'BMI overweight'),
+(@scheme_code, 'BMI', 'female', 'all', 60.00, 28.00, null, 'RANGE', @rule_version, 4, 'BMI obesity');
+
+insert into tmp_assessment_rule_source (itemCode, gender, gradeGroup, score, thresholdValue, unitStep, direction)
+select 'LUNG_CAPACITY', 'male', 'freshman_sophomore', score, male_fs, 1.00, 'HIGHER_BETTER' from (
+    select 100.00 as score, 5040.00 as male_fs, 5140.00 as male_js, 3400.00 as female_fs, 3450.00 as female_js union all
+    select 95.00, 4920.00, 5020.00, 3350.00, 3400.00 union all
+    select 90.00, 4800.00, 4900.00, 3300.00, 3350.00 union all
+    select 85.00, 4550.00, 4650.00, 3150.00, 3200.00 union all
+    select 80.00, 4300.00, 4400.00, 3000.00, 3050.00 union all
+    select 78.00, 4180.00, 4280.00, 2900.00, 2950.00 union all
+    select 76.00, 4060.00, 4160.00, 2800.00, 2850.00 union all
+    select 74.00, 3940.00, 4040.00, 2700.00, 2750.00 union all
+    select 72.00, 3820.00, 3920.00, 2600.00, 2650.00 union all
+    select 70.00, 3700.00, 3800.00, 2500.00, 2550.00 union all
+    select 68.00, 3580.00, 3680.00, 2400.00, 2450.00 union all
+    select 66.00, 3460.00, 3560.00, 2300.00, 2350.00 union all
+    select 64.00, 3340.00, 3440.00, 2200.00, 2250.00 union all
+    select 62.00, 3220.00, 3320.00, 2100.00, 2150.00 union all
+    select 60.00, 3100.00, 3200.00, 2000.00, 2050.00 union all
+    select 50.00, 2940.00, 3030.00, 1960.00, 2010.00 union all
+    select 40.00, 2780.00, 2860.00, 1920.00, 1970.00 union all
+    select 30.00, 2620.00, 2690.00, 1880.00, 1930.00 union all
+    select 20.00, 2460.00, 2520.00, 1840.00, 1890.00 union all
+    select 10.00, 2300.00, 2350.00, 1800.00, 1850.00
+) lung_capacity
+union all
+select 'LUNG_CAPACITY', 'male', 'junior_senior', score, male_js, 1.00, 'HIGHER_BETTER' from (
+    select 100.00 as score, 5040.00 as male_fs, 5140.00 as male_js, 3400.00 as female_fs, 3450.00 as female_js union all
+    select 95.00, 4920.00, 5020.00, 3350.00, 3400.00 union all
+    select 90.00, 4800.00, 4900.00, 3300.00, 3350.00 union all
+    select 85.00, 4550.00, 4650.00, 3150.00, 3200.00 union all
+    select 80.00, 4300.00, 4400.00, 3000.00, 3050.00 union all
+    select 78.00, 4180.00, 4280.00, 2900.00, 2950.00 union all
+    select 76.00, 4060.00, 4160.00, 2800.00, 2850.00 union all
+    select 74.00, 3940.00, 4040.00, 2700.00, 2750.00 union all
+    select 72.00, 3820.00, 3920.00, 2600.00, 2650.00 union all
+    select 70.00, 3700.00, 3800.00, 2500.00, 2550.00 union all
+    select 68.00, 3580.00, 3680.00, 2400.00, 2450.00 union all
+    select 66.00, 3460.00, 3560.00, 2300.00, 2350.00 union all
+    select 64.00, 3340.00, 3440.00, 2200.00, 2250.00 union all
+    select 62.00, 3220.00, 3320.00, 2100.00, 2150.00 union all
+    select 60.00, 3100.00, 3200.00, 2000.00, 2050.00 union all
+    select 50.00, 2940.00, 3030.00, 1960.00, 2010.00 union all
+    select 40.00, 2780.00, 2860.00, 1920.00, 1970.00 union all
+    select 30.00, 2620.00, 2690.00, 1880.00, 1930.00 union all
+    select 20.00, 2460.00, 2520.00, 1840.00, 1890.00 union all
+    select 10.00, 2300.00, 2350.00, 1800.00, 1850.00
+) lung_capacity
+union all
+select 'LUNG_CAPACITY', 'female', 'freshman_sophomore', score, female_fs, 1.00, 'HIGHER_BETTER' from (
+    select 100.00 as score, 5040.00 as male_fs, 5140.00 as male_js, 3400.00 as female_fs, 3450.00 as female_js union all
+    select 95.00, 4920.00, 5020.00, 3350.00, 3400.00 union all
+    select 90.00, 4800.00, 4900.00, 3300.00, 3350.00 union all
+    select 85.00, 4550.00, 4650.00, 3150.00, 3200.00 union all
+    select 80.00, 4300.00, 4400.00, 3000.00, 3050.00 union all
+    select 78.00, 4180.00, 4280.00, 2900.00, 2950.00 union all
+    select 76.00, 4060.00, 4160.00, 2800.00, 2850.00 union all
+    select 74.00, 3940.00, 4040.00, 2700.00, 2750.00 union all
+    select 72.00, 3820.00, 3920.00, 2600.00, 2650.00 union all
+    select 70.00, 3700.00, 3800.00, 2500.00, 2550.00 union all
+    select 68.00, 3580.00, 3680.00, 2400.00, 2450.00 union all
+    select 66.00, 3460.00, 3560.00, 2300.00, 2350.00 union all
+    select 64.00, 3340.00, 3440.00, 2200.00, 2250.00 union all
+    select 62.00, 3220.00, 3320.00, 2100.00, 2150.00 union all
+    select 60.00, 3100.00, 3200.00, 2000.00, 2050.00 union all
+    select 50.00, 2940.00, 3030.00, 1960.00, 2010.00 union all
+    select 40.00, 2780.00, 2860.00, 1920.00, 1970.00 union all
+    select 30.00, 2620.00, 2690.00, 1880.00, 1930.00 union all
+    select 20.00, 2460.00, 2520.00, 1840.00, 1890.00 union all
+    select 10.00, 2300.00, 2350.00, 1800.00, 1850.00
+) lung_capacity
+union all
+select 'LUNG_CAPACITY', 'female', 'junior_senior', score, female_js, 1.00, 'HIGHER_BETTER' from (
+    select 100.00 as score, 5040.00 as male_fs, 5140.00 as male_js, 3400.00 as female_fs, 3450.00 as female_js union all
+    select 95.00, 4920.00, 5020.00, 3350.00, 3400.00 union all
+    select 90.00, 4800.00, 4900.00, 3300.00, 3350.00 union all
+    select 85.00, 4550.00, 4650.00, 3150.00, 3200.00 union all
+    select 80.00, 4300.00, 4400.00, 3000.00, 3050.00 union all
+    select 78.00, 4180.00, 4280.00, 2900.00, 2950.00 union all
+    select 76.00, 4060.00, 4160.00, 2800.00, 2850.00 union all
+    select 74.00, 3940.00, 4040.00, 2700.00, 2750.00 union all
+    select 72.00, 3820.00, 3920.00, 2600.00, 2650.00 union all
+    select 70.00, 3700.00, 3800.00, 2500.00, 2550.00 union all
+    select 68.00, 3580.00, 3680.00, 2400.00, 2450.00 union all
+    select 66.00, 3460.00, 3560.00, 2300.00, 2350.00 union all
+    select 64.00, 3340.00, 3440.00, 2200.00, 2250.00 union all
+    select 62.00, 3220.00, 3320.00, 2100.00, 2150.00 union all
+    select 60.00, 3100.00, 3200.00, 2000.00, 2050.00 union all
+    select 50.00, 2940.00, 3030.00, 1960.00, 2010.00 union all
+    select 40.00, 2780.00, 2860.00, 1920.00, 1970.00 union all
+    select 30.00, 2620.00, 2690.00, 1880.00, 1930.00 union all
+    select 20.00, 2460.00, 2520.00, 1840.00, 1890.00 union all
+    select 10.00, 2300.00, 2350.00, 1800.00, 1850.00
+) lung_capacity;
+
+insert into tmp_assessment_rule_source (itemCode, gender, gradeGroup, score, thresholdValue, unitStep, direction)
+select 'RUN_50M', 'male', 'freshman_sophomore', score, male_fs, 0.10, 'LOWER_BETTER' from (
+    select 100.00 as score, 6.70 as male_fs, 6.60 as male_js, 7.50 as female_fs, 7.40 as female_js union all
+    select 95.00, 6.80, 6.70, 7.60, 7.50 union all
+    select 90.00, 6.90, 6.80, 7.70, 7.60 union all
+    select 85.00, 7.00, 6.90, 8.00, 7.90 union all
+    select 80.00, 7.10, 7.00, 8.30, 8.20 union all
+    select 78.00, 7.30, 7.20, 8.50, 8.40 union all
+    select 76.00, 7.50, 7.40, 8.70, 8.60 union all
+    select 74.00, 7.70, 7.60, 8.90, 8.80 union all
+    select 72.00, 7.90, 7.80, 9.10, 9.00 union all
+    select 70.00, 8.10, 8.00, 9.30, 9.20 union all
+    select 68.00, 8.30, 8.20, 9.50, 9.40 union all
+    select 66.00, 8.50, 8.40, 9.70, 9.60 union all
+    select 64.00, 8.70, 8.60, 9.90, 9.80 union all
+    select 62.00, 8.90, 8.80, 10.10, 10.00 union all
+    select 60.00, 9.10, 9.00, 10.30, 10.20 union all
+    select 50.00, 9.30, 9.20, 10.50, 10.40 union all
+    select 40.00, 9.50, 9.40, 10.70, 10.60 union all
+    select 30.00, 9.70, 9.60, 10.90, 10.80 union all
+    select 20.00, 9.90, 9.80, 11.10, 11.00 union all
+    select 10.00, 10.10, 10.00, 11.30, 11.20
+) run_50m
+union all
+select 'RUN_50M', 'male', 'junior_senior', score, male_js, 0.10, 'LOWER_BETTER' from (
+    select 100.00 as score, 6.70 as male_fs, 6.60 as male_js, 7.50 as female_fs, 7.40 as female_js union all
+    select 95.00, 6.80, 6.70, 7.60, 7.50 union all
+    select 90.00, 6.90, 6.80, 7.70, 7.60 union all
+    select 85.00, 7.00, 6.90, 8.00, 7.90 union all
+    select 80.00, 7.10, 7.00, 8.30, 8.20 union all
+    select 78.00, 7.30, 7.20, 8.50, 8.40 union all
+    select 76.00, 7.50, 7.40, 8.70, 8.60 union all
+    select 74.00, 7.70, 7.60, 8.90, 8.80 union all
+    select 72.00, 7.90, 7.80, 9.10, 9.00 union all
+    select 70.00, 8.10, 8.00, 9.30, 9.20 union all
+    select 68.00, 8.30, 8.20, 9.50, 9.40 union all
+    select 66.00, 8.50, 8.40, 9.70, 9.60 union all
+    select 64.00, 8.70, 8.60, 9.90, 9.80 union all
+    select 62.00, 8.90, 8.80, 10.10, 10.00 union all
+    select 60.00, 9.10, 9.00, 10.30, 10.20 union all
+    select 50.00, 9.30, 9.20, 10.50, 10.40 union all
+    select 40.00, 9.50, 9.40, 10.70, 10.60 union all
+    select 30.00, 9.70, 9.60, 10.90, 10.80 union all
+    select 20.00, 9.90, 9.80, 11.10, 11.00 union all
+    select 10.00, 10.10, 10.00, 11.30, 11.20
+) run_50m
+union all
+select 'RUN_50M', 'female', 'freshman_sophomore', score, female_fs, 0.10, 'LOWER_BETTER' from (
+    select 100.00 as score, 6.70 as male_fs, 6.60 as male_js, 7.50 as female_fs, 7.40 as female_js union all
+    select 95.00, 6.80, 6.70, 7.60, 7.50 union all
+    select 90.00, 6.90, 6.80, 7.70, 7.60 union all
+    select 85.00, 7.00, 6.90, 8.00, 7.90 union all
+    select 80.00, 7.10, 7.00, 8.30, 8.20 union all
+    select 78.00, 7.30, 7.20, 8.50, 8.40 union all
+    select 76.00, 7.50, 7.40, 8.70, 8.60 union all
+    select 74.00, 7.70, 7.60, 8.90, 8.80 union all
+    select 72.00, 7.90, 7.80, 9.10, 9.00 union all
+    select 70.00, 8.10, 8.00, 9.30, 9.20 union all
+    select 68.00, 8.30, 8.20, 9.50, 9.40 union all
+    select 66.00, 8.50, 8.40, 9.70, 9.60 union all
+    select 64.00, 8.70, 8.60, 9.90, 9.80 union all
+    select 62.00, 8.90, 8.80, 10.10, 10.00 union all
+    select 60.00, 9.10, 9.00, 10.30, 10.20 union all
+    select 50.00, 9.30, 9.20, 10.50, 10.40 union all
+    select 40.00, 9.50, 9.40, 10.70, 10.60 union all
+    select 30.00, 9.70, 9.60, 10.90, 10.80 union all
+    select 20.00, 9.90, 9.80, 11.10, 11.00 union all
+    select 10.00, 10.10, 10.00, 11.30, 11.20
+) run_50m
+union all
+select 'RUN_50M', 'female', 'junior_senior', score, female_js, 0.10, 'LOWER_BETTER' from (
+    select 100.00 as score, 6.70 as male_fs, 6.60 as male_js, 7.50 as female_fs, 7.40 as female_js union all
+    select 95.00, 6.80, 6.70, 7.60, 7.50 union all
+    select 90.00, 6.90, 6.80, 7.70, 7.60 union all
+    select 85.00, 7.00, 6.90, 8.00, 7.90 union all
+    select 80.00, 7.10, 7.00, 8.30, 8.20 union all
+    select 78.00, 7.30, 7.20, 8.50, 8.40 union all
+    select 76.00, 7.50, 7.40, 8.70, 8.60 union all
+    select 74.00, 7.70, 7.60, 8.90, 8.80 union all
+    select 72.00, 7.90, 7.80, 9.10, 9.00 union all
+    select 70.00, 8.10, 8.00, 9.30, 9.20 union all
+    select 68.00, 8.30, 8.20, 9.50, 9.40 union all
+    select 66.00, 8.50, 8.40, 9.70, 9.60 union all
+    select 64.00, 8.70, 8.60, 9.90, 9.80 union all
+    select 62.00, 8.90, 8.80, 10.10, 10.00 union all
+    select 60.00, 9.10, 9.00, 10.30, 10.20 union all
+    select 50.00, 9.30, 9.20, 10.50, 10.40 union all
+    select 40.00, 9.50, 9.40, 10.70, 10.60 union all
+    select 30.00, 9.70, 9.60, 10.90, 10.80 union all
+    select 20.00, 9.90, 9.80, 11.10, 11.00 union all
+    select 10.00, 10.10, 10.00, 11.30, 11.20
+) run_50m;
+
+insert into tmp_assessment_rule_source (itemCode, gender, gradeGroup, score, thresholdValue, unitStep, direction)
+select 'SIT_AND_REACH', 'male', 'freshman_sophomore', score, male_fs, 0.10, 'HIGHER_BETTER' from (
+    select 100.00 as score, 24.90 as male_fs, 25.10 as male_js, 25.80 as female_fs, 26.30 as female_js union all
+    select 95.00, 23.10, 23.30, 24.00, 24.40 union all
+    select 90.00, 21.30, 21.50, 22.20, 22.40 union all
+    select 85.00, 19.50, 19.90, 20.60, 21.00 union all
+    select 80.00, 17.70, 18.20, 19.00, 19.50 union all
+    select 78.00, 16.30, 16.80, 17.70, 18.20 union all
+    select 76.00, 14.90, 15.40, 16.40, 16.90 union all
+    select 74.00, 13.50, 14.00, 15.10, 15.60 union all
+    select 72.00, 12.10, 12.60, 13.80, 14.30 union all
+    select 70.00, 10.70, 11.20, 12.50, 13.00 union all
+    select 68.00, 9.30, 9.80, 11.20, 11.70 union all
+    select 66.00, 7.90, 8.40, 9.90, 10.40 union all
+    select 64.00, 6.50, 7.00, 8.60, 9.10 union all
+    select 62.00, 5.10, 5.60, 7.30, 7.80 union all
+    select 60.00, 3.70, 4.20, 6.00, 6.50 union all
+    select 50.00, 2.70, 3.20, 5.20, 5.70 union all
+    select 40.00, 1.70, 2.20, 4.40, 4.90 union all
+    select 30.00, 0.70, 1.20, 3.60, 4.10 union all
+    select 20.00, -0.30, 0.20, 2.80, 3.30 union all
+    select 10.00, -1.30, -0.80, 2.00, 2.50
+) sit_and_reach
+union all
+select 'SIT_AND_REACH', 'male', 'junior_senior', score, male_js, 0.10, 'HIGHER_BETTER' from (
+    select 100.00 as score, 24.90 as male_fs, 25.10 as male_js, 25.80 as female_fs, 26.30 as female_js union all
+    select 95.00, 23.10, 23.30, 24.00, 24.40 union all
+    select 90.00, 21.30, 21.50, 22.20, 22.40 union all
+    select 85.00, 19.50, 19.90, 20.60, 21.00 union all
+    select 80.00, 17.70, 18.20, 19.00, 19.50 union all
+    select 78.00, 16.30, 16.80, 17.70, 18.20 union all
+    select 76.00, 14.90, 15.40, 16.40, 16.90 union all
+    select 74.00, 13.50, 14.00, 15.10, 15.60 union all
+    select 72.00, 12.10, 12.60, 13.80, 14.30 union all
+    select 70.00, 10.70, 11.20, 12.50, 13.00 union all
+    select 68.00, 9.30, 9.80, 11.20, 11.70 union all
+    select 66.00, 7.90, 8.40, 9.90, 10.40 union all
+    select 64.00, 6.50, 7.00, 8.60, 9.10 union all
+    select 62.00, 5.10, 5.60, 7.30, 7.80 union all
+    select 60.00, 3.70, 4.20, 6.00, 6.50 union all
+    select 50.00, 2.70, 3.20, 5.20, 5.70 union all
+    select 40.00, 1.70, 2.20, 4.40, 4.90 union all
+    select 30.00, 0.70, 1.20, 3.60, 4.10 union all
+    select 20.00, -0.30, 0.20, 2.80, 3.30 union all
+    select 10.00, -1.30, -0.80, 2.00, 2.50
+) sit_and_reach
+union all
+select 'SIT_AND_REACH', 'female', 'freshman_sophomore', score, female_fs, 0.10, 'HIGHER_BETTER' from (
+    select 100.00 as score, 24.90 as male_fs, 25.10 as male_js, 25.80 as female_fs, 26.30 as female_js union all
+    select 95.00, 23.10, 23.30, 24.00, 24.40 union all
+    select 90.00, 21.30, 21.50, 22.20, 22.40 union all
+    select 85.00, 19.50, 19.90, 20.60, 21.00 union all
+    select 80.00, 17.70, 18.20, 19.00, 19.50 union all
+    select 78.00, 16.30, 16.80, 17.70, 18.20 union all
+    select 76.00, 14.90, 15.40, 16.40, 16.90 union all
+    select 74.00, 13.50, 14.00, 15.10, 15.60 union all
+    select 72.00, 12.10, 12.60, 13.80, 14.30 union all
+    select 70.00, 10.70, 11.20, 12.50, 13.00 union all
+    select 68.00, 9.30, 9.80, 11.20, 11.70 union all
+    select 66.00, 7.90, 8.40, 9.90, 10.40 union all
+    select 64.00, 6.50, 7.00, 8.60, 9.10 union all
+    select 62.00, 5.10, 5.60, 7.30, 7.80 union all
+    select 60.00, 3.70, 4.20, 6.00, 6.50 union all
+    select 50.00, 2.70, 3.20, 5.20, 5.70 union all
+    select 40.00, 1.70, 2.20, 4.40, 4.90 union all
+    select 30.00, 0.70, 1.20, 3.60, 4.10 union all
+    select 20.00, -0.30, 0.20, 2.80, 3.30 union all
+    select 10.00, -1.30, -0.80, 2.00, 2.50
+) sit_and_reach
+union all
+select 'SIT_AND_REACH', 'female', 'junior_senior', score, female_js, 0.10, 'HIGHER_BETTER' from (
+    select 100.00 as score, 24.90 as male_fs, 25.10 as male_js, 25.80 as female_fs, 26.30 as female_js union all
+    select 95.00, 23.10, 23.30, 24.00, 24.40 union all
+    select 90.00, 21.30, 21.50, 22.20, 22.40 union all
+    select 85.00, 19.50, 19.90, 20.60, 21.00 union all
+    select 80.00, 17.70, 18.20, 19.00, 19.50 union all
+    select 78.00, 16.30, 16.80, 17.70, 18.20 union all
+    select 76.00, 14.90, 15.40, 16.40, 16.90 union all
+    select 74.00, 13.50, 14.00, 15.10, 15.60 union all
+    select 72.00, 12.10, 12.60, 13.80, 14.30 union all
+    select 70.00, 10.70, 11.20, 12.50, 13.00 union all
+    select 68.00, 9.30, 9.80, 11.20, 11.70 union all
+    select 66.00, 7.90, 8.40, 9.90, 10.40 union all
+    select 64.00, 6.50, 7.00, 8.60, 9.10 union all
+    select 62.00, 5.10, 5.60, 7.30, 7.80 union all
+    select 60.00, 3.70, 4.20, 6.00, 6.50 union all
+    select 50.00, 2.70, 3.20, 5.20, 5.70 union all
+    select 40.00, 1.70, 2.20, 4.40, 4.90 union all
+    select 30.00, 0.70, 1.20, 3.60, 4.10 union all
+    select 20.00, -0.30, 0.20, 2.80, 3.30 union all
+    select 10.00, -1.30, -0.80, 2.00, 2.50
+) sit_and_reach;
+
+insert into tmp_assessment_rule_source (itemCode, gender, gradeGroup, score, thresholdValue, unitStep, direction)
+select 'STANDING_LONG_JUMP', 'male', 'freshman_sophomore', score, male_fs, 1.00, 'HIGHER_BETTER' from (
+    select 100.00 as score, 273.00 as male_fs, 275.00 as male_js, 207.00 as female_fs, 208.00 as female_js union all
+    select 95.00, 268.00, 270.00, 201.00, 202.00 union all
+    select 90.00, 263.00, 265.00, 195.00, 196.00 union all
+    select 85.00, 256.00, 258.00, 188.00, 189.00 union all
+    select 80.00, 248.00, 250.00, 181.00, 182.00 union all
+    select 78.00, 244.00, 246.00, 178.00, 179.00 union all
+    select 76.00, 240.00, 242.00, 175.00, 176.00 union all
+    select 74.00, 236.00, 238.00, 172.00, 173.00 union all
+    select 72.00, 232.00, 234.00, 169.00, 170.00 union all
+    select 70.00, 228.00, 230.00, 166.00, 167.00 union all
+    select 68.00, 224.00, 226.00, 163.00, 164.00 union all
+    select 66.00, 220.00, 222.00, 160.00, 161.00 union all
+    select 64.00, 216.00, 218.00, 157.00, 158.00 union all
+    select 62.00, 212.00, 214.00, 154.00, 155.00 union all
+    select 60.00, 208.00, 210.00, 151.00, 152.00 union all
+    select 50.00, 203.00, 205.00, 146.00, 147.00 union all
+    select 40.00, 198.00, 200.00, 141.00, 142.00 union all
+    select 30.00, 193.00, 195.00, 136.00, 137.00 union all
+    select 20.00, 188.00, 190.00, 131.00, 132.00 union all
+    select 10.00, 183.00, 185.00, 126.00, 127.00
+) standing_long_jump
+union all
+select 'STANDING_LONG_JUMP', 'male', 'junior_senior', score, male_js, 1.00, 'HIGHER_BETTER' from (
+    select 100.00 as score, 273.00 as male_fs, 275.00 as male_js, 207.00 as female_fs, 208.00 as female_js union all
+    select 95.00, 268.00, 270.00, 201.00, 202.00 union all
+    select 90.00, 263.00, 265.00, 195.00, 196.00 union all
+    select 85.00, 256.00, 258.00, 188.00, 189.00 union all
+    select 80.00, 248.00, 250.00, 181.00, 182.00 union all
+    select 78.00, 244.00, 246.00, 178.00, 179.00 union all
+    select 76.00, 240.00, 242.00, 175.00, 176.00 union all
+    select 74.00, 236.00, 238.00, 172.00, 173.00 union all
+    select 72.00, 232.00, 234.00, 169.00, 170.00 union all
+    select 70.00, 228.00, 230.00, 166.00, 167.00 union all
+    select 68.00, 224.00, 226.00, 163.00, 164.00 union all
+    select 66.00, 220.00, 222.00, 160.00, 161.00 union all
+    select 64.00, 216.00, 218.00, 157.00, 158.00 union all
+    select 62.00, 212.00, 214.00, 154.00, 155.00 union all
+    select 60.00, 208.00, 210.00, 151.00, 152.00 union all
+    select 50.00, 203.00, 205.00, 146.00, 147.00 union all
+    select 40.00, 198.00, 200.00, 141.00, 142.00 union all
+    select 30.00, 193.00, 195.00, 136.00, 137.00 union all
+    select 20.00, 188.00, 190.00, 131.00, 132.00 union all
+    select 10.00, 183.00, 185.00, 126.00, 127.00
+) standing_long_jump
+union all
+select 'STANDING_LONG_JUMP', 'female', 'freshman_sophomore', score, female_fs, 1.00, 'HIGHER_BETTER' from (
+    select 100.00 as score, 273.00 as male_fs, 275.00 as male_js, 207.00 as female_fs, 208.00 as female_js union all
+    select 95.00, 268.00, 270.00, 201.00, 202.00 union all
+    select 90.00, 263.00, 265.00, 195.00, 196.00 union all
+    select 85.00, 256.00, 258.00, 188.00, 189.00 union all
+    select 80.00, 248.00, 250.00, 181.00, 182.00 union all
+    select 78.00, 244.00, 246.00, 178.00, 179.00 union all
+    select 76.00, 240.00, 242.00, 175.00, 176.00 union all
+    select 74.00, 236.00, 238.00, 172.00, 173.00 union all
+    select 72.00, 232.00, 234.00, 169.00, 170.00 union all
+    select 70.00, 228.00, 230.00, 166.00, 167.00 union all
+    select 68.00, 224.00, 226.00, 163.00, 164.00 union all
+    select 66.00, 220.00, 222.00, 160.00, 161.00 union all
+    select 64.00, 216.00, 218.00, 157.00, 158.00 union all
+    select 62.00, 212.00, 214.00, 154.00, 155.00 union all
+    select 60.00, 208.00, 210.00, 151.00, 152.00 union all
+    select 50.00, 203.00, 205.00, 146.00, 147.00 union all
+    select 40.00, 198.00, 200.00, 141.00, 142.00 union all
+    select 30.00, 193.00, 195.00, 136.00, 137.00 union all
+    select 20.00, 188.00, 190.00, 131.00, 132.00 union all
+    select 10.00, 183.00, 185.00, 126.00, 127.00
+) standing_long_jump
+union all
+select 'STANDING_LONG_JUMP', 'female', 'junior_senior', score, female_js, 1.00, 'HIGHER_BETTER' from (
+    select 100.00 as score, 273.00 as male_fs, 275.00 as male_js, 207.00 as female_fs, 208.00 as female_js union all
+    select 95.00, 268.00, 270.00, 201.00, 202.00 union all
+    select 90.00, 263.00, 265.00, 195.00, 196.00 union all
+    select 85.00, 256.00, 258.00, 188.00, 189.00 union all
+    select 80.00, 248.00, 250.00, 181.00, 182.00 union all
+    select 78.00, 244.00, 246.00, 178.00, 179.00 union all
+    select 76.00, 240.00, 242.00, 175.00, 176.00 union all
+    select 74.00, 236.00, 238.00, 172.00, 173.00 union all
+    select 72.00, 232.00, 234.00, 169.00, 170.00 union all
+    select 70.00, 228.00, 230.00, 166.00, 167.00 union all
+    select 68.00, 224.00, 226.00, 163.00, 164.00 union all
+    select 66.00, 220.00, 222.00, 160.00, 161.00 union all
+    select 64.00, 216.00, 218.00, 157.00, 158.00 union all
+    select 62.00, 212.00, 214.00, 154.00, 155.00 union all
+    select 60.00, 208.00, 210.00, 151.00, 152.00 union all
+    select 50.00, 203.00, 205.00, 146.00, 147.00 union all
+    select 40.00, 198.00, 200.00, 141.00, 142.00 union all
+    select 30.00, 193.00, 195.00, 136.00, 137.00 union all
+    select 20.00, 188.00, 190.00, 131.00, 132.00 union all
+    select 10.00, 183.00, 185.00, 126.00, 127.00
+) standing_long_jump;
+
+insert into tmp_assessment_rule_source (itemCode, gender, gradeGroup, score, thresholdValue, unitStep, direction)
+select 'UPPER_BODY_OR_CORE', 'male', 'freshman_sophomore', score, fs, 1.00, 'HIGHER_BETTER' from (
+    select 100.00 as score, 19.00 as fs, 20.00 as js union all
+    select 95.00, 18.00, 19.00 union all
+    select 90.00, 17.00, 18.00 union all
+    select 85.00, 16.00, 17.00 union all
+    select 80.00, 15.00, 16.00 union all
+    select 76.00, 14.00, 15.00 union all
+    select 72.00, 13.00, 14.00 union all
+    select 68.00, 12.00, 13.00 union all
+    select 64.00, 11.00, 12.00 union all
+    select 60.00, 10.00, 11.00 union all
+    select 50.00, 9.00, 10.00 union all
+    select 40.00, 8.00, 9.00 union all
+    select 30.00, 7.00, 8.00 union all
+    select 20.00, 6.00, 7.00 union all
+    select 10.00, 5.00, 6.00
+) male_pull_up
+union all
+select 'UPPER_BODY_OR_CORE', 'male', 'junior_senior', score, js, 1.00, 'HIGHER_BETTER' from (
+    select 100.00 as score, 19.00 as fs, 20.00 as js union all
+    select 95.00, 18.00, 19.00 union all
+    select 90.00, 17.00, 18.00 union all
+    select 85.00, 16.00, 17.00 union all
+    select 80.00, 15.00, 16.00 union all
+    select 76.00, 14.00, 15.00 union all
+    select 72.00, 13.00, 14.00 union all
+    select 68.00, 12.00, 13.00 union all
+    select 64.00, 11.00, 12.00 union all
+    select 60.00, 10.00, 11.00 union all
+    select 50.00, 9.00, 10.00 union all
+    select 40.00, 8.00, 9.00 union all
+    select 30.00, 7.00, 8.00 union all
+    select 20.00, 6.00, 7.00 union all
+    select 10.00, 5.00, 6.00
+) male_pull_up;
+
+insert into tmp_assessment_rule_source (itemCode, gender, gradeGroup, score, thresholdValue, unitStep, direction)
+select 'UPPER_BODY_OR_CORE', 'female', 'freshman_sophomore', score, fs, 1.00, 'HIGHER_BETTER' from (
+    select 100.00 as score, 56.00 as fs, 57.00 as js union all
+    select 95.00, 54.00, 55.00 union all
+    select 90.00, 52.00, 53.00 union all
+    select 85.00, 49.00, 50.00 union all
+    select 80.00, 46.00, 47.00 union all
+    select 78.00, 44.00, 45.00 union all
+    select 76.00, 42.00, 43.00 union all
+    select 74.00, 40.00, 41.00 union all
+    select 72.00, 38.00, 39.00 union all
+    select 70.00, 36.00, 37.00 union all
+    select 68.00, 34.00, 35.00 union all
+    select 66.00, 32.00, 33.00 union all
+    select 64.00, 30.00, 31.00 union all
+    select 62.00, 28.00, 29.00 union all
+    select 60.00, 26.00, 27.00 union all
+    select 50.00, 24.00, 25.00 union all
+    select 40.00, 22.00, 23.00 union all
+    select 30.00, 20.00, 21.00 union all
+    select 20.00, 18.00, 19.00 union all
+    select 10.00, 16.00, 17.00
+) female_sit_up
+union all
+select 'UPPER_BODY_OR_CORE', 'female', 'junior_senior', score, js, 1.00, 'HIGHER_BETTER' from (
+    select 100.00 as score, 56.00 as fs, 57.00 as js union all
+    select 95.00, 54.00, 55.00 union all
+    select 90.00, 52.00, 53.00 union all
+    select 85.00, 49.00, 50.00 union all
+    select 80.00, 46.00, 47.00 union all
+    select 78.00, 44.00, 45.00 union all
+    select 76.00, 42.00, 43.00 union all
+    select 74.00, 40.00, 41.00 union all
+    select 72.00, 38.00, 39.00 union all
+    select 70.00, 36.00, 37.00 union all
+    select 68.00, 34.00, 35.00 union all
+    select 66.00, 32.00, 33.00 union all
+    select 64.00, 30.00, 31.00 union all
+    select 62.00, 28.00, 29.00 union all
+    select 60.00, 26.00, 27.00 union all
+    select 50.00, 24.00, 25.00 union all
+    select 40.00, 22.00, 23.00 union all
+    select 30.00, 20.00, 21.00 union all
+    select 20.00, 18.00, 19.00 union all
+    select 10.00, 16.00, 17.00
+) female_sit_up;
+
+insert into tmp_assessment_rule_source (itemCode, gender, gradeGroup, score, thresholdValue, unitStep, direction)
+select 'UPPER_BODY_OR_CORE', 'male', 'freshman_sophomore', score, fs, 1.00, 'HIGHER_BETTER' from (
+    select 101.00 as score, 20.00 as fs, 21.00 as js union all
+    select 102.00, 21.00, 22.00 union all
+    select 103.00, 22.00, 23.00 union all
+    select 104.00, 23.00, 24.00 union all
+    select 105.00, 24.00, 25.00 union all
+    select 106.00, 25.00, 26.00 union all
+    select 107.00, 26.00, 27.00 union all
+    select 108.00, 27.00, 28.00 union all
+    select 109.00, 28.00, 29.00 union all
+    select 110.00, 29.00, 30.00
+) male_pull_up_bonus
+union all
+select 'UPPER_BODY_OR_CORE', 'male', 'junior_senior', score, js, 1.00, 'HIGHER_BETTER' from (
+    select 101.00 as score, 20.00 as fs, 21.00 as js union all
+    select 102.00, 21.00, 22.00 union all
+    select 103.00, 22.00, 23.00 union all
+    select 104.00, 23.00, 24.00 union all
+    select 105.00, 24.00, 25.00 union all
+    select 106.00, 25.00, 26.00 union all
+    select 107.00, 26.00, 27.00 union all
+    select 108.00, 27.00, 28.00 union all
+    select 109.00, 28.00, 29.00 union all
+    select 110.00, 29.00, 30.00
+) male_pull_up_bonus;
+
+insert into tmp_assessment_rule_source (itemCode, gender, gradeGroup, score, thresholdValue, unitStep, direction)
+select 'UPPER_BODY_OR_CORE', 'female', 'freshman_sophomore', score, fs, 1.00, 'HIGHER_BETTER' from (
+    select 101.00 as score, 58.00 as fs, 59.00 as js union all
+    select 102.00, 60.00, 61.00 union all
+    select 103.00, 62.00, 63.00 union all
+    select 104.00, 63.00, 64.00 union all
+    select 105.00, 64.00, 65.00 union all
+    select 106.00, 65.00, 66.00 union all
+    select 107.00, 66.00, 67.00 union all
+    select 108.00, 67.00, 68.00 union all
+    select 109.00, 68.00, 69.00 union all
+    select 110.00, 69.00, 70.00
+) female_sit_up_bonus
+union all
+select 'UPPER_BODY_OR_CORE', 'female', 'junior_senior', score, js, 1.00, 'HIGHER_BETTER' from (
+    select 101.00 as score, 58.00 as fs, 59.00 as js union all
+    select 102.00, 60.00, 61.00 union all
+    select 103.00, 62.00, 63.00 union all
+    select 104.00, 63.00, 64.00 union all
+    select 105.00, 64.00, 65.00 union all
+    select 106.00, 65.00, 66.00 union all
+    select 107.00, 66.00, 67.00 union all
+    select 108.00, 67.00, 68.00 union all
+    select 109.00, 68.00, 69.00 union all
+    select 110.00, 69.00, 70.00
+) female_sit_up_bonus;
+
+insert into tmp_assessment_rule_source (itemCode, gender, gradeGroup, score, thresholdValue, unitStep, direction)
+select 'ENDURANCE_RUN', 'male', 'freshman_sophomore', score, male_fs, 1.00, 'LOWER_BETTER' from (
+    select 100.00 as score, 197.00 as male_fs, 195.00 as male_js, 198.00 as female_fs, 196.00 as female_js union all
+    select 95.00, 202.00, 200.00, 204.00, 202.00 union all
+    select 90.00, 207.00, 205.00, 210.00, 208.00 union all
+    select 85.00, 214.00, 212.00, 217.00, 215.00 union all
+    select 80.00, 222.00, 220.00, 224.00, 222.00 union all
+    select 78.00, 227.00, 225.00, 229.00, 227.00 union all
+    select 76.00, 232.00, 230.00, 234.00, 232.00 union all
+    select 74.00, 237.00, 235.00, 239.00, 237.00 union all
+    select 72.00, 242.00, 240.00, 244.00, 242.00 union all
+    select 70.00, 247.00, 245.00, 249.00, 247.00 union all
+    select 68.00, 252.00, 250.00, 254.00, 252.00 union all
+    select 66.00, 257.00, 255.00, 259.00, 257.00 union all
+    select 64.00, 262.00, 260.00, 264.00, 262.00 union all
+    select 62.00, 267.00, 265.00, 269.00, 267.00 union all
+    select 60.00, 272.00, 270.00, 274.00, 272.00 union all
+    select 50.00, 292.00, 290.00, 284.00, 282.00 union all
+    select 40.00, 312.00, 310.00, 294.00, 292.00 union all
+    select 30.00, 332.00, 330.00, 304.00, 302.00 union all
+    select 20.00, 352.00, 350.00, 314.00, 312.00 union all
+    select 10.00, 372.00, 370.00, 324.00, 322.00
+) endurance_run
+union all
+select 'ENDURANCE_RUN', 'male', 'junior_senior', score, male_js, 1.00, 'LOWER_BETTER' from (
+    select 100.00 as score, 197.00 as male_fs, 195.00 as male_js, 198.00 as female_fs, 196.00 as female_js union all
+    select 95.00, 202.00, 200.00, 204.00, 202.00 union all
+    select 90.00, 207.00, 205.00, 210.00, 208.00 union all
+    select 85.00, 214.00, 212.00, 217.00, 215.00 union all
+    select 80.00, 222.00, 220.00, 224.00, 222.00 union all
+    select 78.00, 227.00, 225.00, 229.00, 227.00 union all
+    select 76.00, 232.00, 230.00, 234.00, 232.00 union all
+    select 74.00, 237.00, 235.00, 239.00, 237.00 union all
+    select 72.00, 242.00, 240.00, 244.00, 242.00 union all
+    select 70.00, 247.00, 245.00, 249.00, 247.00 union all
+    select 68.00, 252.00, 250.00, 254.00, 252.00 union all
+    select 66.00, 257.00, 255.00, 259.00, 257.00 union all
+    select 64.00, 262.00, 260.00, 264.00, 262.00 union all
+    select 62.00, 267.00, 265.00, 269.00, 267.00 union all
+    select 60.00, 272.00, 270.00, 274.00, 272.00 union all
+    select 50.00, 292.00, 290.00, 284.00, 282.00 union all
+    select 40.00, 312.00, 310.00, 294.00, 292.00 union all
+    select 30.00, 332.00, 330.00, 304.00, 302.00 union all
+    select 20.00, 352.00, 350.00, 314.00, 312.00 union all
+    select 10.00, 372.00, 370.00, 324.00, 322.00
+) endurance_run
+union all
+select 'ENDURANCE_RUN', 'female', 'freshman_sophomore', score, female_fs, 1.00, 'LOWER_BETTER' from (
+    select 100.00 as score, 197.00 as male_fs, 195.00 as male_js, 198.00 as female_fs, 196.00 as female_js union all
+    select 95.00, 202.00, 200.00, 204.00, 202.00 union all
+    select 90.00, 207.00, 205.00, 210.00, 208.00 union all
+    select 85.00, 214.00, 212.00, 217.00, 215.00 union all
+    select 80.00, 222.00, 220.00, 224.00, 222.00 union all
+    select 78.00, 227.00, 225.00, 229.00, 227.00 union all
+    select 76.00, 232.00, 230.00, 234.00, 232.00 union all
+    select 74.00, 237.00, 235.00, 239.00, 237.00 union all
+    select 72.00, 242.00, 240.00, 244.00, 242.00 union all
+    select 70.00, 247.00, 245.00, 249.00, 247.00 union all
+    select 68.00, 252.00, 250.00, 254.00, 252.00 union all
+    select 66.00, 257.00, 255.00, 259.00, 257.00 union all
+    select 64.00, 262.00, 260.00, 264.00, 262.00 union all
+    select 62.00, 267.00, 265.00, 269.00, 267.00 union all
+    select 60.00, 272.00, 270.00, 274.00, 272.00 union all
+    select 50.00, 292.00, 290.00, 284.00, 282.00 union all
+    select 40.00, 312.00, 310.00, 294.00, 292.00 union all
+    select 30.00, 332.00, 330.00, 304.00, 302.00 union all
+    select 20.00, 352.00, 350.00, 314.00, 312.00 union all
+    select 10.00, 372.00, 370.00, 324.00, 322.00
+) endurance_run
+union all
+select 'ENDURANCE_RUN', 'female', 'junior_senior', score, female_js, 1.00, 'LOWER_BETTER' from (
+    select 100.00 as score, 197.00 as male_fs, 195.00 as male_js, 198.00 as female_fs, 196.00 as female_js union all
+    select 95.00, 202.00, 200.00, 204.00, 202.00 union all
+    select 90.00, 207.00, 205.00, 210.00, 208.00 union all
+    select 85.00, 214.00, 212.00, 217.00, 215.00 union all
+    select 80.00, 222.00, 220.00, 224.00, 222.00 union all
+    select 78.00, 227.00, 225.00, 229.00, 227.00 union all
+    select 76.00, 232.00, 230.00, 234.00, 232.00 union all
+    select 74.00, 237.00, 235.00, 239.00, 237.00 union all
+    select 72.00, 242.00, 240.00, 244.00, 242.00 union all
+    select 70.00, 247.00, 245.00, 249.00, 247.00 union all
+    select 68.00, 252.00, 250.00, 254.00, 252.00 union all
+    select 66.00, 257.00, 255.00, 259.00, 257.00 union all
+    select 64.00, 262.00, 260.00, 264.00, 262.00 union all
+    select 62.00, 267.00, 265.00, 269.00, 267.00 union all
+    select 60.00, 272.00, 270.00, 274.00, 272.00 union all
+    select 50.00, 292.00, 290.00, 284.00, 282.00 union all
+    select 40.00, 312.00, 310.00, 294.00, 292.00 union all
+    select 30.00, 332.00, 330.00, 304.00, 302.00 union all
+    select 20.00, 352.00, 350.00, 314.00, 312.00 union all
+    select 10.00, 372.00, 370.00, 324.00, 322.00
+) endurance_run;
+
+insert into tmp_assessment_rule_source (itemCode, gender, gradeGroup, score, thresholdValue, unitStep, direction)
+select 'ENDURANCE_RUN', 'male', 'freshman_sophomore', score, male_fs, 1.00, 'LOWER_BETTER' from (
+    select 101.00 as score, 193.00 as male_fs, 191.00 as male_js, 193.00 as female_fs, 191.00 as female_js union all
+    select 102.00, 189.00, 187.00, 188.00, 186.00 union all
+    select 103.00, 185.00, 183.00, 183.00, 181.00 union all
+    select 104.00, 181.00, 179.00, 178.00, 176.00 union all
+    select 105.00, 177.00, 175.00, 173.00, 171.00 union all
+    select 106.00, 174.00, 172.00, 168.00, 166.00 union all
+    select 107.00, 171.00, 169.00, 163.00, 161.00 union all
+    select 108.00, 168.00, 166.00, 158.00, 156.00 union all
+    select 109.00, 165.00, 163.00, 153.00, 151.00 union all
+    select 110.00, 162.00, 160.00, 148.00, 146.00
+) endurance_bonus
+union all
+select 'ENDURANCE_RUN', 'male', 'junior_senior', score, male_js, 1.00, 'LOWER_BETTER' from (
+    select 101.00 as score, 193.00 as male_fs, 191.00 as male_js, 193.00 as female_fs, 191.00 as female_js union all
+    select 102.00, 189.00, 187.00, 188.00, 186.00 union all
+    select 103.00, 185.00, 183.00, 183.00, 181.00 union all
+    select 104.00, 181.00, 179.00, 178.00, 176.00 union all
+    select 105.00, 177.00, 175.00, 173.00, 171.00 union all
+    select 106.00, 174.00, 172.00, 168.00, 166.00 union all
+    select 107.00, 171.00, 169.00, 163.00, 161.00 union all
+    select 108.00, 168.00, 166.00, 158.00, 156.00 union all
+    select 109.00, 165.00, 163.00, 153.00, 151.00 union all
+    select 110.00, 162.00, 160.00, 148.00, 146.00
+) endurance_bonus
+union all
+select 'ENDURANCE_RUN', 'female', 'freshman_sophomore', score, female_fs, 1.00, 'LOWER_BETTER' from (
+    select 101.00 as score, 193.00 as male_fs, 191.00 as male_js, 193.00 as female_fs, 191.00 as female_js union all
+    select 102.00, 189.00, 187.00, 188.00, 186.00 union all
+    select 103.00, 185.00, 183.00, 183.00, 181.00 union all
+    select 104.00, 181.00, 179.00, 178.00, 176.00 union all
+    select 105.00, 177.00, 175.00, 173.00, 171.00 union all
+    select 106.00, 174.00, 172.00, 168.00, 166.00 union all
+    select 107.00, 171.00, 169.00, 163.00, 161.00 union all
+    select 108.00, 168.00, 166.00, 158.00, 156.00 union all
+    select 109.00, 165.00, 163.00, 153.00, 151.00 union all
+    select 110.00, 162.00, 160.00, 148.00, 146.00
+) endurance_bonus
+union all
+select 'ENDURANCE_RUN', 'female', 'junior_senior', score, female_js, 1.00, 'LOWER_BETTER' from (
+    select 101.00 as score, 193.00 as male_fs, 191.00 as male_js, 193.00 as female_fs, 191.00 as female_js union all
+    select 102.00, 189.00, 187.00, 188.00, 186.00 union all
+    select 103.00, 185.00, 183.00, 183.00, 181.00 union all
+    select 104.00, 181.00, 179.00, 178.00, 176.00 union all
+    select 105.00, 177.00, 175.00, 173.00, 171.00 union all
+    select 106.00, 174.00, 172.00, 168.00, 166.00 union all
+    select 107.00, 171.00, 169.00, 163.00, 161.00 union all
+    select 108.00, 168.00, 166.00, 158.00, 156.00 union all
+    select 109.00, 165.00, 163.00, 153.00, 151.00 union all
+    select 110.00, 162.00, 160.00, 148.00, 146.00
+) endurance_bonus;
+
+-- ============================================================
+-- Generate interval rules for higher-better items
+-- ============================================================
+insert into assessment_rule
+(
+    schemeCode,
+    itemCode,
+    gender,
+    gradeGroup,
+    score,
+    minValue,
+    `maxValue`,
+    comparisonType,
+    ruleVersion,
+    sortOrder,
+    description
+)
+select
+    @scheme_code,
+    itemCode,
+    gender,
+    gradeGroup,
+    score,
+    cast(thresholdValue as decimal(10, 2)),
+    cast(case when prev_threshold is null then null else prev_threshold - unitStep end as decimal(10, 2)),
+    'RANGE',
+    @rule_version,
+    sort_order,
+    null
+from (
+    select
+        itemCode,
+        gender,
+        gradeGroup,
+        score,
+        thresholdValue,
+        unitStep,
+        lag(thresholdValue) over (
+            partition by itemCode, gender, gradeGroup
+            order by score desc
+        ) as prev_threshold,
+        row_number() over (
+            partition by itemCode, gender, gradeGroup
+            order by score desc
+        ) as sort_order
+    from tmp_assessment_rule_source
+    where direction = 'HIGHER_BETTER'
+) higher_rules;
+
+insert into assessment_rule
+(
+    schemeCode,
+    itemCode,
+    gender,
+    gradeGroup,
+    score,
+    minValue,
+    `maxValue`,
+    comparisonType,
+    ruleVersion,
+    sortOrder,
+    description
+)
+select
+    @scheme_code,
+    itemCode,
+    gender,
+    gradeGroup,
+    0.00,
+    null,
+    cast(thresholdValue - unitStep as decimal(10, 2)),
+    'RANGE',
+    @rule_version,
+    rule_count + 1,
+    'auto generated 0-point interval'
+from (
+    select
+        itemCode,
+        gender,
+        gradeGroup,
+        thresholdValue,
+        unitStep,
+        row_number() over (
+            partition by itemCode, gender, gradeGroup
+            order by score asc
+        ) as rn,
+        count(*) over (
+            partition by itemCode, gender, gradeGroup
+        ) as rule_count
+    from tmp_assessment_rule_source
+    where direction = 'HIGHER_BETTER'
+) higher_zero_rules
+where rn = 1;
+
+-- ============================================================
+-- Generate interval rules for lower-better items
+-- ============================================================
+insert into assessment_rule
+(
+    schemeCode,
+    itemCode,
+    gender,
+    gradeGroup,
+    score,
+    minValue,
+    `maxValue`,
+    comparisonType,
+    ruleVersion,
+    sortOrder,
+    description
+)
+select
+    @scheme_code,
+    itemCode,
+    gender,
+    gradeGroup,
+    score,
+    cast(case when prev_threshold is null then null else prev_threshold + unitStep end as decimal(10, 2)),
+    cast(thresholdValue as decimal(10, 2)),
+    'RANGE',
+    @rule_version,
+    sort_order,
+    null
+from (
+    select
+        itemCode,
+        gender,
+        gradeGroup,
+        score,
+        thresholdValue,
+        unitStep,
+        lag(thresholdValue) over (
+            partition by itemCode, gender, gradeGroup
+            order by score desc
+        ) as prev_threshold,
+        row_number() over (
+            partition by itemCode, gender, gradeGroup
+            order by score desc
+        ) as sort_order
+    from tmp_assessment_rule_source
+    where direction = 'LOWER_BETTER'
+) lower_rules;
+
+insert into assessment_rule
+(
+    schemeCode,
+    itemCode,
+    gender,
+    gradeGroup,
+    score,
+    minValue,
+    `maxValue`,
+    comparisonType,
+    ruleVersion,
+    sortOrder,
+    description
+)
+select
+    @scheme_code,
+    itemCode,
+    gender,
+    gradeGroup,
+    0.00,
+    cast(thresholdValue + unitStep as decimal(10, 2)),
+    null,
+    'RANGE',
+    @rule_version,
+    rule_count + 1,
+    'auto generated 0-point interval'
+from (
+    select
+        itemCode,
+        gender,
+        gradeGroup,
+        thresholdValue,
+        unitStep,
+        row_number() over (
+            partition by itemCode, gender, gradeGroup
+            order by score asc
+        ) as rn,
+        count(*) over (
+            partition by itemCode, gender, gradeGroup
+        ) as rule_count
+    from tmp_assessment_rule_source
+    where direction = 'LOWER_BETTER'
+) lower_zero_rules
+where rn = 1;
+
+drop temporary table if exists tmp_assessment_rule_source;
+
+commit;
+
+-- ============================================================
+-- 初始化成功校验 SQL
+-- ============================================================
+use mq_ai_agent;
+
+select count(*) as assessmentSchemeCount
+from assessment_scheme
+where schemeCode = 'CN_UNIVERSITY_PHYSICAL_HEALTH_STANDARD'
+  and isDelete = 0;
+
+select count(*) as assessmentSchemeItemCount
+from assessment_scheme_item
+where schemeCode = 'CN_UNIVERSITY_PHYSICAL_HEALTH_STANDARD'
+  and isDelete = 0;
+
+select count(*) as assessmentRuleCount
+from assessment_rule
+where schemeCode = 'CN_UNIVERSITY_PHYSICAL_HEALTH_STANDARD'
+  and ruleVersion = 'v1'
+  and isDelete = 0;
+
+-- 预期结果：
+-- assessmentSchemeCount = 1
+-- assessmentSchemeItemCount = 7
+-- assessmentRuleCount = 582
+
+-- ============================================================
 -- 初始化完成提示
 -- ============================================================
-SELECT '数据库初始化完成！' AS message;
-SELECT CONCAT('共创建 ', COUNT(DISTINCT TABLE_NAME), ' 张表') AS table_count 
-FROM information_schema.TABLES 
-WHERE TABLE_SCHEMA = 'mq_ai_agent';
+select '数据库初始化完成（已包含 assessment 模块）' as message;
+select concat('共创建 ', count(distinct table_name), ' 张表') as table_count
+from information_schema.tables
+where table_schema = 'mq_ai_agent';

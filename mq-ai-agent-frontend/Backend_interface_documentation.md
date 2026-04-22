@@ -472,6 +472,41 @@
 ```
 
 
+# assessment-controller（manual supplement）
+
+> 当前仓库已经新增 `assessment` 标准化评测模块，这里补充一组便于开源阅读的接口清单。  
+> 实际字段定义请以 Swagger / knife4j 页面为准。
+
+## 核心能力
+
+- 评测方案查询
+- 用户评测画像保存 / 查询
+- 体测记录新增 / 查询 / 更新 / 删除
+- 体测趋势查询
+- 体测报告生成 / 查询
+
+## 主要接口
+
+| 接口 | 方法 | 说明 |
+|------|------|------|
+| `/api/assessment/scheme/get` | `GET` | 获取评测方案详情 |
+| `/api/assessment/profile/my/get` | `GET` | 获取当前用户评测画像 |
+| `/api/assessment/profile/save` | `POST` | 保存当前用户评测画像 |
+| `/api/assessment/record/add` | `POST` | 新增体测记录并触发评分 |
+| `/api/assessment/record/update` | `POST` | 编辑已有体测记录并重新评分 |
+| `/api/assessment/record/delete` | `POST` | 删除体测记录，同时清理对应报告 |
+| `/api/assessment/record/my/get` | `GET` | 获取单条体测记录详情 |
+| `/api/assessment/record/my/list/page` | `POST` | 分页获取体测记录 |
+| `/api/assessment/record/my/trends` | `GET` | 获取体测总分趋势 |
+| `/api/assessment/report/generate` | `POST` | 生成或重生成体测 AI 报告 |
+| `/api/assessment/report/my/get` | `GET` | 获取指定记录的体测报告 |
+
+## 典型前端页面
+
+- `/assessment/entry`：体测数据录入与编辑
+- `/assessment`：体测报告、记录列表、编辑与删除
+
+
 ## getChatHistoryDetail
 
 

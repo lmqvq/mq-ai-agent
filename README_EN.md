@@ -111,6 +111,30 @@ Integrate **Large Language Models**, **RAG Knowledge Base**, **Tool Calling**, a
 
 ---
 
+## 🧪 Standardized Assessment Module
+
+The project now includes a built-in `assessment` module, with **Chinese university physical health testing** as the first official landing scenario.
+
+Current capabilities include:
+
+- Core university physical test items: `BMI`, `Lung Capacity`, `50m Sprint`, `Sit and Reach`, `Standing Long Jump`, `Pull-up / Sit-up`, `1000m / 800m Run`
+- Full lifecycle support for assessment profile, record, item details, and report
+- Rule-based scoring engine + AI-powered personalized suggestions
+- Frontend entry page: `/assessment/entry`
+- Frontend report page: `/assessment`
+- Record create, query, edit, delete, trend analysis, and AI regeneration
+
+Key assessment-related files:
+
+- `src/main/java/com/mq/mqaiagent/assessment/`
+- `mq-ai-agent-frontend/src/views/AssessmentEntry.vue`
+- `mq-ai-agent-frontend/src/views/AssessmentReport.vue`
+- `sql/assessment_tables.sql`
+- `sql/assessment_university_standard_seed.sql`
+- `sql/assessment_university_standard_rules.sql`
+
+---
+
 ## 📸 Screenshots
 
 <details open>
@@ -225,6 +249,12 @@ mq-ai-agent/
 │   │   └── MqManus.java           #    Multi-functional Agent Instance
 │   ├── 📂 app/                    # 💪 Fitness Application
 │   │   └── KeepApp.java           #    AI Fitness Coach
+│   ├── 📂 assessment/             # 🧪 Standardized Assessment Module
+│   │   ├── controller/            #    scheme / profile / record / report APIs
+│   │   ├── service/               #    assessment business orchestration
+│   │   ├── engine/                #    rule-based scoring engine
+│   │   ├── mapper/                #    data access layer
+│   │   └── model/                 #    entity / dto / vo
 │   ├── 📂 tools/                  # 🔧 Tool Set (7 tools)
 │   ├── 📂 rag/                    # 📚 RAG Knowledge Base Config
 │   ├── 📂 chatmemory/             # 🧠 Chat Memory (MySQL + Redis)
@@ -236,6 +266,9 @@ mq-ai-agent/
 │   ├── 📂 service/                # ⚙️ Business Services
 │   └── 📂 config/                 # ⚙️ Configuration
 ├── 📂 mq-ai-agent-frontend/       # 🎨 Vue 3 Frontend
+│   ├── 📂 src/views/              #    view pages (including assessment pages)
+│   │   ├── AssessmentEntry.vue    #    assessment entry / edit
+│   │   └── AssessmentReport.vue   #    assessment report / record list
 │   ├── 📂 src/components/         #    Components
 │   │   └── ToolCallCard.vue       #    Tool Call Card Component
 │   └── 📂 src/services/           #    API Services
@@ -243,6 +276,9 @@ mq-ai-agent/
 ├── 📂 sql/                        # 🗃️ Database Scripts
 │   ├── init_all.sql               #    Complete init script (Recommended)
 │   ├── create_table.sql           #    Basic business tables
+│   ├── assessment_tables.sql      #    assessment module schema
+│   ├── assessment_university_standard_seed.sql   # assessment scheme and item seed
+│   ├── assessment_university_standard_rules.sql  # assessment scoring rules
 │   ├── fitness_knowledge_tables.sql #  Fitness knowledge tables
 │   └── knowledge_init_data.sql    #    Knowledge test data
 ├── 📂 docs/                       # 📄 Documentation
@@ -283,7 +319,40 @@ mysql -u root -p < sql/init_all.sql
 mvn spring-boot:run
 ```
 
-> 📦 **Database Note**: `sql/init_all.sql` contains complete schema for 10 tables with test data. Run once to complete initialization.
+> 📦 **Database Note**:
+> - `sql/init_all.sql` now fully includes the base business tables, knowledge-base tables, and the `assessment` module schema, seed data, and scoring rules
+> - by default, other developers only need to run this single `init_all.sql` script to initialize the database
+> - `assessment_tables.sql`, `assessment_university_standard_seed.sql`, and `assessment_university_standard_rules.sql` are still kept in the repository for modular maintenance and debugging
+
+### 2.4 Validation SQL
+
+After initialization, you can run the following SQL to verify that the assessment data is complete:
+
+```sql
+use mq_ai_agent;
+
+select count(*) as assessmentSchemeCount
+from assessment_scheme
+where schemeCode = 'CN_UNIVERSITY_PHYSICAL_HEALTH_STANDARD'
+  and isDelete = 0;
+
+select count(*) as assessmentSchemeItemCount
+from assessment_scheme_item
+where schemeCode = 'CN_UNIVERSITY_PHYSICAL_HEALTH_STANDARD'
+  and isDelete = 0;
+
+select count(*) as assessmentRuleCount
+from assessment_rule
+where schemeCode = 'CN_UNIVERSITY_PHYSICAL_HEALTH_STANDARD'
+  and ruleVersion = 'v1'
+  and isDelete = 0;
+```
+
+Expected results:
+
+- `assessmentSchemeCount = 1`
+- `assessmentSchemeItemCount = 7`
+- `assessmentRuleCount = 582`
 
 ### 3. Start Frontend
 

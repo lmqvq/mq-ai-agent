@@ -109,6 +109,30 @@
 
 ---
 
+## 🧪 标准化评测模块（Assessment）
+
+项目当前已内置 `assessment` 标准化评测模块，并以“大学生体测”作为第一套官方落地方案。
+
+当前已支持：
+
+- 大学生体测核心项目：`BMI`、`肺活量`、`50米跑`、`坐位体前屈`、`立定跳远`、`引体向上 / 仰卧起坐`、`1000米跑 / 800米跑`
+- 评测画像、评测记录、评测明细、评测报告完整闭环
+- 规则评分引擎 + AI 个性化建议
+- 前端录入页 `/assessment/entry`
+- 前端报告页 `/assessment`
+- 记录新增、查看、编辑、删除、趋势分析、AI 重新生成
+
+assessment 相关核心文件：
+
+- `src/main/java/com/mq/mqaiagent/assessment/`
+- `mq-ai-agent-frontend/src/views/AssessmentEntry.vue`
+- `mq-ai-agent-frontend/src/views/AssessmentReport.vue`
+- `sql/assessment_tables.sql`
+- `sql/assessment_university_standard_seed.sql`
+- `sql/assessment_university_standard_rules.sql`
+
+---
+
 ## 📸 功能截图
 
 <details open>
@@ -238,6 +262,12 @@ mq-ai-agent/
 │   │   └── MqManus.java           #    多功能智能体实例
 │   ├── 📂 app/                    # 💪 健身应用
 │   │   └── KeepApp.java           #    AI 健身教练（对话/RAG/缓存/流式）
+│   ├── 📂 assessment/             # 🧪 标准化评测模块
+│   │   ├── controller/            #    评测接口（scheme / profile / record / report）
+│   │   ├── service/               #    评测业务编排
+│   │   ├── engine/                #    规则评分引擎
+│   │   ├── mapper/                #    评测数据访问层
+│   │   └── model/                 #    entity / dto / vo
 │   ├── 📂 tools/                  # 🔧 工具集（7 种）
 │   │   ├── FileOperationTool.java
 │   │   ├── WebSearchTool.java
@@ -258,7 +288,9 @@ mq-ai-agent/
 │   ├── 📂 pool/                   # 🏊 ChatClient 对象池
 │   └── 📂 config/                 # ⚙️ 配置类
 ├── 📂 mq-ai-agent-frontend/       # 🎨 Vue 3 前端项目
-│   ├── 📂 src/views/              #    页面组件（11 个页面）
+│   ├── 📂 src/views/              #    页面组件（含 assessment 页面）
+│   │   ├── AssessmentEntry.vue    #    体测数据录入 / 编辑
+│   │   └── AssessmentReport.vue   #    体测报告 / 记录列表
 │   ├── 📂 src/components/         #    公共组件
 │   │   └── ToolCallCard.vue       #    工具调用卡片组件
 │   ├── 📂 src/services/           #    API 服务
@@ -267,6 +299,9 @@ mq-ai-agent/
 ├── 📂 sql/                        # 🗃️ 数据库脚本
 │   ├── init_all.sql               #    完整初始化脚本（推荐）
 │   ├── create_table.sql           #    基础业务表
+│   ├── assessment_tables.sql      #    assessment 模块表结构
+│   ├── assessment_university_standard_seed.sql   # assessment 方案与项目种子
+│   ├── assessment_university_standard_rules.sql  # assessment 评分规则
 │   ├── fitness_knowledge_tables.sql #  健身知识表
 │   └── knowledge_init_data.sql    #    知识库测试数据
 ├── 📂 docs/                       # 📄 开发文档
@@ -307,7 +342,40 @@ mysql -u root -p < sql/init_all.sql
 mvn spring-boot:run
 ```
 
-> 📦 **数据库说明**：`sql/init_all.sql` 包含完整的 10 张表结构及测试数据，一次运行即可完成初始化。
+> 📦 **数据库说明**：
+> - `sql/init_all.sql` 现在已经完整包含基础业务表、知识库表，以及 `assessment` 模块的表结构、方案种子和评分规则
+> - 默认情况下，其他开发者只需要执行这一份 `init_all.sql`，就可以完成数据库初始化
+> - `assessment_tables.sql`、`assessment_university_standard_seed.sql`、`assessment_university_standard_rules.sql` 仍然保留在仓库中，便于独立维护和调试
+
+### 2.4 初始化成功校验 SQL
+
+导入完成后，可以执行下面这组 SQL 快速确认 assessment 数据是否完整：
+
+```sql
+use mq_ai_agent;
+
+select count(*) as assessmentSchemeCount
+from assessment_scheme
+where schemeCode = 'CN_UNIVERSITY_PHYSICAL_HEALTH_STANDARD'
+  and isDelete = 0;
+
+select count(*) as assessmentSchemeItemCount
+from assessment_scheme_item
+where schemeCode = 'CN_UNIVERSITY_PHYSICAL_HEALTH_STANDARD'
+  and isDelete = 0;
+
+select count(*) as assessmentRuleCount
+from assessment_rule
+where schemeCode = 'CN_UNIVERSITY_PHYSICAL_HEALTH_STANDARD'
+  and ruleVersion = 'v1'
+  and isDelete = 0;
+```
+
+预期结果：
+
+- `assessmentSchemeCount = 1`
+- `assessmentSchemeItemCount = 7`
+- `assessmentRuleCount = 582`
 
 ### 3. 前端启动
 

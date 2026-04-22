@@ -52,7 +52,7 @@
 
 ```
 src/
-├── views/                # 页面组件 (11 个页面)
+├── views/                # 页面组件 (13 个页面)
 │   ├── Landing.vue       #   着陆页
 │   ├── Home.vue          #   主页
 │   ├── Login.vue         #   登录页
@@ -60,6 +60,8 @@ src/
 │   ├── FitnessMaster.vue #   AI 健身教练
 │   ├── SuperAgent.vue    #   AI 超级智能体
 │   ├── FitnessData.vue   #   健身数据
+│   ├── AssessmentEntry.vue #  体测数据录入 / 编辑
+│   ├── AssessmentReport.vue # 体测报告 / 记录管理
 │   ├── FitnessRanking.vue#   健身排行榜
 │   ├── FitnessKnowledge.vue # 健身知识库
 │   ├── KnowledgeManage.vue  # 知识库管理
@@ -110,6 +112,25 @@ npm run lint    # 代码检查
 ```javascript
 baseURL: 'http://localhost:8123/api'  // 后端 API 地址
 ```
+
+## 🧪 assessment 页面说明
+
+前端已内置 assessment 标准化评测页面，当前首个落地方案为“大学生体测”。
+
+页面入口：
+
+- `/assessment/entry`：体测数据录入与编辑
+- `/assessment`：体测报告查看、记录切换、编辑、删除、AI 建议重生成
+
+默认情况下，主项目的 `sql/init_all.sql` 已经完整包含 assessment 模块初始化。
+
+也就是说，其他开发者默认只需要执行这一份初始化脚本即可体验 assessment 页面。
+
+assessment 三份独立 SQL 仍然保留在仓库中，便于单独维护和调试：
+
+- `sql/assessment_tables.sql`
+- `sql/assessment_university_standard_seed.sql`
+- `sql/assessment_university_standard_rules.sql`
 
 ---
 
