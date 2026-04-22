@@ -878,6 +878,62 @@ const ApiService = {
      * @param {number} bmiData.height 身高(cm)
      * @returns {Promise} BMI计算结果
      */
+    async getMyAssessmentRecordByPage(queryParams) {
+        try {
+            const response = await apiClient.post('/assessment/record/my/list/page', queryParams)
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    async getMyAssessmentRecord(id) {
+        try {
+            const response = await apiClient.get(`/assessment/record/my/get?id=${id}`)
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    async generateAssessmentReport(reportData) {
+        try {
+            const response = await apiClient.post('/assessment/report/generate', reportData)
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    async getMyAssessmentReport(recordId) {
+        try {
+            const response = await apiClient.get(`/assessment/report/my/get?recordId=${recordId}`)
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    async getMyAssessmentTrends(schemeCode = '', limit = 10) {
+        try {
+            const params = new URLSearchParams()
+            if (schemeCode) {
+                params.append('schemeCode', schemeCode)
+            }
+            if (limit !== undefined && limit !== null) {
+                params.append('limit', limit)
+            }
+            const queryString = params.toString()
+            const url = queryString
+                ? `/assessment/record/my/trends?${queryString}`
+                : '/assessment/record/my/trends'
+            const response = await apiClient.get(url)
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
     async calculateBMI(bmiData) {
         try {
             const response = await apiClient.post('/fitness/bmi/calculate', bmiData)

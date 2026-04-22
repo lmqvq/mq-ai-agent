@@ -51,6 +51,14 @@ const routes = [
         }
     },
     {
+        path: '/assessment',
+        name: 'AssessmentReport',
+        component: () => import('../views/AssessmentReport.vue'),
+        meta: {
+            title: '体测报告 - AI健身教练'
+        }
+    },
+    {
         path: '/knowledge',
         name: 'FitnessKnowledge',
         component: () => import('../views/FitnessKnowledge.vue'),

@@ -27,6 +27,10 @@
           <icon-bar-chart />
           <span>健身数据</span>
         </router-link>
+        <router-link to="/assessment" class="menu-item" active-class="active" v-if="isLoggedIn">
+          <icon-fire />
+          <span>体测报告</span>
+        </router-link>
         <router-link to="/ranking" class="menu-item" active-class="active" v-if="isLoggedIn">
           <icon-trophy />
           <span>健身排行榜</span>
@@ -262,6 +266,14 @@ export default {
         icon: 'icon-bar-chart',
         route: '/data',
         bgColor: 'rgba(246, 255, 237, 0.5)'
+      },
+      {
+        id: 'assessment',
+        title: '体测评测报告',
+        description: '聚合展示体测成绩、AI 分段建议和历史趋势，适合快速查看大学生体测场景结果。',
+        icon: 'icon-heart',
+        route: '/assessment',
+        bgColor: 'rgba(255, 245, 238, 0.7)'
       },
       {
         id: 'knowledge',
@@ -940,6 +952,7 @@ export default {
     &:nth-child(2) { animation-delay: 0.2s; }
     &:nth-child(3) { animation-delay: 0.3s; }
     &:nth-child(4) { animation-delay: 0.4s; }
+    &:nth-child(5) { animation-delay: 0.5s; }
   }
 }
 
