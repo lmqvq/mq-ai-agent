@@ -59,6 +59,14 @@ const routes = [
         }
     },
     {
+        path: '/assessment/entry',
+        name: 'AssessmentEntry',
+        component: () => import('../views/AssessmentEntry.vue'),
+        meta: {
+            title: '体测数据录入 - AI健身教练'
+        }
+    },
+    {
         path: '/knowledge',
         name: 'FitnessKnowledge',
         component: () => import('../views/FitnessKnowledge.vue'),

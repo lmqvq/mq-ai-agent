@@ -13,6 +13,7 @@
             <p>集中查看最近体测成绩、AI 个性化建议和历史变化趋势。</p>
           </div>
           <div class="header-actions">
+            <a-button @click="goToEntry">录入新体测</a-button>
             <a-button @click="refreshData">刷新数据</a-button>
             <a-button
               type="primary"
@@ -39,7 +40,7 @@
         <div v-else-if="!hasRecords" class="status-panel">
           <a-empty description="暂无体测记录，录入成绩后这里会自动生成报告">
             <template #extra>
-              <a-button type="primary" @click="refreshData">重新检查</a-button>
+              <a-button type="primary" @click="goToEntry">去录入体测数据</a-button>
             </template>
           </a-empty>
         </div>
@@ -140,7 +141,7 @@
               </div>
             </div>
 
-            <div v-if="currentReport" class="suggestion-section section-card">
+            <div v-if="currentReport" class="section-card suggestion-section">
               <div class="section-header">
                 <h3><icon-heart />AI 个性化体测建议</h3>
                 <span class="section-tip">
@@ -173,14 +174,14 @@
               </div>
             </div>
 
-            <div v-else class="report-placeholder section-card">
+            <div v-else class="section-card report-placeholder">
               <div class="section-header">
                 <h3><icon-heart />AI 个性化体测建议</h3>
               </div>
               <p>当前还没有成功生成体测报告，你仍然可以先查看本次基础成绩。需要时可点击上方按钮重新生成 AI 建议。</p>
             </div>
 
-            <div class="item-section section-card">
+            <div class="section-card item-section">
               <div class="section-header">
                 <h3><icon-bar-chart />单项成绩分析</h3>
                 <span class="section-tip">{{ currentRecord?.itemList?.length || 0 }} 个项目</span>
@@ -233,7 +234,7 @@
               </div>
             </div>
 
-            <div class="trend-section section-card">
+            <div class="section-card trend-section">
               <div class="section-header">
                 <h3><icon-calendar />历史趋势</h3>
                 <span class="section-tip">最近 {{ trends.length }} 次体测记录</span>
@@ -263,8 +264,8 @@
 </template>
 
 <script>
-import { computed, onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, onMounted, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { Message } from '@arco-design/web-vue';
 import {
   IconBarChart,
@@ -345,6 +346,7 @@ export default {
   },
   setup() {
     const router = useRouter();
+    const route = useRoute();
 
     const pageLoading = ref(false);
     const contentLoading = ref(false);
@@ -380,11 +382,9 @@ export default {
       return tags.filter(Boolean);
     });
 
-    const summaryText = computed(() => {
-      return currentReport.value?.overview
-        || currentRecord.value?.summary
-        || '这次体测记录已经生成，建议结合下方单项成绩和 AI 建议一起查看。';
-    });
+    const summaryText = computed(() => currentReport.value?.overview
+      || currentRecord.value?.summary
+      || '这次体测记录已经生成，建议结合下方单项成绩和 AI 建议一起查看。');
 
     const insightCards = computed(() => {
       if (!currentReport.value) {
@@ -427,7 +427,6 @@ export default {
       if (!structured || !structured.structured) {
         return [];
       }
-
       return SUGGESTION_SECTIONS.map((section) => {
         const content = getStructuredContent(structured, section.key, section.title);
         if (!content) {
@@ -446,6 +445,10 @@ export default {
 
     const goToLogin = () => {
       router.push('/login');
+    };
+
+    const goToEntry = () => {
+      router.push('/assessment/entry');
     };
 
     const refreshData = async () => {
@@ -476,6 +479,7 @@ export default {
 
     const loadPage = async (keepSelection = true) => {
       const previousRecordId = selectedRecordId.value;
+      const routeRecordId = getRouteRecordId(route.query.recordId);
       pageLoading.value = true;
       unauthorized.value = false;
       try {
@@ -497,10 +501,14 @@ export default {
           return;
         }
 
-        const targetRecordId = keepSelection && records.value.some((item) => item.id === previousRecordId)
+        const matchedRouteRecordId = routeRecordId && records.value.some((item) => item.id === routeRecordId)
+          ? routeRecordId
+          : null;
+        const matchedPreviousRecordId = keepSelection && records.value.some((item) => item.id === previousRecordId)
           ? previousRecordId
-          : records.value[0].id;
+          : null;
 
+        const targetRecordId = matchedRouteRecordId || matchedPreviousRecordId || records.value[0].id;
         selectedRecordId.value = targetRecordId;
         await loadRecordBundle(targetRecordId);
       } catch (error) {
@@ -581,6 +589,15 @@ export default {
       Message.error(error?.message || fallbackMessage);
     };
 
+    watch(
+      () => route.query.recordId,
+      async (newRecordId, oldRecordId) => {
+        if (newRecordId && newRecordId !== oldRecordId) {
+          await loadPage(false);
+        }
+      }
+    );
+
     onMounted(async () => {
       await loadPage(false);
     });
@@ -591,6 +608,7 @@ export default {
       currentReport,
       generating,
       goBack,
+      goToEntry,
       goToLogin,
       handleRecordChange,
       hasRecords,
@@ -617,6 +635,12 @@ export default {
     };
   }
 };
+
+function getRouteRecordId(routeRecordId) {
+  const rawValue = Array.isArray(routeRecordId) ? routeRecordId[0] : routeRecordId;
+  const numericValue = Number(rawValue);
+  return Number.isFinite(numericValue) && numericValue > 0 ? numericValue : null;
+}
 
 function getStructuredContent(structured, key, title) {
   if (structured?.[key]) {
@@ -649,7 +673,20 @@ function formatRawValue(item) {
     return '--';
   }
   const value = formatDecimal(item.rawValue);
-  return item.unit ? `${value} ${item.unit}` : value;
+  return item.unit ? `${value} ${getUnitLabel(item.unit)}` : value;
+}
+
+function getUnitLabel(unit) {
+  if (unit === 'second') {
+    return '秒';
+  }
+  if (unit === 'count') {
+    return '次';
+  }
+  if (unit === 'index') {
+    return '指数';
+  }
+  return unit || '';
 }
 
 function getScorePercent(score) {
@@ -1369,7 +1406,8 @@ function isNotFoundLikeError(error) {
 
   .page-header .header-content,
   .toolbar-card,
-  .toolbar-main {
+  .toolbar-main,
+  .header-actions {
     flex-direction: column;
     align-items: stretch;
   }
@@ -1378,17 +1416,16 @@ function isNotFoundLikeError(error) {
     font-size: 28px;
   }
 
-  .header-actions,
-  .record-select {
-    width: 100%;
-  }
-
   .overview-cards,
   .insight-grid,
   .suggestion-grid,
   .item-grid,
   .item-score-row {
     grid-template-columns: 1fr;
+  }
+
+  .record-select {
+    min-width: 100%;
   }
 
   .toolbar-meta {

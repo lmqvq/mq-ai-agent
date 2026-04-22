@@ -878,6 +878,42 @@ const ApiService = {
      * @param {number} bmiData.height 身高(cm)
      * @returns {Promise} BMI计算结果
      */
+    async getAssessmentScheme(schemeCode) {
+        try {
+            const response = await apiClient.get(`/assessment/scheme/get?schemeCode=${encodeURIComponent(schemeCode)}`)
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    async getMyAssessmentProfile(schemeCode) {
+        try {
+            const response = await apiClient.get(`/assessment/profile/my/get?schemeCode=${encodeURIComponent(schemeCode)}`)
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    async saveMyAssessmentProfile(profileData) {
+        try {
+            const response = await apiClient.post('/assessment/profile/save', profileData)
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
+    async addAssessmentRecord(recordData) {
+        try {
+            const response = await apiClient.post('/assessment/record/add', recordData)
+            return response.data
+        } catch (error) {
+            throw error.response?.data || error
+        }
+    },
+
     async getMyAssessmentRecordByPage(queryParams) {
         try {
             const response = await apiClient.post('/assessment/record/my/list/page', queryParams)
